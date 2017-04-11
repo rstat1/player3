@@ -52,7 +52,7 @@
 			[
 				'../src/',
 				'../external',
-				'../external/sdl/include',
+				'../external/sdl/include/',
 				"../external/ffmpeg",
 			],
 			'defines': [
@@ -62,7 +62,9 @@
 			],
 			'sources': [
 				'../src/player/Player.cpp',
+				'../src/player/PlayerApp.cpp',
 				'../src/player/Player.h',
+				'../src/player/PlayerApp.h',
 				#'../src/app/native/StreamLinkApp.cpp',
 				#'../src/app/native/mono/MonoHost.cpp',
 				#'../src/app/native/mono/MonoNativeProxy.cpp',

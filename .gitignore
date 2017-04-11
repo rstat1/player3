@@ -47,3 +47,4 @@ environment.*
 build/tools/Cake/
 *.zip
 **/syms/**
+\.directory
