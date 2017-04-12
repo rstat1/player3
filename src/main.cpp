@@ -9,11 +9,11 @@
 #include <base/common.h>
 #include <player/PlayerApp.h>
 
-using namespace streamlink::player;
+using namespace player3::player;
 
 int main(int argc, char* argv[])
 {
-	writeToLog("Init streamlink", true);
+	writeToLog("Init player3", true);
 
 	if (argc == 1)
 	{

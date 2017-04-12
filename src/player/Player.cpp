@@ -9,7 +9,7 @@
 #include <SDL.h>
 #include <player/Player.h>
 
-namespace streamlink { namespace player
+namespace player3 { namespace player
 {
 	Player::Player()
 	{
@@ -28,6 +28,10 @@ namespace streamlink { namespace player
 		this->state->currentURL = url;
 		this->StartDecodeThread();
 		this->Play();
+	}
+	void Player::SetRefreshTimer(int delay)
+	{
+		SDL_AddTimer(delay, Player::RefreshTimer, nullptr);
 	}
 	void Player::StartDecodeThread()
 	{
@@ -74,12 +78,18 @@ namespace streamlink { namespace player
 			}
 		}
 	}
+	uint32_t Player::RefreshTimer(uint32_t interval, void* opaque)
+	{
+		return 0;
+	}
 	void Player::Play()
 	{
-		while(this->state->status == PlayerStatus::Playing)
-		{
+		std::thread play([&] {
+			while(this->state->status == PlayerStatus::Playing)
+			{
 
-		}
+			}
+		});
 	}
 	void Player::Decode()
 	{
@@ -92,16 +102,30 @@ namespace streamlink { namespace player
 			{
 				if (pkt.stream_index == this->state->videoIdx)
 				{
-					this->state->video.emplace_back(Data(pkt.data, pkt.size));
+					//this->state->video.emplace_back(Data(pkt.data, pkt.size));
 					av_free_packet(&pkt);
 				}
 				else if (pkt.stream_index == this->state->audioIdx)
 				{
 					//TODO: audio decode;
+
 					av_free_packet(&pkt);
 				}
 				else { av_free_packet(&pkt); }
 			}
+		}
+	}
+	int Player::ProcessAudio(AVPacket* pkt, uint8_t*& buffer)
+	{
+		AVFrame* frame;
+		AVCodecContext* fmt = this->state->audioDecodeState->aCtx;
+
+		SwrContext* convertCtx = swr_alloc_set_opts(nullptr, AV_CH_LAYOUT_STEREO, av_get_sample_fmt("s16"), fmt->sample_rate,
+										AV_CH_LAYOUT_STEREO, fmt->sample_fmt, fmt->sample_rate, 0, NULL);
+		swr_init(convertCtx);
+		if (!avcodec_send_packet(fmt, pkt))
+		{
+			frame = av_frame_alloc();
 		}
 	}
 }}

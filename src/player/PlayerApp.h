@@ -15,7 +15,7 @@
 using namespace std;
 using namespace base::threading;
 
-namespace streamlink { namespace player
+namespace player3 { namespace player
 {
 	class PlayerApp
 	{

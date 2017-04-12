@@ -7,7 +7,7 @@
 	'targets':
 	[
 		{
-			'target_name': 'streamlink_player',
+			'target_name': 'player3',
 			'type': "executable",
 			'msvs_guid': '2BAEC9E5-8F23-47C6-93E9-C3B328B3DE65',
 			'include_dirs':
@@ -16,7 +16,7 @@
 				'../external/',
 			],
 			'dependencies': [
-				'streamlink_client.gyp:streamlink',
+				'streamlink_client.gyp:player3lib',
 				'libs.gyp:base'
 			],
 			'conditions': [
@@ -46,7 +46,7 @@
 			],
 		},
 		{
-			'target_name': 'streamlink',
+			'target_name': 'player3lib',
 			'msvs_guid': '2BAEC9E5-8F23-47C6-93E9-C3B328B3DE65',
 			'include_dirs':
 			[
@@ -65,7 +65,7 @@
 				'../src/player/PlayerApp.cpp',
 				'../src/player/Player.h',
 				'../src/player/PlayerApp.h',
-				#'../src/app/native/StreamLinkApp.cpp',
+				#'../src/app/native/player3App.cpp',
 				#'../src/app/native/mono/MonoHost.cpp',
 				#'../src/app/native/mono/MonoNativeProxy.cpp',
 				#'../src/app/native/mono/InputReceiverNative.cpp',
@@ -79,8 +79,8 @@
 				#'../src/app/native/video/ClipProcessor.h',
 				#'../src/app/native/mono/InputReceiverNative.h',
 				#'../src/app/native/mono/MonoNativeProxy.h',
-				#'../src/streamlink_exports.h',
-				#'../src/app/StreamLinkApp.h',
+				#'../src/player3_exports.h',
+				#'../src/app/player3App.h',
 				#'../src/app/native/mono/MonoHost.h',
 			],
 			'conditions': [

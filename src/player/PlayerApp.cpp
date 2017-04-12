@@ -8,7 +8,7 @@
 #include <player/Player.h>
 #include <player/PlayerApp.h>
 
-namespace streamlink { namespace player
+namespace player3 { namespace player
 {
 	std::shared_ptr<PlayerApp> PlayerApp::ref;
 

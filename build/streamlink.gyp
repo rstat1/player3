@@ -10,8 +10,8 @@
 			'target_name': 'everything',
 			'type': 'none',
 			'dependencies':	[
-				'streamlink_client.gyp:streamlink',
-				'streamlink_client.gyp:streamlink_player',
+				'streamlink_client.gyp:player3lib',
+				'streamlink_client.gyp:player3',
 			],
 			'conditions': [
 				['OS=="linux"', {

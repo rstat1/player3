@@ -24,7 +24,7 @@ extern "C"
 
 using namespace base::threading;
 
-namespace streamlink { namespace player
+namespace player3 { namespace player
 {
 	enum PlayerStatus
 	{
@@ -67,8 +67,13 @@ namespace streamlink { namespace player
 			void Play();
 			void Decode();
 			void InitDecode();
-			void InitSDLAudio(int sampleRate);
 			void StartDecodeThread();
+			void SetRefreshTimer(int delay);
+			void InitSDLAudio(int sampleRate);
+			int ProcessAudio(AVPacket* pkt, uint8_t*& buffer);
+
+			static uint32_t RefreshTimer(uint32_t interval, void* opaque);
+
 			InternalPlayerState* state;
 	};
 }}
