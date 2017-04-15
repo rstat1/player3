@@ -17,6 +17,7 @@ using namespace base::threading;
 
 namespace player3 { namespace player
 {
+
 	class PlayerApp
 	{
 		public:

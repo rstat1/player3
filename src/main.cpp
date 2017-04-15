@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 	}
 	else if (argc > 1)
 	{
-		if (argv[1] == "--player")
+		if (strcmp(argv[1], "--player "))
 		{
 			if (argc < 3)
 			{

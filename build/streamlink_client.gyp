@@ -65,23 +65,9 @@
 				'../src/player/PlayerApp.cpp',
 				'../src/player/Player.h',
 				'../src/player/PlayerApp.h',
-				#'../src/app/native/player3App.cpp',
-				#'../src/app/native/mono/MonoHost.cpp',
-				#'../src/app/native/mono/MonoNativeProxy.cpp',
-				#'../src/app/native/mono/InputReceiverNative.cpp',
-				#'../src/app/native/video/demux/ClipProcessor.cpp',
-				#'../src/app/native/video/VideoProcessorThread.cpp',
-				#'../src/app/native/video/VideoProcessorThread.h',
-				#'../src/app/native/video/VideoPlayer.cpp',
-				#'../src/app/native/video/VideoPlayer.h',
-				#'../src/app/native/decoders/StreamDecoder.h',
-				#'../src/app/native/decoders/StreamDecoders.h',
-				#'../src/app/native/video/ClipProcessor.h',
-				#'../src/app/native/mono/InputReceiverNative.h',
-				#'../src/app/native/mono/MonoNativeProxy.h',
-				#'../src/player3_exports.h',
-				#'../src/app/player3App.h',
-				#'../src/app/native/mono/MonoHost.h',
+				'../src/player/VideoPlayerBase.h',
+				'../src/platform/Decoders.h',
+				'../src/platform/DecoderInterface.h'
 			],
 			'conditions': [
 				['OS=="linux"', {
@@ -90,13 +76,11 @@
 						'LINUX',
 						'__STDC_CONSTANT_MACROS'
 					],
-					'dependencies': [
-					#	'../external/breakpad/breakpad.gyp:breakpad_client',
-					],
+					'dependencies': [],
 					'cflags_cc': [
 						'-std=c++11',
 						'-frtti',
-						'-fPIC', '-g3', '-O -g',
+						'-fPIC', '-g3', '-g',
 						'-fno-stack-protector',
 						'-Wno-deprecated-declarations',
 
@@ -111,10 +95,7 @@
 							'-lSDL2',
 						],
 					},
-					'sources': [
-					#	'../src/ui/graphics/NativeGraphicsAPILinux.cpp',
-					#	'../src/base/platform/SharedThreadState.h'
-					]
+					'sources': []
 				}],
 				['skylight_arch=="armv7l"', {
 					'link_settings': {
@@ -126,8 +107,8 @@
 						],
 					},
 					'sources': [
-						#'../src/app/native/decoders/StreamDecoderSteamLink.cpp',
-						#'../src/app/native/decoders/StreamDecoderSteamLink.h',
+						'../src/platform/steamlink/SteamLinkDecoder.cpp',
+						'../src/platform/steamlink/SteamLinkDecoder.h',
 					],
 					'conditions': [
 						['OS=="linux"', {
@@ -149,6 +130,7 @@
 				}],
 				['skylight_arch=="x86_64"', {
 					'sources': [
+						'../platform/desktop/DesktopDecoderInterface.h',
 						#'../src/app/native/decoders/StreamDecoderNull.cpp',
 						#'../src/app/native/decoders/StreamDecoderNull.h',
 					],

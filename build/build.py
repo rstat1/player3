@@ -57,7 +57,7 @@ def RunGyp():
         if arch == "armv7l":
                 gypDefs += ' SDLIncludeDir=' + os.environ["MARVELL_ROOTFS"] + 'usr/include/SDL2 SLIncludesDir=' + os.environ["MARVELL_ROOTFS"] + 'usr/include'
         else:
-                gypDefs += ' SDLIncludeDir=' + os.getcwd() + '/external/sdl SLIncludesDir=/usr/include'
+                gypDefs += ' SDLIncludeDir=' + os.getcwd() + '/external/sdl/include SLIncludesDir=/usr/include'
 
         gypDefs += ' buildPath=' + os.getcwd() + ' renderer_impl=Null with_profiler=0'
         print("Generating build files for " + arch + " on " + currentOS)
