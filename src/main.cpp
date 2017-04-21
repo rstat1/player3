@@ -6,14 +6,26 @@
 */
 
 #include <iostream>
+#include <base/Utils.h>
 #include <base/common.h>
 #include <player/PlayerApp.h>
+#include <client/linux/handler/exception_handler.h>
 
+using namespace base::utils;
 using namespace player3::player;
+using namespace google_breakpad;
+
+static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor, void* context, bool succeeded)
+{
+  	printf("Dump path: %s\n", descriptor.path());
+ 	return succeeded;
+}
 
 int main(int argc, char* argv[])
 {
 	writeToLog("Init player3", true);
+	MinidumpDescriptor descriptor(GetAppPath());
+	ExceptionHandler eh(descriptor, NULL, dumpCallback, NULL, true, -1);
 
 	if (argc == 1)
 	{

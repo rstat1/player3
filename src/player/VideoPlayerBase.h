@@ -41,8 +41,7 @@ namespace player3 { namespace player
 			Data() {}
 			Data(uint8_t* value, int dataSize, double timestamp) :
 				size(std::move(dataSize)),
-				pts(std::move(timestamp))//,
-				//data(std::move(value))
+				pts(std::move(timestamp))
 			{
 				data = static_cast<uint8_t*>(calloc(1, dataSize));
 				memmove(data, value, dataSize);
@@ -69,6 +68,7 @@ namespace player3 { namespace player
 	struct InternalPlayerState
 	{
 		public:
+			double streamStart;
 			PlayerStatus status;
 			int videoIdx, audioIdx;
 			std::string currentURL;

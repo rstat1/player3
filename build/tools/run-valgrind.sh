@@ -1,0 +1,2 @@
+cd Debug_x64/
+valgrind --smc-check=all --leak-check=full --suppressions=../build/tools/mono.supp ./player3 --player https://video-edge-49900c.iad02.hls.ttvnw.net/v0/CocC6vkR_LUftwmr7LKX_Dre7vr6DkypxwGIrCxr_6O4TgRCQVsp5QFwZYAU24kcdAHEelS58pF68xHjZPYGBjSaO9ML4nmg1vPu5SzGMK1B179aJGte8qB72x9l0_k98ls-3te1ypBh7YPGuIPdgP05dN-KqYjwX_yNel13azITfH0AMQVYFK0HOB6CVT5AFRgF3AUtyEWDBIfejNJvkyhKCQ_nhLkSVKHJF14nfYS2bunLUUqRTjeOvbw1Jais91CxsZOjJqdHPE9N2C9k2Vaxm0TdRjodDCjkB5uhe_-5jg4GihykT2YT0qgY4sgr0TaiGSCwtFdBZ3m9DZCiXw6K9hfV9KOKGkASEE_O7YuJ27B7mtXVPO7y4OIaDB1Iq8hNSfmD7hWoVA/index-live.m3u8

@@ -13,6 +13,7 @@ namespace player3 { namespace player
 {
 	Player::Player()
 	{
+		Log("Player", "player3 player init");
 		av_log_set_level(AV_LOG_VERBOSE);
 		av_register_all();
 		avcodec_register_all();
@@ -31,17 +32,21 @@ namespace player3 { namespace player
 		this->Play();
 		this->StartDecodeThread();
 	}
-	void Player::SetRefreshTimer(int delay)
-	{
-		SDL_AddTimer(delay, Player::RefreshTimer, nullptr);
-	}
+	// void Player::SetRefreshTimer(int delay)
+	// {
+	// 	//SDL_AddTimer(delay, Player::RefreshTimer, nullptr);
+	// }
 	void Player::StartDecodeThread()
 	{
 		 std::thread decode([&] {
 			AVFormatContext* avFormat;
 			AVDictionary* audioOptions = nullptr;
 
-			if (avformat_open_input(&this->state->format, this->state->currentURL.c_str(), nullptr, nullptr) != 0) { return; }
+			if (avformat_open_input(&this->state->format, this->state->currentURL.c_str(), nullptr, nullptr) != 0)
+			{
+				Log("Player", "failed open to url");
+				return;
+			}
 			if (!(avformat_find_stream_info(this->state->format, NULL) >= 0)) { return; }
 			for (int i = 0; i < this->state->format->nb_streams; i++)
 			{
@@ -56,6 +61,9 @@ namespace player3 { namespace player
 					this->state->audioTimeBase = av_q2d(this->state->format->streams[i]->time_base);
 				}
 			}
+
+			Log("Player", "stream starts at %f", this->state->format->streams[this->state->videoIdx]->start_time * this->state->videoTimeBase);
+
 			this->state->audioDecodeState->aCtx = this->state->format->streams[this->state->audioIdx]->codec;
 			this->state->audioDecodeState->audioCodec = avcodec_find_decoder(this->state->audioDecodeState->aCtx->codec_id);
 			avcodec_open2(this->state->audioDecodeState->aCtx, this->state->audioDecodeState->audioCodec, &audioOptions);
@@ -72,10 +80,17 @@ namespace player3 { namespace player
 		want.freq = sampleRate;
 		want.format = AUDIO_S16SYS;
 		want.channels =	2;
-		want.samples = 1024;
+		want.samples = platformInterface->GetAudioSampleCount();
+		want.silence = 0;
+		want.callback = Player::SDLAudioCallback;
+		want.userdata = this->state;
 		this->state->audioDevice = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
 		if (this->state->audioDevice == 0) { Log("Player", "Failed to init SDL audio. %s", SDL_GetError());  }
-		else { SDL_PauseAudioDevice(this->state->audioDevice, 0); }
+		else
+		{
+			Log("Player", "havv.freq = %i", have.freq);
+			SDL_PauseAudioDevice(this->state->audioDevice, 0);
+		}
 	}
 	void Player::Decode()
 	{
@@ -85,10 +100,10 @@ namespace player3 { namespace player
 
 		while(this->state->status == PlayerStatus::Playing)
 		{
-			if (this->state->video.size() > 10 && this->state->audio.size() > 10)
+			if (this->state->video.size() > 5 && this->state->audio.size() > 5)
 			{
 				this->state->bufferSignal->Signal();
-				SDL_Delay(10);
+				// SDL_Delay(10);
 			}
 			if (av_read_frame(avFormat, &pkt) >= 0)
 			{
@@ -100,15 +115,29 @@ namespace player3 { namespace player
 				else if (pkt.stream_index == this->state->audioIdx)
 				{
 					this->ProcessAudio(&pkt);
+					//this->state->audio.emplace(Data(pkt.data, pkt.size, pkt.pts * this->state->audioTimeBase));
 					av_free_packet(&pkt);
 				}
 				else { av_free_packet(&pkt); }
 			}
 		}
 	}
-	uint32_t Player::RefreshTimer(uint32_t interval, void* opaque)
+	// uint32_t Player::RefreshTimer(uint32_t interval, void* opaque)
+	// {
+	// 	return 0;
+	// }
+	void Player::SDLAudioCallback(void* userdata, uint8_t* stream, int len)
 	{
-		return 0;
+		InternalPlayerState* state = (InternalPlayerState*)userdata;
+		Data audio;
+		memset(stream, 0, len);
+		if (state->audio.empty() == false)
+		{
+			audio = state->audio.front();
+			memcpy(stream, audio.data, len);
+			audio.DeleteData();
+			state->audio.pop();
+		}
 	}
 	void Player::Play()
 	{
@@ -117,25 +146,26 @@ namespace player3 { namespace player
 			Data video, audio;
 			while(this->state->status == PlayerStatus::Playing)
 			{
-				if (this->state->audio.empty() == false && this->state->video.empty() == false)
+				if (this->state->video.empty() == false)
 				{
 					video = this->state->video.front();
-					audio = this->state->audio.front();
-
-					Log("Player", "audio pts = %f, video pts = %f", audio.pts, video.pts);
-					SDL_QueueAudio(this->state->audioDevice, audio.data, audio.size);
-
+					if (!platformInterface->DecodeVideoFrame(video.data, video.size)) { Log("play-thread", "Something failed in decode"); }
+					lastPts = video.pts;
 					video.DeleteData();
-					audio.DeleteData();
-
 					this->state->video.pop();
-					this->state->audio.pop();
+
+					SDL_Delay(lastPts);
 				}
 				else { this->state->bufferSignal->Wait(); }
 			}
 			Log("Player", "stopped..");
 		});
 		play.detach();
+	}
+	void Player::Stop()
+	{
+		this->state->status = PlayerStatus::Stopped;
+		platformInterface->DecoderShutdown();
 	}
 	int Player::ProcessAudio(AVPacket* pkt)
 	{
@@ -157,7 +187,7 @@ namespace player3 { namespace player
 				av_samples_alloc(&out, NULL, fmt->channels, f->nb_samples, AV_SAMPLE_FMT_S16, 0);
 				int ret = swr_convert(convertCtx, &out, samples, (const uint8_t**)f->data, samples);
 				bufferSize = av_samples_get_buffer_size(NULL, fmt->channels, f->nb_samples, AV_SAMPLE_FMT_S16, 1);
-				this->state->audio.emplace(Data(out, bufferSize, f->pts * this->state->audioTimeBase));
+				this->state->audio.emplace(Data(out, bufferSize, pkt->pts * this->state->audioTimeBase));
 
 				av_frame_free(&f);
 				swr_free(&convertCtx);

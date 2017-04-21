@@ -172,15 +172,12 @@ def BuildZipMaker():
         rmtree(zipDir)
 
 def GetSymbols():
-        clientSymbolizerCmd = "mono build/tools/Symbolizer.exe " + outputDir + "/streamlink_client " + buildDir + "/syms/"
-        libexsymbolizerPathCmd = "mono build/tools/Symbolizer.exe " + outputDir + "/lib/libexternal.so " + buildDir + "/syms/"
-
+        clientSymbolizerCmd = "mono build/tools/Symbolizer.exe " + outputDir + "/player3 " + buildDir + "/syms/"
         subprocess.call(clientSymbolizerCmd, shell=True)
-        subprocess.call(libexsymbolizerPathCmd, shell=True)
 
 InitBuildEnv()
 os.chdir(buildDir)
 Build()
 #BuildManaged()
 #BuildZipMaker()
-#GetSymbols()
+GetSymbols()

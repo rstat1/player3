@@ -26,6 +26,9 @@
 						'-frtti',
 						'-fPIC', '-g3', '-O -g',
 					],
+					'dependencies': [
+						'../external/breakpad/breakpad.gyp:breakpad_client',
+					],
 					'defines': [
 						'LINUX',
 					],
@@ -66,8 +69,8 @@
 				'../src/player/Player.h',
 				'../src/player/PlayerApp.h',
 				'../src/player/VideoPlayerBase.h',
-				'../src/platform/Decoders.h',
-				'../src/platform/DecoderInterface.h'
+				'../src/platform/Platfroms.h',
+				'../src/platform/PlatformInterface.h'
 			],
 			'conditions': [
 				['OS=="linux"', {
@@ -107,8 +110,8 @@
 						],
 					},
 					'sources': [
-						'../src/platform/steamlink/SteamLinkDecoder.cpp',
-						'../src/platform/steamlink/SteamLinkDecoder.h',
+						'../src/platform/steamlink/SteamLinkPlatform.cpp',
+						'../src/platform/steamlink/SteamLinkPlatform.h',
 					],
 					'conditions': [
 						['OS=="linux"', {
@@ -130,7 +133,7 @@
 				}],
 				['skylight_arch=="x86_64"', {
 					'sources': [
-						'../platform/desktop/DesktopDecoderInterface.h',
+						'../platform/desktop/DesktopPlatform.h',
 						#'../src/app/native/decoders/StreamDecoderNull.cpp',
 						#'../src/app/native/decoders/StreamDecoderNull.h',
 					],

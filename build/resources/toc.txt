@@ -1,0 +1,3 @@
+name=Player3
+icon=sl-shell-icon.png
+run=player3.sh

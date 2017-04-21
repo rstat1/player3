@@ -13,7 +13,7 @@
 #include <base/common.h>
 #include <base/threading/common/ConditionVariable.h>
 #include <player/VideoPlayerBase.h>
-#include <platform/Decoders.h>
+#include <platform/Platforms.h>
 
 using namespace base::threading;
 using namespace player3::platform;
@@ -27,15 +27,17 @@ namespace player3 { namespace player
 			void StartStream(std::string url);
 		private:
 			void Play();
+			void Stop();
 			void Decode();
 			void StartDecodeThread();
-			void SetRefreshTimer(int delay);
+			//void SetRefreshTimer(int delay);
 			void InitSDLAudio(int sampleRate);
 			int ProcessAudio(AVPacket* pkt);
 
-			static uint32_t RefreshTimer(uint32_t interval, void* opaque);
+			static void SDLAudioCallback(void* userdata, uint8_t* stream, int len);
+			//static uint32_t RefreshTimer(uint32_t interval, void* opaque);
 
-			DecoderInterface* decoder;
+			PlatformInterface* platformInterface;
 			InternalPlayerState* state;
 	};
 }}
