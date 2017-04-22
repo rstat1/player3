@@ -36,6 +36,7 @@
 						],
 					},
 					'sources': [
+						'../src/base/platform/linux/memtrack.cpp',
 						#'../src/base/platform/linux/ipc/PlatformPipePosix.cpp',
 						'../src/base/platform/linux/threading/PlatformThreadPosix.cpp',
 						'../src/base/platform/linux/threading/ConditionVariablePosix.cpp',
@@ -43,6 +44,7 @@
 						'../src/base/platform/linux/dispatcher/MessagePumpEPoll.cpp',
 						'../src/base/platform/linux/dispatcher/MessagePumpEPoll.h',
 						'../src/base/platform/linux/dispatcher/DispatcherTypesLinux.h',
+						'../src/base/platform/linux/memtrack.h',
 					],
 				}],
 				['skylight_arch=="x86_64"', {

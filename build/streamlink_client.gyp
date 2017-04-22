@@ -66,6 +66,8 @@
 			'sources': [
 				'../src/player/Player.cpp',
 				'../src/player/PlayerApp.cpp',
+				'../src/player/infooverlay/InfoOverlay.cpp',
+				'../src/player/infooverlay/InfoOverlay.h',
 				'../src/player/Player.h',
 				'../src/player/PlayerApp.h',
 				'../src/player/VideoPlayerBase.h',
@@ -96,6 +98,7 @@
 						'libraries': [
 							'-pthread',
 							'-lSDL2',
+							'-lSDL2_ttf',
 						],
 					},
 					'sources': []
@@ -133,7 +136,8 @@
 				}],
 				['skylight_arch=="x86_64"', {
 					'sources': [
-						'../platform/desktop/DesktopPlatform.h',
+						'../src/platform/desktop/DesktopPlatform.cpp',
+						'../src/platform/desktop/DesktopPlatform.h',
 						#'../src/app/native/decoders/StreamDecoderNull.cpp',
 						#'../src/app/native/decoders/StreamDecoderNull.h',
 					],

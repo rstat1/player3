@@ -5,12 +5,18 @@
 * found in the included LICENSE file.
 */
 
-#include <thread>
 #include <SDL.h>
+#include <thread>
 #include <player/Player.h>
+#include <base/platform/linux/memtrack.h>
+
+using namespace base::platform;
 
 namespace player3 { namespace player
 {
+	double Player::lastMemoryUse;
+	PlatformInterface* Player::platformInterface;
+
 	Player::Player()
 	{
 		Log("Player", "player3 player init");
@@ -18,13 +24,29 @@ namespace player3 { namespace player
 		av_register_all();
 		avcodec_register_all();
 		avformat_network_init();
-		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER);
+		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO);
 
 		VIDEO_DECODE_INIT
 
 		this->state = new InternalPlayerState();
 		this->state->audioDecodeState = new AudioState();
 		this->state->bufferSignal = new ConditionVariable();
+
+		this->overlay = new InfoOverlay();
+		this->overlay->InitOverlay();
+		this->overlay->AddLabeledDoubleValue("MemPeak (in MB)", 0.0);
+		this->overlay->AddLabeledDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
+
+		std::thread test([&] {
+			Overlay* o = this->overlay->UpdateOverlay();
+			if (o != nullptr)
+			{
+				platformInterface->CreateOverlay(o->surfaceW, o->surfaceH);
+				platformInterface->ShowOverlay(o->overlay->pixels, 0, 0, o->pitch);
+				SDL_AddTimer(1000, Player::RefreshOverlay, this->overlay);
+			}
+		});
+		test.detach();
 	}
 	void Player::StartStream(std::string url)
 	{
@@ -32,10 +54,6 @@ namespace player3 { namespace player
 		this->Play();
 		this->StartDecodeThread();
 	}
-	// void Player::SetRefreshTimer(int delay)
-	// {
-	// 	//SDL_AddTimer(delay, Player::RefreshTimer, nullptr);
-	// }
 	void Player::StartDecodeThread()
 	{
 		 std::thread decode([&] {
@@ -109,23 +127,31 @@ namespace player3 { namespace player
 			{
 				if (pkt.stream_index == this->state->videoIdx)
 				{
+					Player::LogDeltaMemory("NewVideoPacket");
 					this->state->video.emplace(Data(pkt.data, pkt.size, pkt.pts * this->state->videoTimeBase));
 					av_free_packet(&pkt);
 				}
 				else if (pkt.stream_index == this->state->audioIdx)
 				{
+					Player::LogDeltaMemory("NewAudioPacket");
 					this->ProcessAudio(&pkt);
-					//this->state->audio.emplace(Data(pkt.data, pkt.size, pkt.pts * this->state->audioTimeBase));
 					av_free_packet(&pkt);
 				}
 				else { av_free_packet(&pkt); }
 			}
 		}
 	}
-	// uint32_t Player::RefreshTimer(uint32_t interval, void* opaque)
-	// {
-	// 	return 0;
-	// }
+	uint32_t Player::RefreshOverlay(uint32_t interval, void* opaque)
+	{
+		InfoOverlay* infoOverlay = (InfoOverlay*)opaque;
+		infoOverlay->UpdateDoubleValue("MemPeak (in MB)", MemTrack::GetPeakMemoryUse());
+		infoOverlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
+		Overlay* overlay = infoOverlay->UpdateOverlay();
+
+		Player::platformInterface->ShowOverlay(overlay->overlay->pixels, 0, 0, overlay->pitch);
+
+		return 1;
+	}
 	void Player::SDLAudioCallback(void* userdata, uint8_t* stream, int len)
 	{
 		InternalPlayerState* state = (InternalPlayerState*)userdata;
@@ -137,6 +163,7 @@ namespace player3 { namespace player
 			memcpy(stream, audio.data, len);
 			audio.DeleteData();
 			state->audio.pop();
+			Player::LogDeltaMemory("AudioDeletePacket");
 		}
 	}
 	void Player::Play()
@@ -150,11 +177,14 @@ namespace player3 { namespace player
 				{
 					video = this->state->video.front();
 					if (!platformInterface->DecodeVideoFrame(video.data, video.size)) { Log("play-thread", "Something failed in decode"); }
-					lastPts = video.pts;
+					if (lastPts != 0)
+					{
+						lastPts = lastPts - video.pts;
+						SDL_Delay(lastPts);
+					}
 					video.DeleteData();
 					this->state->video.pop();
-
-					SDL_Delay(lastPts);
+					Player::LogDeltaMemory("VideoPacketDelete");
 				}
 				else { this->state->bufferSignal->Wait(); }
 			}
@@ -195,5 +225,14 @@ namespace player3 { namespace player
 			}
 		}
 		return 0;
+	}
+	void Player::LogDeltaMemory(const char* action)
+	{
+		double currentUse = MemTrack::GetCurrentMemoryUse();
+		if (currentUse != lastMemoryUse)
+		{
+			//Log("VideoPlayer", "%s %f MB", action, currentUse);
+			lastMemoryUse = currentUse;
+		}
 	}
 }}

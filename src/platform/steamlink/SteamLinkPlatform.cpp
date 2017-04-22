@@ -5,29 +5,30 @@
 * found in the included LICENSE file.
 */
 
+#include <string.h>
 #include <base/logging.h>
-#include <platform/steamlink/SteamLinkDecoder.h>
+#include <platform/steamlink/SteamLinkPlatform.h>
 
 namespace player3 { namespace platform
 {
-	SteamLinkDecoder::SteamLinkDecoder()
+	SteamLinkPlatform::SteamLinkPlatform()
 	{
 		slVideoContext = SLVideo_CreateContext();
 		SLVideo_SetLogFunction(VideoLogFunc, nullptr);
 		SLVideo_SetLogLevel(k_ESLVideoLogDebug);
 		videoStream = SLVideo_CreateStream(slVideoContext, k_ESLVideoFormatH264, false);
 	}
-	void SteamLinkDecoder::DecoderReset()
+	void SteamLinkPlatform::DecoderReset()
 	{
 		if (videoStream != nullptr) { SLVideo_FreeStream(videoStream); }
 		videoStream = SLVideo_CreateStream(slVideoContext, k_ESLVideoFormatH264, false);
 	}
-	void SteamLinkDecoder::DecoderShutdown()
+	void SteamLinkPlatform::DecoderShutdown()
 	{
 		if (videoStream != nullptr) { SLVideo_FreeStream(videoStream); }
 		SLVideo_FreeContext(slVideoContext);
 	}
-	bool SteamLinkDecoder::DecodeVideoFrame(uint8_t* data, int size)
+	bool SteamLinkPlatform::DecodeVideoFrame(uint8_t* data, int size)
 	{
 		if (SLVideo_BeginFrame(videoStream, size) != 0)
 		{
@@ -46,9 +47,27 @@ namespace player3 { namespace platform
 		}
 		return true;
 	}
-	void SteamLinkDecoder::VideoLogFunc(void* pContext, ESLVideoLog eLogLevel, const char *pszMessage)
+	void SteamLinkPlatform::VideoLogFunc(void* pContext, ESLVideoLog eLogLevel, const char *pszMessage)
 	{
 		Log("SLVideo", pszMessage);
 	}
-	int SteamLinkDecoder::GetAudioSampleCount() { return 1024; }
+	void SteamLinkPlatform::CreateOverlay(int w, int h)
+	{
+		this->w = w;
+		this->h = h;
+		if (infoOverlay != nullptr) { SLVideo_FreeOverlay(infoOverlay); }
+		infoOverlay = SLVideo_CreateOverlay(slVideoContext, w, h);
+	}
+	void SteamLinkPlatform::ShowOverlay(void* pixels, int x, int y, int pitch)
+	{
+		int slPitch;
+		uint32_t* pixelBuf;
+		SLVideo_SetOverlayDisplayArea(infoOverlay, x, y, 1.0, 1.0);
+		SLVideo_GetOverlayPixels(infoOverlay, &pixelBuf, &slPitch);
+
+		memcpy(pixelBuf, pixels, pitch * this->h);
+
+		SLVideo_ShowOverlay(infoOverlay);
+	}
+	int SteamLinkPlatform::GetAudioSampleCount() { return 1024; }
 }}

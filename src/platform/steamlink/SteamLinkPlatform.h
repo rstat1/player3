@@ -13,19 +13,23 @@
 
 namespace player3 { namespace platform
 {
-	class SteamLinkDecoder : public PlatformInterface
+	class SteamLinkPlatform : public PlatformInterface
 	{
 		public:
-			SteamLinkDecoder();
+			SteamLinkPlatform();
 			void DecoderReset() override;
 			void DecoderShutdown() override;
 			int GetAudioSampleCount() override;
+			void CreateOverlay(int w, int h) override;
 			bool DecodeVideoFrame(uint8_t* data, int size) override;
+			void ShowOverlay(void* pixels, int x, int y, int pitch) override;
 		private:
 			static void VideoLogFunc(void* pContext, ESLVideoLog eLogLevel, const char *pszMessage);
 
+			int w, h;
 			CSLVideoStream* videoStream;
 			CSLVideoContext* slVideoContext;
+			CSLVideoOverlay* infoOverlay = nullptr;
 	};
 }}
 

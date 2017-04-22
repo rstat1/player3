@@ -14,8 +14,10 @@
 #include <base/threading/common/ConditionVariable.h>
 #include <player/VideoPlayerBase.h>
 #include <platform/Platforms.h>
+#include <player/infooverlay/InfoOverlay.h>
 
 using namespace base::threading;
+using namespace player3::overlay;
 using namespace player3::platform;
 
 namespace player3 { namespace player
@@ -30,15 +32,17 @@ namespace player3 { namespace player
 			void Stop();
 			void Decode();
 			void StartDecodeThread();
-			//void SetRefreshTimer(int delay);
 			void InitSDLAudio(int sampleRate);
 			int ProcessAudio(AVPacket* pkt);
 
+			static void LogDeltaMemory(const char* action);
+			static uint32_t RefreshOverlay(uint32_t interval, void* opaque);
 			static void SDLAudioCallback(void* userdata, uint8_t* stream, int len);
-			//static uint32_t RefreshTimer(uint32_t interval, void* opaque);
 
-			PlatformInterface* platformInterface;
+			InfoOverlay* overlay;
 			InternalPlayerState* state;
+			static double lastMemoryUse;
+			static PlatformInterface* platformInterface;
 	};
 }}
 
