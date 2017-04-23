@@ -21,12 +21,12 @@ namespace player3 { namespace platform
 			void DecoderShutdown() override;
 			int GetAudioSampleCount() override;
 			void CreateOverlay(int w, int h) override;
+			void ShowOverlay(void* pixels, int pitch) override;
 			bool DecodeVideoFrame(uint8_t* data, int size) override;
-			void ShowOverlay(void* pixels, int x, int y, int pitch) override;
 		private:
 			static void VideoLogFunc(void* pContext, ESLVideoLog eLogLevel, const char *pszMessage);
 
-			int w, h;
+			int w, h, screenW, screenH;
 			CSLVideoStream* videoStream;
 			CSLVideoContext* slVideoContext;
 			CSLVideoOverlay* infoOverlay = nullptr;

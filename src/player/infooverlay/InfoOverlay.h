@@ -10,21 +10,31 @@
 
 #include <map>
 #include <SDL.h>
+#include <cstring>
 #include <SDL_ttf.h>
 #include <platform/Platforms.h>
+
+using namespace std;
 
 namespace player3 { namespace overlay
 {
 	struct OverlayItem
 	{
 		public:
+			int width;
+			int height;
 			SDL_Surface* pixels;
-			const char* itemInfo;
+			std::string itemInfo;
 			OverlayItem() {}
-			OverlayItem(const char* itemText, SDL_Surface* surfaceContent) :
-				itemInfo(std::move(itemText)),
-				pixels(std::move(surfaceContent))
-			{}
+			OverlayItem(std::string itemText, int h, int w) :
+				//itemInfo(std::move(itemText)),
+				height(h),
+				width(w)
+				//pixels(std::move(surfaceContent))
+			{
+				//itemInfo.copy
+			}
+			void SetPixels(SDL_Surface* surface) { pixels = std::move(surface); }
 	};
 	struct Overlay
 	{
@@ -38,17 +48,32 @@ namespace player3 { namespace overlay
 				surfaceW(w),
 				surfaceH(h)
 			{}
+			void Reset(int overlayPitch, SDL_Surface* actualOverlay, int w, int h)
+			{
+				pitch = surfaceW = surfaceH = 0;
+				//SDL_FreeSurface(overlay);
+				overlay = nullptr;
+				pitch = std::move(overlayPitch);
+				overlay = std::move(actualOverlay);
+				surfaceW = w;
+				surfaceH = h;
+			}
 	};
 	class InfoOverlay
 	{
 		public:
 			void InitOverlay();
 			Overlay* UpdateOverlay();
+			void AddIntValue(const char* label, int value);
+			void AddDoubleValue(const char* label, double value);
+			void UpdateIntValue(const char* label, int newValue);
 			void UpdateDoubleValue(const char* label, double newValue);
-			void AddLabeledDoubleValue(const char* label, double value);
 		private:
 			SDL_Surface* GetTextSurface(const char* text);
+			void CreateOverlayItem(const char* label, const char* value);
+			void UpdateOverlayItem(const char* label, const char* newValue);
 
+			Overlay* overlayData;
 			TTF_Font* font = nullptr;
 			SDL_Surface* overlaySurface;
 			int overlaySurfaceW, overlaySurfaceH;

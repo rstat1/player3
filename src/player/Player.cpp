@@ -6,10 +6,13 @@
 */
 
 #include <SDL.h>
+#include <chrono>
 #include <thread>
+#include <signal.h>
 #include <player/Player.h>
 #include <base/platform/linux/memtrack.h>
 
+using namespace std;
 using namespace base::platform;
 
 namespace player3 { namespace player
@@ -29,24 +32,32 @@ namespace player3 { namespace player
 		VIDEO_DECODE_INIT
 
 		this->state = new InternalPlayerState();
+		this->state->frameDelay = 0;
+		this->state->lastVideoPts = 0;
+		this->state->lastAudioPts = 0;
 		this->state->audioDecodeState = new AudioState();
 		this->state->bufferSignal = new ConditionVariable();
 
-		this->overlay = new InfoOverlay();
-		this->overlay->InitOverlay();
-		this->overlay->AddLabeledDoubleValue("MemPeak (in MB)", 0.0);
-		this->overlay->AddLabeledDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
+		this->state->overlay = new InfoOverlay();
+		this->state->overlay->InitOverlay();
+		this->state->overlay->AddDoubleValue("MemPeak (in MB)", 0.0);
+		this->state->overlay->AddDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
+		this->state->overlay->AddIntValue("AudioCallbackTime (in ms)", 0);
+		this->state->overlay->AddDoubleValue("VideoPts", 0);
 
 		std::thread test([&] {
-			Overlay* o = this->overlay->UpdateOverlay();
+			Overlay* o = this->state->overlay->UpdateOverlay();
 			if (o != nullptr)
 			{
 				platformInterface->CreateOverlay(o->surfaceW, o->surfaceH);
-				platformInterface->ShowOverlay(o->overlay->pixels, 0, 0, o->pitch);
-				SDL_AddTimer(1000, Player::RefreshOverlay, this->overlay);
+				platformInterface->ShowOverlay(o->overlay->pixels, o->pitch);
+				SDL_AddTimer(750, Player::RefreshOverlay, this->state);
 			}
 		});
 		test.detach();
+#if defined(OS_LINUX) && !defined(OS_STEAMLINK)
+		signal(SIGTERM, Player::SigTermHandler);
+#endif
 	}
 	void Player::StartStream(std::string url)
 	{
@@ -91,6 +102,10 @@ namespace player3 { namespace player
 		});
 		decode.detach();
 	}
+	void Player::StartPlaybackThread()
+	{
+
+	}
 	void Player::InitSDLAudio(int sampleRate)
 	{
 		SDL_AudioSpec want, have;
@@ -127,13 +142,11 @@ namespace player3 { namespace player
 			{
 				if (pkt.stream_index == this->state->videoIdx)
 				{
-					Player::LogDeltaMemory("NewVideoPacket");
 					this->state->video.emplace(Data(pkt.data, pkt.size, pkt.pts * this->state->videoTimeBase));
 					av_free_packet(&pkt);
 				}
 				else if (pkt.stream_index == this->state->audioIdx)
 				{
-					Player::LogDeltaMemory("NewAudioPacket");
 					this->ProcessAudio(&pkt);
 					av_free_packet(&pkt);
 				}
@@ -143,48 +156,56 @@ namespace player3 { namespace player
 	}
 	uint32_t Player::RefreshOverlay(uint32_t interval, void* opaque)
 	{
-		InfoOverlay* infoOverlay = (InfoOverlay*)opaque;
-		infoOverlay->UpdateDoubleValue("MemPeak (in MB)", MemTrack::GetPeakMemoryUse());
-		infoOverlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
-		Overlay* overlay = infoOverlay->UpdateOverlay();
+		InternalPlayerState* playerState = (InternalPlayerState*)opaque;
+		double currentUse = MemTrack::GetCurrentMemoryUse();
+		if (currentUse != lastMemoryUse)
+		{
+			playerState->overlay->UpdateDoubleValue("MemPeak (in MB)", MemTrack::GetPeakMemoryUse());
+			playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
+			lastMemoryUse = currentUse;
+		}
+		chrono::time_point<std::chrono::steady_clock> cbTime = std::chrono::steady_clock::now();
+		int cbTimeMs = chrono::duration_cast<std::chrono::milliseconds>(cbTime.time_since_epoch()).count();
 
-		Player::platformInterface->ShowOverlay(overlay->overlay->pixels, 0, 0, overlay->pitch);
+		playerState->overlay->UpdateIntValue("AudioCallbackTime (in ms)", cbTimeMs - playerState->audioCBTime);
 
-		return 1;
+		Overlay* overlay = playerState->overlay->UpdateOverlay();
+		Player::platformInterface->ShowOverlay(overlay->overlay->pixels, overlay->pitch);
+		return interval;
 	}
 	void Player::SDLAudioCallback(void* userdata, uint8_t* stream, int len)
 	{
-		InternalPlayerState* state = (InternalPlayerState*)userdata;
 		Data audio;
+		InternalPlayerState* state = (InternalPlayerState*)userdata;
+
+		chrono::time_point<std::chrono::steady_clock> cbTime = std::chrono::steady_clock::now();
+		state->audioCBTime = chrono::duration_cast<std::chrono::milliseconds>(cbTime.time_since_epoch()).count();
+
 		memset(stream, 0, len);
 		if (state->audio.empty() == false)
 		{
 			audio = state->audio.front();
 			memcpy(stream, audio.data, len);
+
 			audio.DeleteData();
 			state->audio.pop();
-			Player::LogDeltaMemory("AudioDeletePacket");
 		}
 	}
 	void Player::Play()
 	{
 		std::thread play([&] {
-			int lastPts = 0;
 			Data video, audio;
+			double delay;
 			while(this->state->status == PlayerStatus::Playing)
 			{
 				if (this->state->video.empty() == false)
 				{
 					video = this->state->video.front();
-					if (!platformInterface->DecodeVideoFrame(video.data, video.size)) { Log("play-thread", "Something failed in decode"); }
-					if (lastPts != 0)
-					{
-						lastPts = lastPts - video.pts;
-						SDL_Delay(lastPts);
-					}
+					this->state->overlay->UpdateDoubleValue("VideoPts", video.pts);
+					//if (!platformInterface->DecodeVideoFrame(video.data, video.size)) { Log("play-thread", "Something failed in decode"); }
+
 					video.DeleteData();
 					this->state->video.pop();
-					Player::LogDeltaMemory("VideoPacketDelete");
 				}
 				else { this->state->bufferSignal->Wait(); }
 			}
@@ -201,7 +222,7 @@ namespace player3 { namespace player
 	{
 		uint8_t* out = NULL;
 		AVFrame* f = av_frame_alloc();
-		int samples = 0, bufferSize = 0;
+		int samples = 0, bufferSize = 0, lineSize = 0;
 		AVCodecContext* fmt = this->state->audioDecodeState->aCtx;
 
 		SwrContext* convertCtx = swr_alloc_set_opts(nullptr, AV_CH_LAYOUT_STEREO, av_get_sample_fmt("s16"), fmt->sample_rate,
@@ -216,8 +237,10 @@ namespace player3 { namespace player
 														fmt->sample_rate, fmt->sample_rate, AV_ROUND_UP);
 				av_samples_alloc(&out, NULL, fmt->channels, f->nb_samples, AV_SAMPLE_FMT_S16, 0);
 				int ret = swr_convert(convertCtx, &out, samples, (const uint8_t**)f->data, samples);
-				bufferSize = av_samples_get_buffer_size(NULL, fmt->channels, f->nb_samples, AV_SAMPLE_FMT_S16, 1);
+				bufferSize = av_samples_get_buffer_size(&lineSize, fmt->channels, f->nb_samples, AV_SAMPLE_FMT_S16, 1);
 				this->state->audio.emplace(Data(out, bufferSize, pkt->pts * this->state->audioTimeBase));
+
+				Log("ProcessAudio", "linesize = %i", lineSize);
 
 				av_frame_free(&f);
 				swr_free(&convertCtx);
@@ -228,11 +251,11 @@ namespace player3 { namespace player
 	}
 	void Player::LogDeltaMemory(const char* action)
 	{
-		double currentUse = MemTrack::GetCurrentMemoryUse();
-		if (currentUse != lastMemoryUse)
-		{
-			//Log("VideoPlayer", "%s %f MB", action, currentUse);
-			lastMemoryUse = currentUse;
-		}
+
+
+	}
+	void Player::SigTermHandler(int signum)
+	{
+		exit(0);
 	}
 }}

@@ -11,13 +11,11 @@
 #include <string>
 #include <vector>
 #include <base/common.h>
-#include <base/threading/common/ConditionVariable.h>
 #include <player/VideoPlayerBase.h>
+#include <base/threading/common/ConditionVariable.h>
 #include <platform/Platforms.h>
-#include <player/infooverlay/InfoOverlay.h>
 
 using namespace base::threading;
-using namespace player3::overlay;
 using namespace player3::platform;
 
 namespace player3 { namespace player
@@ -32,14 +30,15 @@ namespace player3 { namespace player
 			void Stop();
 			void Decode();
 			void StartDecodeThread();
+			void StartPlaybackThread();
 			void InitSDLAudio(int sampleRate);
 			int ProcessAudio(AVPacket* pkt);
 
+			static void SigTermHandler(int signum);
 			static void LogDeltaMemory(const char* action);
 			static uint32_t RefreshOverlay(uint32_t interval, void* opaque);
 			static void SDLAudioCallback(void* userdata, uint8_t* stream, int len);
 
-			InfoOverlay* overlay;
 			InternalPlayerState* state;
 			static double lastMemoryUse;
 			static PlatformInterface* platformInterface;

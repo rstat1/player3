@@ -5,6 +5,7 @@
 * found in the included LICENSE file.
 */
 
+#include <SDL.h>
 #include <base/common.h>
 #include <platform/desktop/DesktopPlatform.h>
 
@@ -16,23 +17,22 @@ namespace player3 { namespace platform
 		surfW = w;
 		surfH = h;
 		this->win = SDL_CreateWindow("skylight", SDL_WINDOWPOS_UNDEFINED,
-												 SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_SHOWN);
+												 SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN);
 		this->render = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 		Log("DesktopPlatform", "%s", SDL_GetError());
 		SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
 		SDL_RenderClear(this->render);
         SDL_RenderPresent(render);
 	}
-	void DesktopPlatform::ShowOverlay(void* pixels, int x, int y, int pitch)
+	void DesktopPlatform::ShowOverlay(void* pixels, int pitch)
 	{
 		SDL_Rect dest;
-		dest.x = x;
-		dest.y = y;
+		dest.x = 0;
+		dest.y = 0;
 		dest.w =  this->surfW;
 		dest.h = this->surfH;
 		void* mPixels;
         int mPitch;
-		Log("SO", "%i", dest.w);
 		SDL_Surface* overlaySurf = SDL_CreateRGBSurfaceFrom(pixels,  this->surfW, this->surfH, 32, pitch,
 															0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
 		if (overlayTexture == nullptr)

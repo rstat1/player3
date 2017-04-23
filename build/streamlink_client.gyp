@@ -138,8 +138,6 @@
 					'sources': [
 						'../src/platform/desktop/DesktopPlatform.cpp',
 						'../src/platform/desktop/DesktopPlatform.h',
-						#'../src/app/native/decoders/StreamDecoderNull.cpp',
-						#'../src/app/native/decoders/StreamDecoderNull.h',
 					],
 					'conditions': [
 						['OS=="linux"', {

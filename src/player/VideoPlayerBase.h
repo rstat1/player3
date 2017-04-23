@@ -10,11 +10,13 @@
 
 #include <SDL.h>
 #include <queue>
+#include <player/infooverlay/InfoOverlay.h>
 #include <base/threading/common/ConditionVariable.h>
 
 extern "C"
 {
 	#include <libavutil/avutil.h>
+	#include <libavutil/time.h>
 	#include <libavcodec/avcodec.h>
 	#include <libavformat/avformat.h>
 	#include <libswresample/swresample.h>
@@ -24,6 +26,7 @@ extern "C"
 #define AUDIO_INIT SDL_USEREVENT + 1
 
 using namespace base::threading;
+using namespace player3::overlay;
 
 namespace player3 { namespace player
 {
@@ -68,8 +71,9 @@ namespace player3 { namespace player
 	struct InternalPlayerState
 	{
 		public:
-			double streamStart;
+			int audioCBTime;
 			PlayerStatus status;
+			InfoOverlay* overlay;
 			int videoIdx, audioIdx;
 			std::string currentURL;
 			AVFormatContext* format;
@@ -79,6 +83,7 @@ namespace player3 { namespace player
 			SDL_AudioDeviceID audioDevice;
 			ConditionVariable* bufferSignal;
 			double videoTimeBase, audioTimeBase;
+			double streamStart, lastAudioPts, lastVideoPts, frameDelay;
 	};
 }}
 

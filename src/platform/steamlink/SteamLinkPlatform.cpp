@@ -14,9 +14,10 @@ namespace player3 { namespace platform
 	SteamLinkPlatform::SteamLinkPlatform()
 	{
 		slVideoContext = SLVideo_CreateContext();
-		SLVideo_SetLogFunction(VideoLogFunc, nullptr);
 		SLVideo_SetLogLevel(k_ESLVideoLogDebug);
+		SLVideo_SetLogFunction(VideoLogFunc, nullptr);
 		videoStream = SLVideo_CreateStream(slVideoContext, k_ESLVideoFormatH264, false);
+		SLVideo_GetDisplayResolution(slVideoContext, &screenW, &screenH);
 	}
 	void SteamLinkPlatform::DecoderReset()
 	{
@@ -57,15 +58,23 @@ namespace player3 { namespace platform
 		this->h = h;
 		if (infoOverlay != nullptr) { SLVideo_FreeOverlay(infoOverlay); }
 		infoOverlay = SLVideo_CreateOverlay(slVideoContext, w, h);
+		SLVideo_SetOverlayDisplayArea(infoOverlay, 0, 0, (((double)this->w) / screenW) , (((double)this->h) / screenH));
 	}
-	void SteamLinkPlatform::ShowOverlay(void* pixels, int x, int y, int pitch)
+	void SteamLinkPlatform::ShowOverlay(void* pixels, int pitch)
 	{
-		int slPitch;
+		int dstPitch;
 		uint32_t* pixelBuf;
-		SLVideo_SetOverlayDisplayArea(infoOverlay, x, y, 1.0, 1.0);
-		SLVideo_GetOverlayPixels(infoOverlay, &pixelBuf, &slPitch);
+		uint32_t* surface = static_cast<uint32_t*>(pixels);
+		SLVideo_GetOverlayPixels(infoOverlay, &pixelBuf, &dstPitch);
 
-		memcpy(pixelBuf, pixels, pitch * this->h);
+		pitch /= sizeof(*surface);
+		dstPitch /= sizeof(*pixelBuf);
+		for(int row = 0; row < this->h; ++row)
+		{
+			memcpy(pixelBuf, surface, this->w*sizeof(*surface));
+			surface += pitch;
+			pixelBuf += dstPitch;
+		}
 
 		SLVideo_ShowOverlay(infoOverlay);
 	}

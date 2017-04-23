@@ -8,7 +8,7 @@
 #ifndef DESKDEC
 #define DESKDEC
 
-#include <SDL.h>
+#include <stdint.h>
 #include <platform/PlatformInterface.h>
 
 namespace player3 { namespace platform
@@ -19,9 +19,9 @@ namespace player3 { namespace platform
 			DesktopPlatform();
 			void DecoderReset() override;
 			void DecoderShutdown() override;
-			void CreateOverlay(int w, int h) override;
 			int GetAudioSampleCount() override;
-			void ShowOverlay(void* pixels, int x, int y, int pitch) override;
+			void CreateOverlay(int w, int h) override;
+			void ShowOverlay(void* pixels, int pitch) override;
 			bool DecodeVideoFrame(uint8_t* data, int size) override;
 		private:
 			SDL_Window* win;
