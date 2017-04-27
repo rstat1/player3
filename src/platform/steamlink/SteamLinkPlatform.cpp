@@ -79,4 +79,5 @@ namespace player3 { namespace platform
 		SLVideo_ShowOverlay(infoOverlay);
 	}
 	int SteamLinkPlatform::GetAudioSampleCount() { return 1024; }
+	int SteamLinkPlatform::GetQueuedVideo() { return SLVideo_GetQueuedVideoMS(videoStream); }
 }}

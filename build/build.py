@@ -20,7 +20,7 @@ script_dir = os.path.dirname(__file__)
 # Directory within which we can find the gyp source.
 gyp_source_dir = os.path.abspath(os.path.join(script_dir, 'gyp')) #os.path.join(script_dir, 'gyp')
 
-sys.path.insert(0, os.path.join(gyp_source_dir, 'build', 'gyp', 'pylib'))
+sys.path.insert(0, os.path.join(gyp_source_dir, 'pylib'))
 import gyp
 
 if (os.path.isdir(os.getcwd() + "/external") == False):

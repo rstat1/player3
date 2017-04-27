@@ -25,8 +25,7 @@ namespace player3 { namespace player
 		Log("PlayerApp", "init complete");
 
 		std::string streamURL(URL);
-		Player* player = new Player();
-		player->StartStream(streamURL);
+		Player::Get()->StartStream(streamURL);
 
 		return nullptr;
 	}

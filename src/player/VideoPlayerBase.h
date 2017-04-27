@@ -57,11 +57,11 @@ namespace player3 { namespace player
 	struct AudioState
 	{
 		public:
-			double audioClock;
 			AVCodec* audioCodec;
 			AVCodecContext* aCtx;
 			AVStream audioStream;
 			SwrContext* convertCtx;
+			double audioClock, lastDelay;
 			uint32_t bufferSize, bufferIndex;
 	};
 	struct InternalPlayerEvents
@@ -73,7 +73,6 @@ namespace player3 { namespace player
 	struct InternalPlayerState
 	{
 		public:
-			int frameTimer;
 			int audioCBTime;
 			PlayerStatus status;
 			InfoOverlay* overlay;

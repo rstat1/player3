@@ -22,6 +22,7 @@ using namespace base::platform;
 namespace player3 { namespace player
 {
 	double Player::lastMemoryUse;
+	std::shared_ptr<Player> Player::ref;
 	PlatformInterface* Player::platformInterface;
 
 	Player::Player()
@@ -36,7 +37,7 @@ namespace player3 { namespace player
 		VIDEO_DECODE_INIT
 
 		this->state = new InternalPlayerState();
-		this->state->frameTimer = 0;
+		this->state->videoClock = 0;
 		this->state->lastVideoPts = 0;
 		this->state->lastAudioPts = 0;
 		this->state->audioDecodeState = new AudioState();
@@ -45,16 +46,6 @@ namespace player3 { namespace player
 
 		this->InitOverlay();
 
-		std::thread test([&] {
-			Overlay* o = this->state->overlay->UpdateOverlay();
-			if (o != nullptr)
-			{
-				platformInterface->CreateOverlay(o->surfaceW, o->surfaceH);
-				platformInterface->ShowOverlay(o->overlay->pixels, o->pitch);
-				SDL_AddTimer(750, Player::RefreshOverlay, this->state);
-			}
-		});
-		test.detach();
 #if defined(OS_LINUX) && !defined(OS_STEAMLINK)
 		signal(SIGTERM, Player::SigTermHandler);
 #endif
@@ -63,11 +54,25 @@ namespace player3 { namespace player
 	{
 		this->state->overlay = new InfoOverlay();
 		this->state->overlay->InitOverlay();
-		this->state->overlay->AddDoubleValue("MemPeak (in MB)", 0.0);
+		this->state->overlay->AddDoubleValue("AVDelayDiff", 0);
 		this->state->overlay->AddDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
-		this->state->overlay->AddIntValue("AudioCallbackTime (in ms)", 0);
+		this->state->overlay->AddDoubleValue("FrameTimer", 0);
+		this->state->overlay->AddDoubleValue("AudioDelay", 0.0);
 		this->state->overlay->AddDoubleValue("AudioClock", 0);
-		this->state->overlay->AddDoubleValue("VideoDelay", 0);
+		this->state->overlay->AddDoubleValue("VideoActualDelay", 0);
+		this->state->overlay->AddDoubleValue("AVClockDiff", 0);
+		this->state->overlay->AddIntValue("QueuedVideo", 0);
+
+		std::thread overlayUpdate([&] {
+			Overlay* o = this->state->overlay->UpdateOverlay();
+			if (o != nullptr)
+			{
+				platformInterface->CreateOverlay(o->surfaceW, o->surfaceH);
+				platformInterface->ShowOverlay(o->overlay->pixels, o->pitch);
+				SDL_AddTimer(750, Player::RefreshOverlay, this->state);
+			}
+		});
+		overlayUpdate.detach();
 	}
 	void Player::StartStream(std::string url)
 	{
@@ -80,7 +85,6 @@ namespace player3 { namespace player
 		 std::thread decode([&] {
 			AVFormatContext* avFormat;
 			AVDictionary* audioOptions = nullptr;
-			cout << av_gettime() / 1000000.0 << endl;
 			if (avformat_open_input(&this->state->format, this->state->currentURL.c_str(), nullptr, nullptr) != 0)
 			{
 				Log("Player", "failed open to url");
@@ -107,7 +111,9 @@ namespace player3 { namespace player
 			this->state->audioDecodeState->audioCodec = avcodec_find_decoder(this->state->audioDecodeState->aCtx->codec_id);
 			avcodec_open2(this->state->audioDecodeState->aCtx, this->state->audioDecodeState->audioCodec, &audioOptions);
 			av_dump_format(this->state->format, this->state->videoIdx, this->state->currentURL.c_str(), 0);
-			this->state->frameTimer = av_gettime() / 1000000.0;
+			this->state->videoClock = (av_gettime() / AV_TIME_BASE);
+			this->state->audioDecodeState->audioClock = (av_gettime() / AV_TIME_BASE);
+			this->state->lastDelay = 40e-3;
 			this->InitSDLAudio(this->state->audioDecodeState->aCtx->sample_rate);
 			this->Decode();
 		});
@@ -116,7 +122,7 @@ namespace player3 { namespace player
 	void Player::StartPlaybackThread()
 	{
 		std::thread play([&] {
-			this->Play();
+			Player::SetRefreshTimer(40, this);
 		});
 		play.detach();
 	}
@@ -127,7 +133,7 @@ namespace player3 { namespace player
 		want.freq = sampleRate;
 		want.format = AUDIO_S16SYS;
 		want.channels =	2;
-		want.samples = 1024; //platformInterface->GetAudioSampleCount();
+		want.samples = platformInterface->GetAudioSampleCount();
 		want.silence = 0;
 		want.callback = Player::SDLAudioCallback;
 		want.userdata = this->state;
@@ -154,9 +160,10 @@ namespace player3 { namespace player
 			}
 			if (av_read_frame(avFormat, &pkt) >= 0)
 			{
+				if (this->platformInterface->GetQueuedVideo() > 3500) { SDL_Delay(250); }
 				if (pkt.stream_index == this->state->videoIdx)
 				{
-					this->state->video.emplace(Data(pkt.data, pkt.size, pkt.pts * this->state->videoTimeBase));
+					this->state->video.emplace(Data(pkt.data, pkt.size, pkt.dts * this->state->videoTimeBase));
 					av_free_packet(&pkt);
 				}
 				else if (pkt.stream_index == this->state->audioIdx)
@@ -188,12 +195,10 @@ namespace player3 { namespace player
 				av_samples_alloc(&out, NULL, fmt->channels, f->nb_samples, AV_SAMPLE_FMT_S16, 0);
 				int ret = swr_convert(convertCtx, &out, samples, (const uint8_t**)f->data, samples);
 				bufferSize = av_samples_get_buffer_size(&lineSize, fmt->channels, f->nb_samples, AV_SAMPLE_FMT_S16, 1);
-				this->state->audio.emplace(Data(out, bufferSize, pkt->pts * this->state->audioTimeBase));
+				this->state->audio.emplace(Data(out, bufferSize, pkt->dts * this->state->audioTimeBase));
 
 				int channelsX2 = 2 * fmt->channels;
-				this->state->audioDecodeState->audioClock += (double)lineSize / (double)(channelsX2 * fmt->sample_rate);
-				this->state->overlay->UpdateDoubleValue("AudioClock", this->state->audioDecodeState->audioClock);
-
+				//this->state->overlay->UpdateDoubleValue("idek", (double)lineSize / (double)(channelsX2 * fmt->sample_rate));
 				av_frame_free(&f);
 				swr_free(&convertCtx);
 				av_free(&out[0]);
@@ -204,32 +209,13 @@ namespace player3 { namespace player
 	void Player::Play()
 	{
 		Data video, audio;
-		double delay = 0, actualDelay = 0, sync_threshold;
-		while(this->state->status == PlayerStatus::Playing)
-		{
-			if (this->state->video.empty() == false)
-			{
-				video = this->state->video.front();
-				delay = video.pts - this->state->lastVideoPts;
-				if (delay <= 0 || delay >= 1.0) { delay = this->state->lastDelay; }
-				this->state->lastVideoPts = video.pts;
-				this->state->lastDelay = delay;
+		video = this->state->video.front();
 
-				sync_threshold = (delay > AV_SYNC_THRESHOLD) ? delay : AV_SYNC_THRESHOLD;
-				
+		this->state->overlay->UpdateIntValue("QueuedVideo", this->platformInterface->GetQueuedVideo());
+		this->platformInterface->DecodeVideoFrame(video.data, video.size);
 
-				this->state->frameTimer += delay;
-				actualDelay = (double)(av_gettime() / 1000000.0) - this->state->frameTimer;
-
-				this->state->overlay->UpdateDoubleValue("VideoDelay", delay);
-
-				if (!platformInterface->DecodeVideoFrame(video.data, video.size)) { Log("play-thread", "Something failed in decode"); }
-				video.DeleteData();
-				this->state->video.pop();
-			}
-			else { this->state->bufferSignal->Wait(); }
-		}
-		Log("Player", "stopped..");
+		video.DeleteData();
+		this->state->video.pop();
 	}
 	void Player::Stop()
 	{
@@ -240,9 +226,40 @@ namespace player3 { namespace player
 	{
 		return 0.0;
 	}
+	void Player::SetRefreshTimer(int delay, Player* state)
+	{
+		SDL_AddTimer(delay, Player::RefreshStream, (void*)state);
+	}
 	uint32_t Player::RefreshStream(uint32_t interval, void* opaque)
 	{
-		return interval;
+		Data video;
+		Player* playerRef = Player::Get();
+		InternalPlayerState* state = Player::Get()->GetPlayerState();
+		double delay = 0, actualDelay = 0, avDiff;
+		if (state->video.empty() == true) { Player::SetRefreshTimer(1, playerRef); }
+		else
+		{
+			video = state->video.front();
+			delay = video.pts - state->lastVideoPts;
+			if (delay <= 0 || delay >= 1.0) { delay = state->lastDelay; }
+			state->lastVideoPts = video.pts;
+			state->lastDelay = delay;
+
+			//TODO: get audio timing some how
+			state->videoClock += delay;
+			avDiff = state->videoClock - state->audioDecodeState->audioClock;
+			actualDelay = state->videoClock - (av_gettime() / AV_TIME_BASE);
+
+			state->overlay->UpdateDoubleValue("AVClockDiff", avDiff);
+			state->overlay->UpdateDoubleValue("AVDelayDiff", actualDelay - avDiff);
+			state->overlay->UpdateDoubleValue("FrameTimer", state->videoClock);
+			state->overlay->UpdateDoubleValue("VideoActualDelay", actualDelay + avDiff);
+
+			Player::Get()->Play();
+			Player::SetRefreshTimer(actualDelay + avDiff, playerRef);
+		}
+
+		return 0;
 	}
 	uint32_t Player::RefreshOverlay(uint32_t interval, void* opaque)
 	{
@@ -254,10 +271,6 @@ namespace player3 { namespace player
 			playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
 			lastMemoryUse = currentUse;
 		}
-		chrono::time_point<std::chrono::steady_clock> cbTime = std::chrono::steady_clock::now();
-		int cbTimeMs = chrono::duration_cast<std::chrono::milliseconds>(cbTime.time_since_epoch()).count();
-
-		playerState->overlay->UpdateIntValue("AudioCallbackTime (in ms)", cbTimeMs - playerState->audioCBTime);
 
 		Overlay* overlay = playerState->overlay->UpdateOverlay();
 		Player::platformInterface->ShowOverlay(overlay->overlay->pixels, overlay->pitch);
@@ -266,19 +279,27 @@ namespace player3 { namespace player
 	void Player::SDLAudioCallback(void* userdata, uint8_t* stream, int len)
 	{
 		Data audio;
+		double delay = 0, actualDelay = 0;
 		InternalPlayerState* state = (InternalPlayerState*)userdata;
 		AudioState* audioState = state->audioDecodeState;
-
-		chrono::time_point<std::chrono::steady_clock> cbTime = std::chrono::steady_clock::now();
-		state->audioCBTime = chrono::duration_cast<std::chrono::milliseconds>(cbTime.time_since_epoch()).count();
 
 		memset(stream, 0, len);
 		if (state->audio.empty() == false)
 		{
 			audio = state->audio.front();
-			//if (audio.pts != 0) { SDL_Delay }
-			memcpy(stream, audio.data, len);
 
+			delay = audio.pts - state->lastAudioPts;
+			if (delay <= 0 || delay >= 1.0) { delay = audioState->lastDelay; }
+			state->lastAudioPts = audio.pts;
+			audioState->lastDelay = delay;
+			audioState->audioClock += delay;
+			actualDelay = audioState->audioClock - (av_gettime() / AV_TIME_BASE);
+
+
+			memcpy(stream, audio.data, len);
+			state->overlay->UpdateDoubleValue("AudioDelay", actualDelay);
+			state->overlay->UpdateDoubleValue("AudioClock", audioState->audioClock);
+			//state->audioDecodeState->audioClock = audio.pts;
 			audio.DeleteData();
 			state->audio.pop();
 		}
@@ -288,3 +309,23 @@ namespace player3 { namespace player
 		exit(0);
 	}
 }}
+				// actualDelay = 0, delay = 0;
+				// video = this->state->video.front();
+				// delay = video.pts - this->state->lastVideoPts;
+				// if (delay <= 0 || delay >= 1.0) { delay = this->state->lastDelay; }
+				// this->state->lastVideoPts = video.pts;
+				// this->state->lastDelay = delay;
+
+				// this->state->frameTimer += delay;
+				// actualDelay = this->state->frameTimer - (double)(av_gettime() / 1000000.0);
+				// cout << actualDelay << endl;
+				// this->state->overlay->UpdateDoubleValue("VideoDelay", this->state->frameTimer);// * 1000 + 0.05);
+				// this->state->overlay->UpdateIntValue("VideoActualDelay", (int)(delay * 1000 + 0.05));
+
+				// //SDL_Delay(actualDelay);
+
+				// if (!platformInterface->DecodeVideoFrame(video.data, video.size))
+				// {
+				// 	 Log("play-thread", "Something failed in decode");
+				// 	 SDL_Delay(100);
+				// }

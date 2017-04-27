@@ -18,6 +18,7 @@ namespace player3 { namespace platform
 		public:
 			SteamLinkPlatform();
 			void DecoderReset() override;
+			int GetQueuedVideo() override;
 			void DecoderShutdown() override;
 			int GetAudioSampleCount() override;
 			void CreateOverlay(int w, int h) override;
