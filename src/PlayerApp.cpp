@@ -5,8 +5,11 @@
 * found in the included LICENSE file.
 */
 
+#include <PlayerApp.h>
 #include <player/Player.h>
-#include <player/PlayerApp.h>
+#include <ui/UIServer.h>
+
+using namespace player3::ui;
 
 namespace player3 { namespace player
 {
@@ -24,8 +27,14 @@ namespace player3 { namespace player
 		const char* URL = (const char*)url;
 		Log("PlayerApp", "init complete");
 
-		std::string streamURL(URL);
-		Player::Get()->StartStream(streamURL);
+		UIServer* server = new UIServer();
+
+		if (URL != "")
+		{
+			std::string streamURL(URL);
+			Player::Get()->InitPlayer();
+			Player::Get()->StartStream(streamURL);
+		}
 
 		return nullptr;
 	}

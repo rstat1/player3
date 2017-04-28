@@ -8,7 +8,7 @@
 #include <iostream>
 #include <base/Utils.h>
 #include <base/common.h>
-#include <player/PlayerApp.h>
+#include <PlayerApp.h>
 #include <client/linux/handler/exception_handler.h>
 
 using namespace base::utils;
@@ -29,7 +29,8 @@ int main(int argc, char* argv[])
 
 	if (argc == 1)
 	{
-		std::cout << "Player3 UI/Manager server not implemented." << std::endl;
+		//std::cout << "Player3 UI/Manager server not implemented." << std::endl;
+		PlayerApp* player = new PlayerApp("");
 		return 0;
 	}
 	else if (argc > 1)

@@ -1,0 +1,3 @@
+[submodule "external/uws"]
+	path = external/uws
+	url = https://github.com/uWebSockets/uWebSockets.git

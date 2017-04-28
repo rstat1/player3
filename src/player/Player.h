@@ -26,6 +26,7 @@ namespace player3 { namespace player
 	{
 		public:
 			Player();
+			void InitPlayer();
 			void StartStream(std::string url);
 			static Player* Get()
 			{

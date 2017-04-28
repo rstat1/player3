@@ -1,0 +1,36 @@
+#login-wrapper {
+	width:384px;
+	height:300px;
+	padding:32px;
+	background: #FFF;
+	text-align: center;
+	margin: 32px auto;
+	font-family: 'Roboto', sans-serif;
+	box-shadow: 0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12)
+}
+#login {
+	background: url('/assets/march.png');
+	background-size: cover;
+	width:100%;
+	height:100vh;
+	overflow: hidden;
+	background-color:#FFF;
+	box-shadow: 0 0 5px #888;
+	-moz-box-shadow: 0 0 5px #888;
+	-webkit-box-shadow: 0 0 5px#888;
+	clear:both;
+}
+.login-button {
+	width: 220px;
+	height: 30px;
+	background-color: #1565c0;
+	margin: 0px auto;
+	color: white;
+	font-size: 16px;
+	padding:12px 5px 3px 5px;
+	font-weight: bold;
+	cursor: pointer;
+}
+.login-button:hover {
+	background-color: #0d47a1;
+}

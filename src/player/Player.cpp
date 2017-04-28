@@ -25,7 +25,8 @@ namespace player3 { namespace player
 	std::shared_ptr<Player> Player::ref;
 	PlatformInterface* Player::platformInterface;
 
-	Player::Player()
+	Player::Player() {}
+	void Player::InitPlayer()
 	{
 		Log("Player", "player3 player init");
 		av_log_set_level(AV_LOG_VERBOSE);

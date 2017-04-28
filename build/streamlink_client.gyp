@@ -42,7 +42,7 @@
 					],
 					'link_settings': {
 						'libraries': [
-
+							'-lstdc++'
 						],
 					},
 				}],
@@ -54,7 +54,7 @@
 			'include_dirs':
 			[
 				'../src/',
-				'../external',
+				'../external/',
 				'../external/sdl/include/',
 				"../external/ffmpeg",
 			],
@@ -62,14 +62,17 @@
 			],
 			'dependencies': [
 				'libs.gyp:base',
+				'libs.gyp:uWS'
 			],
 			'sources': [
+				'../src/PlayerApp.cpp',
 				'../src/player/Player.cpp',
-				'../src/player/PlayerApp.cpp',
 				'../src/player/infooverlay/InfoOverlay.cpp',
-				'../src/player/infooverlay/InfoOverlay.h',
+				'../src/ui/UIServer.cpp',
+				'../src/ui/UIServer.h',
 				'../src/player/Player.h',
-				'../src/player/PlayerApp.h',
+				'../src/player/infooverlay/InfoOverlay.h',
+				'../src/PlayerApp.h',
 				'../src/player/VideoPlayerBase.h',
 				'../src/platform/Platfroms.h',
 				'../src/platform/PlatformInterface.h'

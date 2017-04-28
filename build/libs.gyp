@@ -175,6 +175,44 @@
 					],
 				}]
 			]
+		},
+		{
+			'target_name': "uWS",
+			'type': "static_library",
+			'cflags': [
+				'-std=c++11'
+			],
+			'link_settings': {
+				'libraries': [
+					'-lstdc++',
+					'-lz'
+				],
+			},
+			'sources': [
+				'../external/uws/src/Asio.h',
+				'../external/uws/src/Backend.h',
+				'../external/uws/src/Epoll.cpp',
+				'../external/uws/src/Epoll.h',
+				'../external/uws/src/Extensions.cpp',
+				'../external/uws/src/Extensions.h',
+				'../external/uws/src/Group.cpp',
+				'../external/uws/src/Group.h',
+				'../external/uws/src/HTTPSocket.cpp',
+				'../external/uws/src/HTTPSocket.h',
+				'../external/uws/src/Hub.cpp',
+				'../external/uws/src/Hub.h',
+				'../external/uws/src/Libuv.h',
+				'../external/uws/src/Networking.cpp',
+				'../external/uws/src/Networking.h',
+				'../external/uws/src/Node.cpp',
+				'../external/uws/src/Node.h',
+				'../external/uws/src/Socket.cpp',
+				'../external/uws/src/Socket.h',
+				'../external/uws/src/uWS.h',
+				'../external/uws/src/WebSocket.cpp',
+				'../external/uws/src/WebSocket.h',
+				'../external/uws/src/WebSocketProtocol.h'
+			]
 		}
 	],
 }
