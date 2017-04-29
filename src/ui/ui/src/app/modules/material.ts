@@ -1,8 +1,8 @@
-import { MdGridListModule } from '@angular/material';
+import { MdGridListModule, MdButtonModule } from '@angular/material';
 import { NgModule } from "@angular/core";
 
 @NgModule({
-	imports: [MdGridListModule],
-	exports: [MdGridListModule],
+	imports: [MdGridListModule, MdButtonModule],
+	exports: [MdGridListModule, MdButtonModule],
 })
 export class MaterialImports {}

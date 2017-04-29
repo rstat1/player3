@@ -2,13 +2,13 @@
 	<div id="login-wrapper">
 		<img src="/assets/google-controller.png" width="128" height="128" /><br/>
 		<span style="display:inline-block;font-size: 24px;margin-bottom:25px;">
-			Welcome, Player 3.
+			Welcome, Player 3
 		</span>
-		<span style="display:inline-block;font-size: 16px;margin-bottom:40px;">
-			Please login with your Twitch account to continue.
+		<span style="display:block;font-size: 16px;margin-bottom:60px;">
+			Press Start to continue
 		</span>
-		<div class="login-button">
-			Connect with Twitch
-		</div>
+		<button md-raised-button color="primary" (click)="onLoginClick()" style="width:120px">
+			Start
+		</button>
 	</div>
 </div>
