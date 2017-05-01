@@ -1,7 +1,9 @@
 @import '~@angular/material/theming';
+@import 'theme-config.scss';
+
 $playerthree-blue: (
   50: #1565c0,
-  100: #1565c0,
+  100: $accent-color,
   200: #1565c0,
   300: #1565c0,
   400: #0d47a1,

@@ -11,9 +11,7 @@ export class Auth {
 		clientID: Config.getAuth0ClientID(),
 		domain: Config.getAuth0Domain(),
 	});
-	constructor(private router: Router) {
-		console.log(Config.getAuth0Callback());
-	}
+	constructor(private router: Router) {}
 	public doAuth()	{
 		this.lock.parseHash({_idTokenVerification: false}, (err, authResult) => {
 		 	if (err) { return console.log(err); }
@@ -29,11 +27,12 @@ export class Auth {
 					{
 						let r: any = result;
 						localStorage.setItem("twitch_username", r.name);
-						localStorage.setItem("twitch_avatar", r.logo);
-						localStorage.setItem("twitch_token", r.token);
+						if (r.logo != null) { localStorage.setItem("twitch_avatar", r.logo); }
+						else { localStorage.setItem("twitch_avatar", "none"); }
+						localStorage.setItem("twitch_token", r.twitch_token);
 					}
+					this.router.navigate(['/home']);
 				});
-				this.router.navigate(['/home']);
 			}
 		});
 	}

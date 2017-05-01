@@ -1,0 +1,37 @@
+@import '../../../css/theme-config.scss';
+
+#avatar-control-block {
+    width: 320px;
+    height: 40px;
+    display: inline-block;
+    font-size: 16px;
+    padding-top:3px;
+    font-family: $font-family;
+    color: $text-color;
+    background-color: $avatar-control-bg;
+}
+.sidebar {
+    height:20vh;
+    color: $text-color;
+    font-family: $font-family;
+    background-color: $avatar-control-bg;
+    text-align: center;
+    position: fixed;
+    z-index: 1;
+    width:107px;
+}
+.nav-link {
+    color: $text-color;
+    font-family: $font-family;
+}
+.main {
+    background-color: $followed-grid-bg;
+    opacity: 0.8;
+    z-index: 0;
+}
+.now-playing-header {
+    margin-left: 185px;
+    margin-top: 50px;
+    font-size: 40px;
+    color: #444;
+}
