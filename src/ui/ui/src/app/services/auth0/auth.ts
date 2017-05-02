@@ -52,6 +52,6 @@ export class Auth {
 		localStorage.removeItem('twitch_username');
 	}
 	public authenticated(): boolean {
-		return localStorage.getItem("access_token") != null;
+		return localStorage.getItem("twitch_token") != null;
 	}
 }

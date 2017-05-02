@@ -9,16 +9,18 @@ import 'rxjs/add/operator/toPromise';
 
 export class FollowedStream {
 	public Game: string;
-	public Viewers: number;
+	public Viewers: string;
 	public PreviewImg: string;
 	public ChannelName: string;
 	public LogoURL: string;
-	constructor(Game: string, ViewerCount: number, Preview: string, Name: string, Logo: string) {
+	public CurrentTitle: string;
+	constructor(Game: string, ViewerCount: number, Preview: string, Name: string, Logo: string, Title: string) {
 		this.Game = Game;
-		this.Viewers = ViewerCount;
+		this.Viewers = ViewerCount.toLocaleString();
 		this.PreviewImg = Preview;
 		this.ChannelName = Name;
 		this.LogoURL = Logo;
+		this.CurrentTitle = Title;
 	}
 }
 
@@ -39,11 +41,14 @@ export class TwitchAPI {
 		let followed = new Array<FollowedStream>();
 		let streamBlob = data.json();
 		let streams = streamBlob.streams;
+
+		console.log(streamBlob);
+
 		for (var index = 0; index < streamBlob._total; index++) {
 			var element = streams[index];
 			followed.push(new FollowedStream(element.game, Number(element.viewers),
-											 element.preview.medium, element.channel.name,
-											 element.channel.logo));
+											 element.preview.medium, element.channel.display_name,
+											 element.channel.logo, element.channel.status));
 		}
 		return followed;
 	}

@@ -16,5 +16,25 @@
 	</ul>
 </div>
 <div class="main">
-	<p class="now-playing-header">Now playing</p>
+	<div class="now-playing-grid" style="overflow:visible;">
+		<p class="now-playing-header">Now playing</p>
+		<masonry [options]="options">
+			<div masonry-brick class="stream" *ngFor="let s of streams">
+				<channel [channel]="s.ChannelName"
+						 [logoURL]="s.LogoURL"
+						 [streamTitle]="s.CurrentTitle"
+						 [viewers]="s.Viewers"></channel>
+				<!--<div style="position:relative;">
+					<div class="stream-title">
+						{{s.ChannelName}}
+					</div>
+					<img src="{{s.LogoURL}}" style="opacity: 0.2;z-index:0;" />
+					<div class="stream-title-bottom">
+						<span class="text-box">{{s.CurrentTitle}}</span>
+						<span class="text-box text-box-accent-color">{{s.Viewers}} Viewers</span>
+					</div>
+				</div>-->
+			</div>
+		</masonry>
+	</div>
 </div>
