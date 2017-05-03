@@ -9,10 +9,10 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 	animations: [
 		trigger('imageHover', [
 			state('mouseexit', style({
-				opacity: 0.3,
+				opacity: 0.4,
 			})),
 			state('mouseenter', style({
-				opacity: 0.6,
+				opacity: 1,
 			})),
 			transition('mouseexit => mouseenter', animate('100ms ease-in')),
 			transition('mouseenter => mouseexit', animate('100ms ease-out'))

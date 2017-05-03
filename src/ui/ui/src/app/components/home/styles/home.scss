@@ -1,4 +1,5 @@
 @import '../../../css/theme-config.scss';
+@import '../../../../../node_modules/bootstrap/scss/bootstrap.scss';
 
 #avatar-control-block {
     width: 320px;
@@ -6,43 +7,57 @@
     display: inline-block;
     font-size: 16px;
     padding-top:3px;
-    font-family: $font-family;
-    color: $text-color;
-    background-color: $avatar-control-bg;
-}
-.sidebar {
-    height:20vh;
     color: $text-color;
     font-family: $font-family;
     background-color: $avatar-control-bg;
-    text-align: center;
-    position: fixed;
-    z-index: 1;
-    width:107px;
 }
 .nav-link {
     color: $text-color;
     font-family: $font-family;
 }
 .main {
-    background-color: $followed-grid-bg;
     opacity: 1;
     z-index: 0;
-}
-.now-playing-grid {
-    margin-left: 185px;
-    margin-top: 50px;
+    background-color: $followed-grid-bg;
 }
 .now-playing-header {
-    font-size: 40px;
     color: #444;
+    font-size: 40px;
 }
-.stream {
-   // width:320px;
-   // height:263px;
-    width: 300px;
-    height: 300px;
-    //background-color:rgba(102,102,102,0.2);
-    margin-bottom:10px;
-    color: rgba(202, 202, 202, 0.42);
+@include media-breakpoint-up(xl) {
+    .now-playing-grid {
+        margin-top: 50px;
+        margin-left: 185px;
+        font-family: $font-family;
+    }
+    .stream {
+        margin-bottom:10px;
+        width: $channel-block-width;
+        height: $channel-block-height;
+        color: rgba(202, 202, 202, 0.42);
+    }
+}
+@include media-breakpoint-down(sm) {
+    .stream {
+        color: rgba(202, 202, 202, 0.42);
+        margin-bottom: 10px;
+    }
+    .now-playing-grid {
+        font-family: $font-family;
+        margin: 65px 0px 0px 15px;
+    }
+    .center-me {
+        display: block;
+    }
+    .main {
+        height: 100%;
+    }
+}
+@include media-breakpoint-down(xs) {
+    .now-playing-grid {
+        margin: 65px 0px 0px 30px;
+    }
+    .stream {
+        margin-bottom: 10px;
+    }
 }

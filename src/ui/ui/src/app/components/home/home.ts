@@ -1,20 +1,11 @@
 import { Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { AngularMasonry, MasonryOptions } from 'angular2-masonry';
-import { NgbModule, NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
-import { Component, ViewChild, OnInit, Pipe, PipeTransform, HostListener } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
 import { Auth } from "app/services/auth0/auth";
 import { TwitchAPI, FollowedStream } from 'app/services/twitch/twitch';
-
-@Pipe({name: 'SafeImgURL'})
-export class SafeImgURLPipe implements PipeTransform {
-	constructor(private sanitized: DomSanitizer) {}
-	transform(value: any, ...args: any[]) {
-		return this.sanitized.bypassSecurityTrustStyle(value);
-	}
-}
 
 @Component({
 	selector: 'app-home',
@@ -25,16 +16,15 @@ export class SafeImgURLPipe implements PipeTransform {
 export class Home implements OnInit {
 	username = '';
 	avatar_url = '';
-	imgURL: SafeImgURLPipe;
 	streams: FollowedStream[] = null;
 	public isNavbarCollapsed = true;
 	public sanitizer: DomSanitizer;
 
 	@ViewChild(AngularMasonry) masonry: AngularMasonry;
-	options: MasonryOptions = {
-		gutter: 10,
-		initLayout: true
-	}
+	// options: MasonryOptions = {
+	// 	gutter: 10,
+	// 	initLayout: true
+	// }
 
 	constructor(private auth: Auth, private routes: Router, private twitch: TwitchAPI,
 				private sanitized: DomSanitizer) {

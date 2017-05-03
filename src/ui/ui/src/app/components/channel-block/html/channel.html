@@ -1,10 +1,23 @@
 <div style="position:relative;">
-	<div [@topHover]="state" class="stream-title">
-		{{channel}}
-	</div>
-	<img [@imageHover]="state" src="{{logoURL}}" style="opacity: 0.4;z-index:0;" />
-	<div [@bottomHover]="state"  class="stream-title-bottom">
-		<span class="text-box">{{streamTitle}}</span>
-		<span class="text-box text-box-accent-color">{{viewers}} Viewers</span>
-	</div>
+	<span class="hidden-md-down">
+		<div [@topHover]="state" class="stream-title">
+			{{channel}}
+		</div>
+		<img [@imageHover]="state" src="{{logoURL}}" class="channel-log-img" width="250" height="250" />
+		<div [@bottomHover]="state"  class="stream-title-bottom">
+			<span class="text-box">{{streamTitle}}</span>
+			<span class="text-box text-box-accent-color">{{viewers}} Viewers</span>
+		</div>
+	</span>
+	<span class="hidden-md-up">
+		<div class="stream-title">
+			{{channel}}
+		</div>
+		<img [@imageHover]="state" src="{{logoURL}}" class="channel-log-img" width="300" height="300" />
+		<div class="stream-title-bottom">
+			<span class="text-box">{{streamTitle}}</span>
+			<span class="text-box text-box-accent-color">{{viewers}} Viewers</span>
+		</div>
+	</span>
+
 </div>

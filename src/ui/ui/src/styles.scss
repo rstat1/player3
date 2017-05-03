@@ -1,15 +1,16 @@
 @import 'app/css/material-custom.scss';
+@import 'app/css/theme-config.scss';
 @import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
 body {
 	width: 100%;
-
+	padding: 0px;
+	margin: 0px auto;
 	max-width: 1280px;
 	min-height: 900px;
-	margin: 0px auto;
-	padding: 0px;
-	background: url('/assets/march.jpg');
 	background-size: cover;
+	font-family: $font-family;
+	background: url('/assets/march.jpg');
 }
 .main {
 	width:100%;

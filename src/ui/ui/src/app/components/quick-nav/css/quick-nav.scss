@@ -1,0 +1,36 @@
+@import '../../../css/theme-config.scss';
+@import '../../../css/dropdown-style.scss';
+
+.sidebar {
+    height:9vh;
+    color: $text-color;
+    font-family: $font-family;
+    background-color: $avatar-control-bg;
+    text-align: center;
+    position: fixed;
+    z-index: 1;
+    width:107px;
+}
+.dropdown-menu {
+	margin: 0;
+	padding: 0;
+	width:107px;
+	min-width: 0px;
+	text-align: center;
+	border: 0px;
+	border-radius: 0;
+    background-color: $avatar-control-bg;
+}
+.dropdown-item {
+	color: white;
+}
+i:active {
+    color: white;
+}
+.dropdown-toggle:after {
+	display: none;
+}
+.quick-drop.active, .quick-drop:active, .show>.quick-drop.dropdown-toggle {
+    color: $accent-color;
+    background-color: white;
+}

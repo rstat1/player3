@@ -13,7 +13,9 @@ import { Home } from './components/home/home';
 import { Login } from './components/login/login';
 import { MasonryModule } from 'angular2-masonry';
 import { LoginCallback } from "app/components/login/login-callback";
-import { ChannelComponent } from './components/channel-block/channel-block'
+import { ChannelComponent } from './components/channel-block/channel-block';
+import { PageSwitcherComponent } from './components/page-switcher/page-switcher';
+import { QuickNavComponent } from './components/quick-nav/quick-nav';
 
 @NgModule({
   declarations: [
@@ -22,6 +24,8 @@ import { ChannelComponent } from './components/channel-block/channel-block'
     LoginCallback,
     AppRoot,
     ChannelComponent,
+    PageSwitcherComponent,
+    QuickNavComponent,
   ],
   imports: [
     BrowserModule,

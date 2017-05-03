@@ -1,40 +1,26 @@
-<div class="sidebar col-4 col-sm-3 col-md-5 col-lg-4 col-xl-1" >
-	<img style="margin-top:3px;opacity:1" src="/assets/google-controller.png" width="64" height="64" />
-	<ul class="navbar-nav">
-		<li class="nav-item">
-			<span style="display:block; margin:0px auto;" class="fa-stack">
-				<i class="fa fa-stop fa-stack-1x fa-inverse accent-color-text"></i>
-			</span>
-			Stop
-		</li>
-		<li class="nav-item">
-			<span style="display:block; margin:0px auto;" class="fa-stack">
-				<i class="fa fa-comments fa-stack-1x fa-inverse accent-color-text"></i>
-			</span>
-			Show chat
-		</li>
-	</ul>
-</div>
+<quick-nav class="hidden-sm-down"></quick-nav>
 <div class="main">
 	<div class="now-playing-grid" style="overflow:visible;">
-		<p class="now-playing-header">Now playing</p>
-		<masonry [options]="options">
-			<div masonry-brick class="stream" *ngFor="let s of streams">
-				<channel [channel]="s.ChannelName"
-						 [logoURL]="s.LogoURL"
-						 [streamTitle]="s.CurrentTitle"
-						 [viewers]="s.Viewers"></channel>
-				<!--<div style="position:relative;">
-					<div class="stream-title">
-						{{s.ChannelName}}
+		<span class="center-me">
+			<nav-box class="hidden-sm-down"></nav-box>
+			<span class="hidden-sm-down">
+				<masonry [options]='{ "gutter": 10 }'>
+					<div masonry-brick class="stream" *ngFor="let s of streams">
+						<channel [channel]="s.ChannelName" [logoURL]="s.LogoURL"
+								[streamTitle]="s.CurrentTitle" [viewers]="s.Viewers">
+						</channel>
 					</div>
-					<img src="{{s.LogoURL}}" style="opacity: 0.2;z-index:0;" />
-					<div class="stream-title-bottom">
-						<span class="text-box">{{s.CurrentTitle}}</span>
-						<span class="text-box text-box-accent-color">{{s.Viewers}} Viewers</span>
+				</masonry>
+			</span>
+			<span class="hidden-md-up">
+				<masonry [options]='{ "gutter": 10, "itemSelector": ".stream" }'>
+					<div masonry-brick class="stream" *ngFor="let s of streams">
+						<channel [channel]="s.ChannelName" [logoURL]="s.LogoURL"
+								[streamTitle]="s.CurrentTitle" [viewers]="s.Viewers">
+						</channel>
 					</div>
-				</div>-->
-			</div>
-		</masonry>
+				</masonry>
+			</span>
+		</span>
 	</div>
 </div>

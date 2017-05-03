@@ -5,6 +5,14 @@ $text-color: #EEE;
 $accent-color: #A83D3e;//#da4a4b;
 $avatar-control-bg:rgba(24,25,25,51);
 $font-family: 'Pontano Sans', sans-serif;
+$channel-block-width: 250px;
+$channel-block-height: 250px;
+
+@import '../../../node_modules/bootstrap/scss/bootstrap.scss';
+@include media-breakpoint-down(xs) {
+	$channel-block-width: 300px;
+	$channel-block-height: 300px;
+}
 
 .centered-icon {
 	display:block;
