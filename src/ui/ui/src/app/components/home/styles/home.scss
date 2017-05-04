@@ -44,7 +44,7 @@
     }
     .now-playing-grid {
         font-family: $font-family;
-        margin: 65px 0px 0px 15px;
+        margin: 80px 0px 0px 15px;
     }
     .center-me {
         display: block;
@@ -55,7 +55,7 @@
 }
 @include media-breakpoint-down(xs) {
     .now-playing-grid {
-        margin: 65px 0px 0px 30px;
+        margin: 80px 0px 0px 30px;
     }
     .stream {
         margin-bottom: 10px;

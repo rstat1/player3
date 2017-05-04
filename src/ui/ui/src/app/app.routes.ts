@@ -11,3 +11,11 @@ export const ROUTES: Routes = [
 	{path: 'callback', component: LoginCallback},
 	{path: '**', redirectTo: ''}
 ];
+
+export class AppRoutes {
+	public static AppRoutes = [
+		{itemName: 'Games', path: "directory/games"},
+		{itemName: 'Discover', path: 'directory'},
+		{itemName: 'Now Playing', path: ''},
+	]
+}
