@@ -13,11 +13,7 @@ import { MdButtonModule } from "@angular/material";
 export class Login {
 	constructor(private loginButton: MdButtonModule, private auth: Auth, private routes: Router) {
 		if (!this.auth.authenticated()) { this.auth.doAuth(); }
-		else
-		{
-			console.log("hi");
-			this.routes.navigate(['home']);
-		}
+		else { this.routes.navigate(['home']); }
 	}
 	onLoginClick() {
 		this.auth.login();

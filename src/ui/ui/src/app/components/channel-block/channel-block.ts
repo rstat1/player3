@@ -1,9 +1,10 @@
 import { Component, Input, HostListener } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { Player3Client } from '../../services/player3-client/player3-client'
 
 @Component({
 	selector: 'channel',
-	providers: [],
+	providers: [Player3Client],
 	templateUrl:'./html/channel.html',
 	styleUrls: ['./css/channel.scss'],
 	animations: [
@@ -49,6 +50,8 @@ export class ChannelComponent {
 
 	public state = "mouseexit";
 
+	constructor(private client: Player3Client) {}
+
 	@HostListener('mouseenter') MouseEnter() {
 		this.state = 'mouseenter';
 	}
@@ -58,5 +61,8 @@ export class ChannelComponent {
 	public toggleState() {
 		this.state = (this.state === 'mouseenter' ? 'mouseleave' : 'mouseenter');
 	}
-	constructor() {}
+	public startStream(channelName) {
+		console.log(channelName);
+		this.client.StartStream(channelName);
+	}
 }

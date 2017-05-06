@@ -37,6 +37,28 @@ export class TwitchAPI {
 
 		return this.http.get(streamsURL, options).map(this.getStreams);
 	}
+	public getPlaylistURL(channelName: string) {
+		let channelsURL = `${Config.TWITCH_CHANNELS_URL}/${channelName}/access_token`;
+		let usherURL = `${Config.TWITCH_USHER_URL}/${channelName}.m3u8`;
+		let headers: Headers = new Headers({
+			 "Client-Id": Config.CLIENT_ID
+		});
+		let params: URLSearchParams = new URLSearchParams("adblock=false&need_https=true&platform=web&player_type=site");
+		let options: RequestOptions = new RequestOptions({headers: headers, params: params});
+		this.http.get(channelsURL, options).map(res => res.json()).subscribe(token => {
+			let params: URLSearchParams = new URLSearchParams();
+			params.set("player", "web");
+			params.set("token", token.token);
+			params.set("sig", token.sig);
+			params.set("allow_audio_only", "true");
+			params.set("player_backed", "html5");
+			params.set("p", Math.round(Math.random() * 1e7).toString());
+			options = new RequestOptions({params: params});
+			this.http.get(usherURL, options).map(resp => resp.json()).subscribe(playlist => {
+				console.log(playlist);
+			})
+		});
+	}
 	private getStreams(data: Response) {
 		let followed = new Array<FollowedStream>();
 		let streamBlob = data.json();

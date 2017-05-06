@@ -1,18 +1,23 @@
 <div ngbDropdown class="sidebar">
-	<img style="opacity:1" src="/assets/google-controller.png"
+	<img style="opacity:1" style="margin-left: 7px;" src="/assets/google-controller.png"
 		 width="64" height="64" />
 	<div class="dropdown-menu" style="margin-top:0px">
-		<button class="dropdown-item">
-			<span style="display:block; margin:0px auto;" class="fa-stack">
-				<i class="fa fa-stop fa-stack-1x fa-inverse accent-color-text"></i>
-			</span>
-			Stop
-		</button>
-		<button class="dropdown-item">
-			<span style="display:block; margin:0px auto;" class="fa-stack">
-				<i class="fa fa-volume-off fa-stack-1x fa-inverse accent-color-text"></i>
-			</span>
-			Mute
+		<span *ngIf="playing" class="quick-controls">
+			<button class="dropdown-item quick-controls-item">
+				<span style="display:block; margin:0px auto;" class="fa-stack">
+					<i class="fa fa-stop fa-stack-1x fa-inverse"></i>
+				</span>
+				Stop
+			</button>
+			<button class="dropdown-item quick-controls-item">
+				<span style="display:block; margin:0px auto;" class="fa-stack">
+					<i class="fa fa-volume-off fa-stack-1x fa-inverse"></i>
+				</span>
+				Mute
+			</button>
+		</span>
+		<button *ngFor="let route of routes" class="dropdown-item" (onClick)="nav(route.path)">
+			{{route.itemName}}
 		</button>
 	</div>
 	<span class="page-title">Now Playing</span>

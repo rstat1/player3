@@ -17,7 +17,7 @@
 				<masonry [options]='{ "gutter": 10, "itemSelector": ".stream" }'>
 					<div masonry-brick class="stream" *ngFor="let s of streams">
 						<channel [channel]="s.ChannelName" [logoURL]="s.LogoURL"
-								[streamTitle]="s.CurrentTitle" [viewers]="s.Viewers">
+								 [streamTitle]="s.CurrentTitle" [viewers]="s.Viewers">
 						</channel>
 					</div>
 				</masonry>

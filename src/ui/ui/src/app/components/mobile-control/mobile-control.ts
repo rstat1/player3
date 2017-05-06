@@ -1,14 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 
 import { AppRoutes } from '../../app.routes'
+import { Player3Client } from '../../services/player3-client/player3-client'
 
 @Component({
-  selector: 'mobile-controls',
-  templateUrl: './html/mobile-control.html',
-  styleUrls: ['./css/mobile-control.scss']
+	selector: 'mobile-controls',
+	providers: [Player3Client],
+	templateUrl: './html/mobile-control.html',
+	styleUrls: ['./css/mobile-control.scss']
 })
 export class MobileControlComponent {
-  routes = AppRoutes.AppRoutes;
-  
-  constructor() { }
+	public routes = AppRoutes.AppRoutes;
+	public playing: boolean = false;
+
+	constructor(private client: Player3Client) {
+		this.client.IsPlaying.subscribe(message => {
+			this.playing = message;
+		})
+	}
 }

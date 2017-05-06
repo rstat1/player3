@@ -3,9 +3,9 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
-import { MaterialModule } from '@angular/material';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { WebSocketService } from 'angular2-websocket-service'
 
 import { AppRoot } from './root';
 import { ROUTES } from './app.routes';
@@ -35,11 +35,10 @@ import { MobileControlComponent } from './components/mobile-control/mobile-contr
     HttpModule,
     MasonryModule,
     NgbModule.forRoot(),
-    MaterialModule.forRoot(),
     RouterModule.forRoot(ROUTES),
     BrowserAnimationsModule
   ],
-  providers: [],
+  providers: [ WebSocketService ],
   bootstrap: [AppRoot]
 })
 export class AppModule { }

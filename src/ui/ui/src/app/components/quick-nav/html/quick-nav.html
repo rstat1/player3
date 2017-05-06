@@ -1,7 +1,9 @@
 <div ngbDropdown class="sidebar">
 	<img style="margin-top:3px;opacity:1" src="/assets/google-controller.png"
 		 width="64" height="64" />
-	<i ngbDropdownToggle style="display: block; width: 100%;" class="fa fa-chevron-down quick-drop"></i>
+	<i ngbDropdownToggle *ngIf="playing" style="display: block; width: 100%;" class="fa fa-chevron-down quick-drop">
+
+	</i>
 	<div class="dropdown-menu" style="margin-top:0px">
 		<button class="dropdown-item">
 			<span style="display:block; margin:0px auto;" class="fa-stack">

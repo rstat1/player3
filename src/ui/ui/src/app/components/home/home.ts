@@ -4,6 +4,7 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import { AngularMasonry, MasonryOptions } from 'angular2-masonry';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
+import { Config } from "app/config";
 import { Auth } from "app/services/auth0/auth";
 import { TwitchAPI, FollowedStream } from 'app/services/twitch/twitch';
 
@@ -21,10 +22,6 @@ export class Home implements OnInit {
 	public sanitizer: DomSanitizer;
 
 	@ViewChild(AngularMasonry) masonry: AngularMasonry;
-	// options: MasonryOptions = {
-	// 	gutter: 10,
-	// 	initLayout: true
-	// }
 
 	constructor(private auth: Auth, private routes: Router, private twitch: TwitchAPI,
 				private sanitized: DomSanitizer) {
@@ -35,6 +32,8 @@ export class Home implements OnInit {
 		else { this.avatar_url = "/assets/user-default.png"; }
 		this.username = localStorage.getItem("twitch_username");
 		this.sanitizer = sanitized
+
+		console.log(Config.getP3ClientEndpoint());
 	}
 	ngOnInit(): void {
 		this.twitch.getFollows(true).subscribe(follows => {
@@ -45,5 +44,8 @@ export class Home implements OnInit {
 		let style: string = "background-image: url('" + s + "');";
 		this.sanitized.bypassSecurityTrustStyle(style);
 		return 'url(' + s + ')';
+	}
+	public startStream(name) {
+		console.log(name);
 	}
 }

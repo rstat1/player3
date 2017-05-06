@@ -9,7 +9,7 @@ export const ROUTES: Routes = [
 	{path: '', component: Home},
 	{path: 'login', component: Login},
 	{path: 'callback', component: LoginCallback},
-	{path: '**', redirectTo: ''}
+	//{path: '**', redirectTo: ''}
 ];
 
 export class AppRoutes {
