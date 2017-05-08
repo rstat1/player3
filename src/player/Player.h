@@ -26,6 +26,8 @@ namespace player3 { namespace player
 	{
 		public:
 			Player();
+			void Stop();
+			void Mute();
 			void InitPlayer();
 			void StartStream(std::string url);
 			static Player* Get()
@@ -36,10 +38,10 @@ namespace player3 { namespace player
 			InternalPlayerState* GetPlayerState() { return state; }
 		private:
 			void Play();
-			void Stop();
 			void Decode();
 			void InitOverlay();
 			double GetAudioClock();
+			bool CheckPlayerState();
 			void StartDecodeThread();
 			void StartPlaybackThread();
 			void InitSDLAudio(int sampleRate);

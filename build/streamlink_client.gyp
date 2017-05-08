@@ -55,14 +55,17 @@
 			[
 				'../src/',
 				'../external/',
+				'../external/cpr/include/',
 				'../external/sdl/include/',
 				"../external/ffmpeg",
+				'../external/seasocks/src/main/c/',
 			],
 			'defines': [
 			],
 			'dependencies': [
 				'libs.gyp:base',
-				'libs.gyp:uWS'
+				'libs.gyp:seasocks',
+				'libs.gyp:cpr'
 			],
 			'sources': [
 				'../src/PlayerApp.cpp',
@@ -75,7 +78,11 @@
 				'../src/PlayerApp.h',
 				'../src/player/VideoPlayerBase.h',
 				'../src/platform/Platfroms.h',
-				'../src/platform/PlatformInterface.h'
+				'../src/platform/PlatformInterface.h',
+				'../src/ui/handlers/AngularPageHandler.cpp',
+				'../src/ui/handlers/AngularPageHandler.h',
+				'../src/ui/handlers/WebSocketHandler.cpp',
+				'../src/ui/handlers/WebSocketHandler.h'
 			],
 			'conditions': [
 				['OS=="linux"', {

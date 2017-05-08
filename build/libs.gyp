@@ -177,7 +177,7 @@
 			]
 		},
 		{
-			'target_name': "uWS",
+			'target_name': "seasocks",
 			'type': "static_library",
 			'cflags': [
 				'-std=c++11'
@@ -188,30 +188,63 @@
 					'-lz'
 				],
 			},
+			'include_dirs': [
+				'../external/seasocks/src/main/c/'
+			],
 			'sources': [
-				'../external/uws/src/Asio.h',
-				'../external/uws/src/Backend.h',
-				'../external/uws/src/Epoll.cpp',
-				'../external/uws/src/Epoll.h',
-				'../external/uws/src/Extensions.cpp',
-				'../external/uws/src/Extensions.h',
-				'../external/uws/src/Group.cpp',
-				'../external/uws/src/Group.h',
-				'../external/uws/src/HTTPSocket.cpp',
-				'../external/uws/src/HTTPSocket.h',
-				'../external/uws/src/Hub.cpp',
-				'../external/uws/src/Hub.h',
-				'../external/uws/src/Libuv.h',
-				'../external/uws/src/Networking.cpp',
-				'../external/uws/src/Networking.h',
-				'../external/uws/src/Node.cpp',
-				'../external/uws/src/Node.h',
-				'../external/uws/src/Socket.cpp',
-				'../external/uws/src/Socket.h',
-				'../external/uws/src/uWS.h',
-				'../external/uws/src/WebSocket.cpp',
-				'../external/uws/src/WebSocket.h',
-				'../external/uws/src/WebSocketProtocol.h'
+				'../external/seasocks/src/main/web/Embedded.cpp',
+				'../external/seasocks/src/main/c/Connection.cpp',
+				'../external/seasocks/src/main/c/HybiAccept.cpp',
+				'../external/seasocks/src/main/c/HybiPacketDecoder.cpp',
+				'../external/seasocks/src/main/c/Logger.cpp',
+				'../external/seasocks/src/main/c/PageRequest.cpp',
+				'../external/seasocks/src/main/c/Response.cpp',
+				'../external/seasocks/src/main/c/Server.cpp',
+				'../external/seasocks/src/main/c/StringUtil.cpp',
+				'../external/seasocks/src/main/c/md5/md5.cpp',
+				'../external/seasocks/src/main/c/internal/Base64.cpp',
+				'../external/seasocks/src/main/c/seasocks/Request.cpp',
+				'../external/seasocks/src/main/c/seasocks/ResponseCode.cpp',
+				'../external/seasocks/src/main/c/seasocks/SynchronousResponse.cpp',
+				'../external/seasocks/src/main/c/seasocks/ResponseBuilder.cpp',
+				'../external/seasocks/src/main/c/seasocks/StreamingResponse.cpp',
+				'../external/seasocks/src/main/c/seasocks/ZlibContextDisabled.cpp',
+				'../external/seasocks/src/main/c/sha1/sha1.cpp',
+				'../external/seasocks/src/main/c/util/CrackedUri.cpp',
+				'../external/seasocks/src/main/c/util/Json.cpp',
+				'../external/seasocks/src/main/c/util/PathHandler.cpp',
+				'../external/seasocks/src/main/c/util/RootPageHandler.cpp',
+			]
+		},
+		{
+			'target_name': "cpr",
+			'type': "static_library",
+			'cflags': [
+				'-std=c++11'
+			],
+			'link_settings': {
+				'libraries': [
+					'-lstdc++',
+					'-lcurl'
+				]
+			},
+			'include_dirs': [
+				'../external/cpr/include'
+			],
+			'sources': [
+				'../external/cpr/cpr/auth.cpp',
+				'../external/cpr/cpr/cookies.cpp',
+				'../external/cpr/cpr/cprtypes.cpp',
+				'../external/cpr/cpr/digest.cpp',
+				'../external/cpr/cpr/error.cpp',
+				'../external/cpr/cpr/multipart.cpp',
+				'../external/cpr/cpr/parameters.cpp',
+				'../external/cpr/cpr/payload.cpp',
+				'../external/cpr/cpr/proxies.cpp',
+				'../external/cpr/cpr/session.cpp',
+				'../external/cpr/cpr/ssl_options.cpp',
+				'../external/cpr/cpr/timeout.cpp',
+				'../external/cpr/cpr/util.cpp',
 			]
 		}
 	],

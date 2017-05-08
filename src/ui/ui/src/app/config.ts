@@ -5,13 +5,13 @@ export class Config {
 	public static CLIENT_ID: string = "xaqx8q092rlsjzfh0sgruo90by2u13";
 	public static STREAMS_URL: string = "/streams/followed";
 	public static TWITCH_API: string = "https://api.twitch.tv/kraken";
-	public static TWITCH_CHANNELS_URL: string = "https://api.twitch.tv/api/channels";
-	public static TWITCH_USHER_URL: string = "https://usher.ttvnw.net/api/channels/hls";
+	public static CHANNELS_URL: string = "https://api.twitch.tv/api/channels";
+	public static USHER_URL: string = "https://usher.ttvnw.net/api/channel/hls";
 	private static CLIENT_ENDPOINT: string = "";
 
 	public static getP3ClientEndpoint() : string
 	{
-		if (environment.production == false) { return this.CLIENT_ENDPOINT + ":8080/"; }
+		if (environment.production == false) { return this.CLIENT_ENDPOINT + ":8080/ws"; }
 		return this.CLIENT_ENDPOINT;
 	}
 	public static setP3ClientEndpoint(endpoint: string)

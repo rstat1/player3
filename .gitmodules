@@ -1,3 +1,6 @@
-[submodule "external/uws"]
-	path = external/uws
-	url = https://github.com/uWebSockets/uWebSockets.git
+[submodule "external/cpr"]
+	path = external/cpr
+	url = https://github.com/whoshuu/cpr.git
+[submodule "external/seasocks"]
+	path = external/seasocks
+	url = https://github.com/mattgodbolt/seasocks.git

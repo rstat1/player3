@@ -27,23 +27,6 @@ int main(int argc, char* argv[])
 	MinidumpDescriptor descriptor(GetAppPath());
 	ExceptionHandler eh(descriptor, NULL, dumpCallback, NULL, true, -1);
 
-	if (argc == 1)
-	{
-		//std::cout << "Player3 UI/Manager server not implemented." << std::endl;
-		PlayerApp* player = new PlayerApp("");
-		return 0;
-	}
-	else if (argc > 1)
-	{
-		if (strcmp(argv[1], "--player "))
-		{
-			if (argc < 3)
-			{
-				Log("main", "missing url to play.");
-				return 0;
-			}
-			else { PlayerApp* player = new PlayerApp((const char*)argv[2]); }
-		}
-	}
+	PlayerApp::Get()->Start();
 	return 0;
 }

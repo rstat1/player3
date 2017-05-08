@@ -21,9 +21,10 @@ namespace player3 { namespace player
 	class PlayerApp
 	{
 		public:
-			PlayerApp() {}
-			PlayerApp(const char* url);
-			TaskResult* OnInitComplete(void* url);
+			PlayerApp();
+			void Start();
+			TaskResult* StopStream();
+			TaskResult* OnInitComplete();
 			static PlayerApp* Get()
 			{
 				if (!PlayerApp::ref) { ref = make_shared<PlayerApp>(); }

@@ -5,18 +5,12 @@
 * found in the included LICENSE file.
 */
 
-#ifndef UISERVE
-#define UISERVE
-
-#include <map>
+#include <ui/handlers/AngularPageHandler.h>
 
 namespace player3 { namespace ui
 {
-	class UIServer
+	std::shared_ptr<Response> AngularPageHandler::handle(const Request& request)
 	{
-		public:
-			UIServer();
-	};
+		return nullptr;
+	}
 }}
-
-#endif

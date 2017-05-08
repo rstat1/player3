@@ -8,6 +8,7 @@
 #ifndef PLAYBASE
 #define PLAYBASE
 
+#include <mutex>
 #include <SDL.h>
 #include <queue>
 #include <player/infooverlay/InfoOverlay.h>
@@ -58,6 +59,7 @@ namespace player3 { namespace player
 	{
 		public:
 			AVCodec* audioCodec;
+			bool silence = false;
 			AVCodecContext* aCtx;
 			AVStream audioStream;
 			SwrContext* convertCtx;
@@ -76,12 +78,13 @@ namespace player3 { namespace player
 			int audioCBTime;
 			PlayerStatus status;
 			InfoOverlay* overlay;
+			std::mutex stateGuard;
 			int videoIdx, audioIdx;
 			std::string currentURL;
-			AVFormatContext* format;
 			std::queue<Data> video;
 			std::queue<Data> audio;
-			AudioState* audioDecodeState;
+			AudioState* audioState;
+			AVFormatContext* format;
 			SDL_AudioDeviceID audioDevice;
 			ConditionVariable* bufferSignal;
 			double videoTimeBase, audioTimeBase;

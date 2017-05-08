@@ -5,17 +5,17 @@
 
 	</i>
 	<div class="dropdown-menu" style="margin-top:0px">
-		<button class="dropdown-item">
+		<button (click)="client.StopStream()" class="dropdown-item">
 			<span style="display:block; margin:0px auto;" class="fa-stack">
 				<i class="fa fa-stop fa-stack-1x fa-inverse accent-color-text"></i>
 			</span>
 			Stop
 		</button>
-		<button class="dropdown-item">
+		<button (click)="client.Mute()" class="dropdown-item">
 			<span style="display:block; margin:0px auto;" class="fa-stack">
 				<i class="fa fa-volume-off fa-stack-1x fa-inverse accent-color-text"></i>
 			</span>
-			Mute
+			{{client.MuteButtonText}}
 		</button>
 	</div>
 </div>

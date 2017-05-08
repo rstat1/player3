@@ -3,17 +3,17 @@
 		 width="64" height="64" />
 	<div class="dropdown-menu" style="margin-top:0px">
 		<span *ngIf="playing" class="quick-controls">
-			<button class="dropdown-item quick-controls-item">
+			<button (click)="client.StopStream()" class="dropdown-item quick-controls-item">
 				<span style="display:block; margin:0px auto;" class="fa-stack">
 					<i class="fa fa-stop fa-stack-1x fa-inverse"></i>
 				</span>
 				Stop
 			</button>
-			<button class="dropdown-item quick-controls-item">
+			<button (click)="client.Mute()" class="dropdown-item quick-controls-item">
 				<span style="display:block; margin:0px auto;" class="fa-stack">
 					<i class="fa fa-volume-off fa-stack-1x fa-inverse"></i>
 				</span>
-				Mute
+				{{client.MuteButtonText}}
 			</button>
 		</span>
 		<button *ngFor="let route of routes" class="dropdown-item" (onClick)="nav(route.path)">

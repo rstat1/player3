@@ -5,17 +5,20 @@
 * found in the included LICENSE file.
 */
 
-#ifndef UISERVE
-#define UISERVE
+#ifndef PAGEHANDLE
+#define PAGEHANDLE
 
-#include <map>
+#include <memory>
+#include <seasocks/PageHandler.h>
+
+using namespace seasocks;
 
 namespace player3 { namespace ui
 {
-	class UIServer
+	class AngularPageHandler : public PageHandler
 	{
 		public:
-			UIServer();
+			virtual std::shared_ptr<Response> handle(const Request& request);
 	};
 }}
 

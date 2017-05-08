@@ -4,7 +4,7 @@ import { Player3Client } from '../../services/player3-client/player3-client'
 
 @Component({
 	selector: 'channel',
-	providers: [Player3Client],
+	providers: [],
 	templateUrl:'./html/channel.html',
 	styleUrls: ['./css/channel.scss'],
 	animations: [

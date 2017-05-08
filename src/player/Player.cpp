@@ -41,8 +41,8 @@ namespace player3 { namespace player
 		this->state->videoClock = 0;
 		this->state->lastVideoPts = 0;
 		this->state->lastAudioPts = 0;
-		this->state->audioDecodeState = new AudioState();
-		this->state->audioDecodeState->audioClock = 0;
+		this->state->audioState = new AudioState();
+		this->state->audioState->audioClock = 0;
 		this->state->bufferSignal = new ConditionVariable();
 
 		this->InitOverlay();
@@ -77,9 +77,14 @@ namespace player3 { namespace player
 	}
 	void Player::StartStream(std::string url)
 	{
-		this->state->currentURL = url;
-		this->StartPlaybackThread();
-		this->StartDecodeThread();
+		Log("Player", "playing url %s", url.c_str());
+		if (url != "")
+		{
+			this->state->status = PlayerStatus::Playing;
+			this->state->currentURL = url;
+			this->StartPlaybackThread();
+			this->StartDecodeThread();
+		}
 	}
 	void Player::StartDecodeThread()
 	{
@@ -108,15 +113,16 @@ namespace player3 { namespace player
 
 			Log("Player", "stream starts at %f", this->state->format->streams[this->state->videoIdx]->start_time * this->state->videoTimeBase);
 
-			this->state->audioDecodeState->aCtx = this->state->format->streams[this->state->audioIdx]->codec;
-			this->state->audioDecodeState->audioCodec = avcodec_find_decoder(this->state->audioDecodeState->aCtx->codec_id);
-			avcodec_open2(this->state->audioDecodeState->aCtx, this->state->audioDecodeState->audioCodec, &audioOptions);
+			this->state->audioState->aCtx = this->state->format->streams[this->state->audioIdx]->codec;
+			this->state->audioState->audioCodec = avcodec_find_decoder(this->state->audioState->aCtx->codec_id);
+			avcodec_open2(this->state->audioState->aCtx, this->state->audioState->audioCodec, &audioOptions);
 			av_dump_format(this->state->format, this->state->videoIdx, this->state->currentURL.c_str(), 0);
 			this->state->videoClock = (av_gettime() / AV_TIME_BASE);
-			this->state->audioDecodeState->audioClock = (av_gettime() / AV_TIME_BASE);
+			this->state->audioState->audioClock = (av_gettime() / AV_TIME_BASE);
 			this->state->lastDelay = 40e-3;
-			this->InitSDLAudio(this->state->audioDecodeState->aCtx->sample_rate);
+			this->InitSDLAudio(this->state->audioState->aCtx->sample_rate);
 			this->Decode();
+
 		});
 		decode.detach();
 	}
@@ -152,13 +158,15 @@ namespace player3 { namespace player
 		AVPacket pkt;
 		av_init_packet(&pkt);
 
-		while(this->state->status == PlayerStatus::Playing)
+		while(this->CheckPlayerState())
 		{
+			if (avFormat == nullptr) { break; }
+
 			if (this->state->video.size() > 5 && this->state->audio.size() > 5)
 			{
 				this->state->bufferSignal->Signal();
-				// SDL_Delay(10);
 			}
+
 			if (av_read_frame(avFormat, &pkt) >= 0)
 			{
 				if (this->platformInterface->GetQueuedVideo() > 3500) { SDL_Delay(250); }
@@ -175,13 +183,18 @@ namespace player3 { namespace player
 				else { av_free_packet(&pkt); }
 			}
 		}
+		platformInterface->DecoderShutdown();
+
+		avformat_close_input(&this->state->format);
+		avcodec_close(this->state->audioState->aCtx);
+		SDL_CloseAudioDevice(this->state->audioDevice);
 	}
 	int Player::ProcessAudio(AVPacket* pkt)
 	{
 		uint8_t* out = NULL;
 		AVFrame* f = av_frame_alloc();
 		int samples = 0, bufferSize = 0, lineSize = 0;
-		AVCodecContext* fmt = this->state->audioDecodeState->aCtx;
+		AVCodecContext* fmt = this->state->audioState->aCtx;
 
 		SwrContext* convertCtx = swr_alloc_set_opts(nullptr, AV_CH_LAYOUT_STEREO, av_get_sample_fmt("s16"), fmt->sample_rate,
 										AV_CH_LAYOUT_STEREO, fmt->sample_fmt, fmt->sample_rate, 0, NULL);
@@ -220,8 +233,13 @@ namespace player3 { namespace player
 	}
 	void Player::Stop()
 	{
-		this->state->status = PlayerStatus::Stopped;
-		platformInterface->DecoderShutdown();
+		bool locked = this->state->stateGuard.try_lock();
+		if (locked)
+		{
+			this->state->status = PlayerStatus::Stopped;
+			this->state->stateGuard.unlock();
+			this->state->audioState->silence = false;
+		}
 	}
 	double Player::GetAudioClock()
 	{
@@ -248,7 +266,7 @@ namespace player3 { namespace player
 
 			//TODO: get audio timing some how
 			state->videoClock += delay;
-			avDiff = state->videoClock - state->audioDecodeState->audioClock;
+			avDiff = state->videoClock - state->audioState->audioClock;
 			actualDelay = state->videoClock - (av_gettime() / AV_TIME_BASE);
 
 			state->overlay->UpdateDoubleValue("AVClockDiff", avDiff);
@@ -282,7 +300,7 @@ namespace player3 { namespace player
 		Data audio;
 		double delay = 0, actualDelay = 0;
 		InternalPlayerState* state = (InternalPlayerState*)userdata;
-		AudioState* audioState = state->audioDecodeState;
+		AudioState* audioState = state->audioState;
 
 		memset(stream, 0, len);
 		if (state->audio.empty() == false)
@@ -296,37 +314,32 @@ namespace player3 { namespace player
 			audioState->audioClock += delay;
 			actualDelay = audioState->audioClock - (av_gettime() / AV_TIME_BASE);
 
+			if (state->audioState->silence == false) { memcpy(stream, audio.data, len); }
 
-			memcpy(stream, audio.data, len);
 			state->overlay->UpdateDoubleValue("AudioDelay", actualDelay);
 			state->overlay->UpdateDoubleValue("AudioClock", audioState->audioClock);
-			//state->audioDecodeState->audioClock = audio.pts;
 			audio.DeleteData();
 			state->audio.pop();
 		}
+	}
+	bool Player::CheckPlayerState()
+	{
+		bool isPlaying = true;
+		bool locked = this->state->stateGuard.try_lock();
+		if (locked)
+		{
+			if (this->state->status == PlayerStatus::Stopped) { isPlaying = false; }
+			this->state->stateGuard.unlock();
+		}
+		return isPlaying;
 	}
 	void Player::SigTermHandler(int signum)
 	{
 		exit(0);
 	}
+	void Player::Mute()
+	{
+		if (this->state->audioState->silence) { this->state->audioState->silence = false; }
+		else { this->state->audioState->silence = true; }
+	}
 }}
-				// actualDelay = 0, delay = 0;
-				// video = this->state->video.front();
-				// delay = video.pts - this->state->lastVideoPts;
-				// if (delay <= 0 || delay >= 1.0) { delay = this->state->lastDelay; }
-				// this->state->lastVideoPts = video.pts;
-				// this->state->lastDelay = delay;
-
-				// this->state->frameTimer += delay;
-				// actualDelay = this->state->frameTimer - (double)(av_gettime() / 1000000.0);
-				// cout << actualDelay << endl;
-				// this->state->overlay->UpdateDoubleValue("VideoDelay", this->state->frameTimer);// * 1000 + 0.05);
-				// this->state->overlay->UpdateIntValue("VideoActualDelay", (int)(delay * 1000 + 0.05));
-
-				// //SDL_Delay(actualDelay);
-
-				// if (!platformInterface->DecodeVideoFrame(video.data, video.size))
-				// {
-				// 	 Log("play-thread", "Something failed in decode");
-				// 	 SDL_Delay(100);
-				// }

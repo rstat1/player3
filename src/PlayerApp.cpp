@@ -15,26 +15,27 @@ namespace player3 { namespace player
 {
 	std::shared_ptr<PlayerApp> PlayerApp::ref;
 
-	PlayerApp::PlayerApp(const char* url)
+	PlayerApp::PlayerApp() {}
+	void PlayerApp::Start()
 	{
-		NEW_TASK1(initTask, PlayerApp, PlayerApp::Get(), OnInitComplete, (void*)url);
+		NEW_TASK0(initTask, PlayerApp, PlayerApp::Get(), OnInitComplete);
 		this->taskRunner = new TaskRunner();
 		this->taskRunner->Init("PlayerApp", initTask);
 		this->taskRunner->Start();
 	}
-	TaskResult* PlayerApp::OnInitComplete(void* url)
+	TaskResult* PlayerApp::OnInitComplete()
 	{
-		const char* URL = (const char*)url;
 		Log("PlayerApp", "init complete");
 
 		UIServer* server = new UIServer();
+		Player::Get()->InitPlayer();
 
-		if (URL != "")
-		{
-			std::string streamURL(URL);
-			Player::Get()->InitPlayer();
-			Player::Get()->StartStream(streamURL);
-		}
+		return nullptr;
+	}
+	TaskResult* PlayerApp::StopStream()
+	{
+		Log("PlayerApp", "stopstream");
+		Player::Get()->Stop();
 
 		return nullptr;
 	}

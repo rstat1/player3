@@ -6,43 +6,35 @@
 */
 
 #include <thread>
-#include <fstream>
-#include <iostream>
-#include <sstream>
+#include <memory>
 #include <ui/UIServer.h>
-#include <base/common.h>
+#include <seasocks/Server.h>
+#include <seasocks/PrintfLogger.h>
+#include <ui/handlers/WebSocketHandler.h>
+#include <ui/handlers/AngularPageHandler.h>
 
 using namespace std;
+using namespace seasocks;
 
 namespace player3 { namespace ui
 {
 	UIServer::UIServer()
 	{
 		std::thread ui([&] {
-			uWS::Hub h;
-			bool listenSuccess;
-			h.onHttpRequest([&](uWS::HttpResponse* res, uWS::HttpRequest req, char* data, size_t, size_t ) {
-				RouteResponse* resp;
-				resp = this->ServeRoute(req.getUrl().toString().c_str());
-				if (resp != nullptr) { res->end(resp->response, resp->length); }
-				else { res->end("<p>Unknown route.</p>", 21); }
-			});
+			int port;
+
 #if defined(OS_STEAMLINK)
-			listenSuccess = h.listen(80);
+			port = 80;
 #else
-			listenSuccess = h.listen(8080);
+			port = 8080;
 #endif
-			if (listenSuccess) { Log("UI", "Listening on port whatever."); }
-			else { Log("UI", "Not listening on port whatever"); }
-			h.run();
+			std::shared_ptr<PrintfLogger> logger = std::make_shared<PrintfLogger>(Logger::Level::_DEBUG);
+
+			Server web(logger);
+			web.addWebSocketHandler("/ws", std::make_shared<WebSocketHandler>());
+			web.addPageHandler(std::make_shared<AngularPageHandler>());
+			web.serve("ui", port);
 		});
 		ui.detach();
-	}
-	RouteResponse* UIServer::ServeRoute(std::string route)
-	{
-		std::stringstream homePage;
-		Log("UI", "requested URL %s\n", route.c_str());
-
-		return nullptr;
 	}
 }}

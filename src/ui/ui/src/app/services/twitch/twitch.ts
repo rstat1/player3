@@ -1,11 +1,15 @@
 import { Config } from 'app/config'
 import { Injectable } from '@angular/core';
-import { Http, RequestOptions, Headers, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import { WebSocketService } from 'angular2-websocket-service'
+import { Http, RequestOptions, Headers, Response } from '@angular/http';
+import { WebSocketClient } from 'app/services/player3-client/websocket-client'
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/toPromise';
+
+import * as querystring from "querystring";
 
 export class FollowedStream {
 	public Game: string;
@@ -26,7 +30,7 @@ export class FollowedStream {
 
 @Injectable()
 export class TwitchAPI {
-	constructor(private http: Http) {}
+	constructor(private http: Http, private ws: WebSocketClient) {}
 	public getFollows(live: boolean) : Observable<FollowedStream[]> {
 		let streamsURL: string = Config.TWITCH_API + Config.STREAMS_URL;
 		let headers: Headers = new Headers({
@@ -37,34 +41,47 @@ export class TwitchAPI {
 
 		return this.http.get(streamsURL, options).map(this.getStreams);
 	}
-	public getPlaylistURL(channelName: string) {
-		let channelsURL = `${Config.TWITCH_CHANNELS_URL}/${channelName}/access_token`;
-		let usherURL = `${Config.TWITCH_USHER_URL}/${channelName}.m3u8`;
-		let headers: Headers = new Headers({
-			 "Client-Id": Config.CLIENT_ID
+	public startStream(channelName: string) {
+		let usherURL: string;
+		let accessTokenMessage: string;
+		let playlistURL: string;
+		let tokenParams = {
+			"adblock": "false",
+			"need_https": "true",
+			"platform": "web",
+			"player_type": "site"
+		};
+		accessTokenMessage = `${Config.CHANNELS_URL}/${channelName}/access_token?${querystring.stringify(tokenParams)}`;
+
+		this.ws.SubscribeToMessage("ACCESS", false, message => {
+			let token = JSON.parse(message);
+			let usherParams = {
+				"token": token.token,
+				"sig": token.sig,
+				"allow_source": "true",
+				"allow_spectre": "true",
+				"baking_bread": "true",
+				"allow_audio_only": "true",
+				"player_backed": "html5",
+				"p": Math.round(Math.random() * 1e7).toString()
+			}
+		 	usherURL = `${Config.USHER_URL}/${channelName.toLowerCase()}.m3u8?${querystring.stringify(usherParams)}`;
+			this.ws.SendMessage("USHER", usherURL);
+		})
+
+		this.ws.SubscribeToMessage("USHER", false, message => {
+			this.ws.SendMessage("START", this.parseURLList(message));
 		});
-		let params: URLSearchParams = new URLSearchParams("adblock=false&need_https=true&platform=web&player_type=site");
-		let options: RequestOptions = new RequestOptions({headers: headers, params: params});
-		this.http.get(channelsURL, options).map(res => res.json()).subscribe(token => {
-			let params: URLSearchParams = new URLSearchParams();
-			params.set("player", "web");
-			params.set("token", token.token);
-			params.set("sig", token.sig);
-			params.set("allow_audio_only", "true");
-			params.set("player_backed", "html5");
-			params.set("p", Math.round(Math.random() * 1e7).toString());
-			options = new RequestOptions({params: params});
-			this.http.get(usherURL, options).map(resp => resp.json()).subscribe(playlist => {
-				console.log(playlist);
-			})
-		});
+		this.ws.SendMessage("ACCESS", accessTokenMessage);
+	}
+	private parseURLList(urllist: string) : string {
+		let urls: string[] = urllist.split('\n');
+		return urls[4];
 	}
 	private getStreams(data: Response) {
 		let followed = new Array<FollowedStream>();
 		let streamBlob = data.json();
 		let streams = streamBlob.streams;
-
-		console.log(streamBlob);
 
 		for (var index = 0; index < streamBlob._total; index++) {
 			var element = streams[index];
