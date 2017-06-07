@@ -69,7 +69,8 @@ namespace player3 { namespace ui
 				break;
 			case MessageType::STOP:
 				this->isPlaying = false;
-				POST_TASK(stopStream, "PlayerApp");
+				//POST_TASK(stopStream, "PlayerApp");
+				Player::Get()->Stop();
 				this->UpdatePlayerState();
 				break;
 			case MessageType::START:

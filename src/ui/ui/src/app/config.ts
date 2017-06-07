@@ -12,7 +12,7 @@ export class Config {
 	public static getP3ClientEndpoint() : string
 	{
 		if (environment.production == false) { return this.CLIENT_ENDPOINT + ":8080/ws"; }
-		return this.CLIENT_ENDPOINT;
+		return this.CLIENT_ENDPOINT + "/ws";
 	}
 	public static setP3ClientEndpoint(endpoint: string)
 	{

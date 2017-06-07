@@ -42,21 +42,28 @@
 	#else
 		#error This platform is not supported.
 	#endif
-
 	#if defined(__GNUC__)
 		#define COMPILER_GCC 1
 	#elif defined(_MSC_VER)
 		#define COMPILER_MSVC 1
+	#elif defined(__clang__)
+		#define COMPILER_CLANG 1
 	#else
 		#error Please add support for your compiler in base/common.h
 	#endif
-	#if defined(COMPILER_MSVC)
-		#define OVERRIDE override
-	#elif defined(__clang__)
-		#define OVERRIDE override
-	#else
-		#define OVERRIDE override
+	#if defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+		#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+	#elif defined(COMPILER_MSVC)
+		#define WARN_UNUSED_RESULT
 	#endif
+	#if defined(_M_X64) || defined(__x86_64__) || defined(__aarch64__)
+		#define ARCH_CPU_64_BITS 1
+	#else
+		#define ARCH_CPU_32_BITS 1
+	#endif
+	#define OVERRIDE override
+	#define UNLIKELY(x) (x)
+	#define CHECK(condition) UNLIKELY(!(condition)) ? Log("All", "Failed.") : Log("All", "Checked!");
 	#define DISALLOW_COPY_AND_ASSIGN(TypeName) TypeName(const TypeName&); void operator=(const TypeName&)
 #endif
 #ifdef __cplusplus

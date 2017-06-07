@@ -11,7 +11,7 @@
 #include <seasocks/Server.h>
 #include <seasocks/PrintfLogger.h>
 #include <ui/handlers/WebSocketHandler.h>
-#include <ui/handlers/AngularPageHandler.h>
+#include <ui/handlers/WebPageHandler.h>
 
 using namespace std;
 using namespace seasocks;
@@ -32,8 +32,8 @@ namespace player3 { namespace ui
 
 			Server web(logger);
 			web.addWebSocketHandler("/ws", std::make_shared<WebSocketHandler>());
-			web.addPageHandler(std::make_shared<AngularPageHandler>());
-			web.serve("ui", port);
+			web.addPageHandler(std::make_shared<WebPageHandler>());
+			web.serve("", port);
 		});
 		ui.detach();
 	}

@@ -55,9 +55,9 @@
 			[
 				'../src/',
 				'../external/',
+				"../external/ffmpeg",
 				'../external/cpr/include/',
 				'../external/sdl/include/',
-				"../external/ffmpeg",
 				'../external/seasocks/src/main/c/',
 			],
 			'defines': [
@@ -65,13 +65,19 @@
 			'dependencies': [
 				'libs.gyp:base',
 				'libs.gyp:seasocks',
-				'libs.gyp:cpr'
+				'libs.gyp:cpr',
+				'libs.gyp:external'
 			],
 			'sources': [
 				'../src/PlayerApp.cpp',
 				'../src/player/Player.cpp',
 				'../src/player/infooverlay/InfoOverlay.cpp',
 				'../src/ui/UIServer.cpp',
+				'../src/ui/packaging/Archive.cpp',
+				'../src/ui/handlers/WebPageHandler.cpp',
+				'../src/ui/handlers/WebSocketHandler.cpp',
+				'../src/ui/packaging/File.cpp',
+				'../src/ui/packaging/File.h',
 				'../src/ui/UIServer.h',
 				'../src/player/Player.h',
 				'../src/player/infooverlay/InfoOverlay.h',
@@ -79,9 +85,8 @@
 				'../src/player/VideoPlayerBase.h',
 				'../src/platform/Platfroms.h',
 				'../src/platform/PlatformInterface.h',
-				'../src/ui/handlers/AngularPageHandler.cpp',
-				'../src/ui/handlers/AngularPageHandler.h',
-				'../src/ui/handlers/WebSocketHandler.cpp',
+				'../src/ui/packaging/Archive.h',
+				'../src/ui/handlers/WebPageHandler.h',
 				'../src/ui/handlers/WebSocketHandler.h'
 			],
 			'conditions': [

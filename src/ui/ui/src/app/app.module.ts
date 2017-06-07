@@ -38,7 +38,7 @@ import { WebSocketClient } from "app/services/player3-client/websocket-client";
     FormsModule,
     MasonryModule,
     NgbModule.forRoot(),
-    MaterialModule.forRoot(),
+    MaterialModule,
     RouterModule.forRoot(ROUTES),
     BrowserAnimationsModule
   ],
