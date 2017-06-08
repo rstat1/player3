@@ -49,8 +49,6 @@ namespace player3 { namespace ui
 			return false;
 		}
 
-		Log("UI", header.c_str());
-
 		Json::Value headerFromJSON;
 		Json::Reader reader;
 		reader.parse(header, headerFromJSON, false);
@@ -60,20 +58,32 @@ namespace player3 { namespace ui
 	}
 	std::string Archive::GetFileFromRoot(std::string name)
 	{
-		char* end;
-		std::vector<char> buf;
-		std::string fileContent("");
-		Json::Value fileInfo = this->filesList[name];
-		int size = fileInfo.get("size", -1).asInt();
-		const char* offsetAsStr = fileInfo.get("offset", 0).asString().c_str();
-		uint64_t offset = std::strtoull(offsetAsStr, &end, 10);
+		auto search = this->FileCache.find(name);
+		if (search != this->FileCache.end())
+		{
+			Log("UI", "returning %s from cache.", name.c_str());
+			return search->second;
+		}
+		else
+		{
+			Log("UI", "not returning %s from cache.", name.c_str());
 
-		buf.resize(size);
-		int bytesRead = file.Read(offset + this->headerSize, buf.data(), size - 1);
-		fileContent = buf.data();
-		buf.clear();
+			char* end;
+			std::vector<char> buf;
+			std::string fileContent("");
+			Json::Value fileInfo = this->filesList[name];
+			int size = fileInfo.get("size", -1).asInt();
+			const char* offsetAsStr = fileInfo.get("offset", 0).asString().c_str();
+			uint64_t offset = std::strtoull(offsetAsStr, &end, 10);
 
-		return fileContent;
+			buf.resize(size + 1);
+			int bytesRead = file.Read(offset + this->headerSize, buf.data(), size);
+
+			fileContent.assign(buf.data());
+			//return fileContent;
+			this->FileCache.insert(std::make_pair(std::move(name), std::move(fileContent)));
+			return this->FileCache[name];
+		}
 	}
 	std::string Archive::GetFileFromFolder(std::string folderName, std::string fileName)
 	{

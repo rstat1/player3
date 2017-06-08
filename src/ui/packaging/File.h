@@ -28,6 +28,7 @@ namespace player3 { namespace ui
 			int Read(uint64_t offset, char* buffer, int size);
 			int ReadAtCurrentPos(char* data, int size);
 		private:
+			int fd;
 			FILE* file_;
 			std::string filePath;
 	};

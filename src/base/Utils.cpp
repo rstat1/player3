@@ -47,13 +47,18 @@ namespace base { namespace utils
 		return "/data/data/us.rdro.xpappfx/";
 #endif
 	}
-	int GetThreadID() 
+	int GetThreadID()
 	{
 #if defined(OS_WIN)
 		return (int)GetCurrentThreadId();
 #else
 		return (int)syscall(__NR_gettid);
 #endif
+	}
+	//https://stackoverflow.com/questions/20446201/how-to-check-if-string-ends-with-txt
+	bool EndsWith(const std::string &str, const std::string &suffix)
+	{
+		return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 	}
 #if defined(OS_WIN)
 	std::string GetLastErrorStdStr()

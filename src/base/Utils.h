@@ -19,6 +19,7 @@ namespace base { namespace utils
 {
     BASEAPI std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 	BASEAPI std::vector<std::string> split(const std::string &s, char delim);
+	BASEAPI bool EndsWith(const std::string &str, const std::string &suffix);
 	BASEAPI std::string GetPlatformPathPrefix();
 	BASEAPI std::string GetAppPath();
 	BASEAPI int GetThreadID();

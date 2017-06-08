@@ -1,2 +1,2 @@
 cd Debug_x64/
-valgrind --log-file=$HOME/leaks.log --smc-check=all --leak-check=full --suppressions=../build/tools/mono.supp ./player3 --player https://video-edge-51205c.iad02.hls.ttvnw.net/v0/CocCqk3YT_KUvhAwICcbGDDdl4LzyK9LEPZqnG8n5p5j63mZpRrrOs3CkR5O-Y_goYENs2Nz1m_vJV18N4J-tPYvfl1fXUSHZ2e8fSJhfHdzoU8XKlhF4SReo_PqrryZW5sYQDQyUaRfI_Em7dXTWGIzBWtfnG4VKtLqksZLVhpOuBgOQ5USBBx7vLcsjby2E02yBVNyj58dttKpTmTZ67SgdtitOC0UZVYzYsBvRZU14eYEU34EujEy86unXZGWvjqmhm1hhm2y7rD4jN6PwV1IpiB847OGDdQ0TZ_u-eFQdvhTUSdfNEZcpmH-vsGgqU1qcwvKj5MNqa3Wg4VeXqXLkh531htXkaASEN3woTQ19PAPRfyX6WazIxoaDOBInbGXmStXK32Mdg/index-live.m3u8
+valgrind --log-file=$HOME/leaks.log --smc-check=all --leak-check=full --suppressions=../build/tools/mono.supp ./player3

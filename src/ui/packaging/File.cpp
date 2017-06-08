@@ -6,7 +6,7 @@
 */
 
 #include <base/logging.h>
-#include <stdio.h>
+#include <fcntl.h>
 #include <boost/filesystem.hpp>
 #include <ui/packaging/File.h>
 
@@ -16,8 +16,9 @@ namespace player3 { namespace ui
 {
 	File::File(std::string path, uint32_t flags) : filePath(path)
 	{
-		file_ = fopen(filePath.c_str(), "r");
-		if (file_ == NULL) Log("UI", "Open file: %s", path.c_str());
+		fd = open(filePath.c_str(), O_RDONLY);
+		//file_ = fopen(filePath.c_str(), "r");
+		if (fd != -1) Log("UI", "Open file: %s", path.c_str());
 	}
 	void File::Open()
 	{
@@ -33,12 +34,11 @@ namespace player3 { namespace ui
 	}
 	bool File::IsValid()
 	{
-		return file_ != NULL;
+		return fd != -1;
 	}
 	int File::Read(uint64_t offset, char* buffer, int size)
 	{
 		int bytesRead = 0, rv;
-		int fd = fileno(file_);
 		if (IsValid() == false) { return -1; }
 		do
 		{
@@ -52,8 +52,6 @@ namespace player3 { namespace ui
 	int File::ReadAtCurrentPos(char* data, int size)
 	{
 		int bytesRead = 0, rv;
-		int fd = fileno(file_);
-
 		if (IsValid() == false) { return -1; }
 		do
 		{

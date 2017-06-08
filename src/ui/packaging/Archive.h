@@ -10,6 +10,7 @@
 #ifndef ASARREAD
 #define ASARREAD
 
+#include <map>
 #include <string>
 #include <memory>
 #include <vector>
@@ -22,20 +23,6 @@ namespace player3 { namespace ui
 	class Archive
 	{
 		public:
-			struct FileInfo {
-				FileInfo() : unpacked(false), executable(false), size(0), offset(0) {}
-				bool unpacked;
-				bool executable;
-				uint32_t size;
-				uint64_t offset;
-			};
-  			struct Stats : public FileInfo {
-				Stats() : is_file(true), is_directory(false), is_link(false) {}
-				bool is_file;
-				bool is_directory;
-				bool is_link;
-			};
-
 			Archive(std::string path);
 			~Archive() { file.Close(); }
 			bool Init();
@@ -43,6 +30,7 @@ namespace player3 { namespace ui
 			std::string GetFileFromFolder(std::string folderName, std::string fileName);
 		private:
 			File file;
+			std::map<std::string, std::string> FileCache;
 			uint32_t headerSize;
 			Json::Value filesList;
 	};

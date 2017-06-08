@@ -13,6 +13,6 @@ import { Auth } from './services/auth0/auth';
 export class AppRoot {
 	title2 = 'Welcome, player1';
   	constructor(private auth: Auth, private router: Router) {
-		Config.setP3ClientEndpoint("192.168.1.14");//window.location.hostname)
+		Config.setP3ClientEndpoint("192.168.1.14");//window.location.hostname);
 	}
 }
