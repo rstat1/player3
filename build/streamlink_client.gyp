@@ -64,7 +64,7 @@
 			],
 			'dependencies': [
 				'libs.gyp:base',
-				'libs.gyp:seasocks',
+				'libs.gyp:uWS',
 				'libs.gyp:cpr',
 				'libs.gyp:external'
 			],

@@ -31,15 +31,15 @@ namespace player3 { namespace ui
 		messageTypeMappings["USHER"] = MessageType::USHER;
 		messageTypeMappings["ACCESS"] = MessageType::ACCESS;
 	}
-	void WebSocketHandler::onConnect(WebSocket* connection) {}
-	void WebSocketHandler::onDisconnect(WebSocket* connection)
+ 	void WebSocketHandler::onDisconnect(uWS::WebSocket<SERVER>* connection)
 	{
 		this->clientConnections.erase(connection);
 	}
-	void WebSocketHandler::onData(WebSocket* connection, const char* data)
+	void WebSocketHandler::onData(uWS::WebSocket<SERVER>* connection, char* data, int length)
 	{
 		std::string resp("");
 		std::string receivedMessage(data);
+		receivedMessage = receivedMessage.substr(0, length);
 		int endOfCmd = receivedMessage.find_first_of(":");
 		std::string command = receivedMessage.substr(0, endOfCmd);
 		std::string args = receivedMessage.replace(0, endOfCmd + 1, "");
@@ -56,11 +56,11 @@ namespace player3 { namespace ui
 					this->UpdatePlayerState();
 				}
 				break;
-			case MessageType::ACCESS:
-				connection->send(this->GetAccessToken(args).c_str());
-				break;
+ 			case MessageType::ACCESS:
+ 				connection->send(this->GetAccessToken(args).c_str());
+ 				break;
 			case MessageType::USHER:
-				connection->send(this->GetUsherToken(args).c_str());
+ 				connection->send(this->GetUsherToken(args).c_str());
 				break;
 			case MessageType::MUTE:
 				Player::Get()->Mute();
@@ -82,8 +82,8 @@ namespace player3 { namespace ui
 				break;
 			case MessageType::PLAYERSTATE:
 				break;
-		}
-	}
+ 		}
+ 	}
 	std::string WebSocketHandler::GetAccessToken(std::string url)
 	{
 		std::string cprResp("");
@@ -121,6 +121,6 @@ namespace player3 { namespace ui
 		std::string resp("PLAYERSTATE:");
 		this->isMuted == true ? resp.append("Muted;") : resp.append("NotMuted;");
 		this->isPlaying == true ? resp.append("Playing") : resp.append("Stopped");
-		for (auto *con : this->clientConnections) { con->send(resp.c_str()); }
+ 		for (auto *con : this->clientConnections) { con->send(resp.c_str()); }
 	}
 }}

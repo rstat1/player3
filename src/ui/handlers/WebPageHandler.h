@@ -10,26 +10,21 @@
 
 #include <memory>
 #include <base/Utils.h>
+#include <uWS/src/uWS.h>
 #include <ui/packaging/Archive.h>
-#include <seasocks/PageHandler.h>
 
-using namespace seasocks;
+using namespace uWS;
 using namespace base::utils;
 
 namespace player3 { namespace ui
 {
-	class WebPageHandler : public PageHandler
+	class WebPageHandler
 	{
 		public:
-			WebPageHandler()
-			{
-				// UIFiles = new Archive(GetAppPath().append("/ui.asar"));
-				// UIFiles->Init();
-			}
-			virtual std::shared_ptr<Response> handle(const Request& request);
+			WebPageHandler() {}
+			void handle(HttpResponse* resp, HttpRequest req, char* data, size_t len, size_t remaining);
 		private:
 			Archive* UIFiles;
-			std::shared_ptr<Response> HandleImageRequest(std::string fileName);
 	};
 }}
 

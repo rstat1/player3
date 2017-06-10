@@ -22,14 +22,16 @@ namespace player3 { namespace ui
 	}
 	void File::Open(std::string path)
 	{
-		fd = open(path.c_str(), O_RDONLY);
-
-		perror("open filed failed ");
-		if (fd != -1) Log("UI", "Open file: %s", path.c_str());
+		if (fd == 0)
+		{
+			fd = open(path.c_str(), O_RDONLY);
+			perror("open filed failed ");
+			if (fd != -1) Log("UI", "Open file: %s", path.c_str());
+		}
 	}
 	void File::Close()
 	{
-		if (file_) { fclose(file_); }
+		if (fd) { close(fd); }
 	}
 	bool File::Exists()
 	{

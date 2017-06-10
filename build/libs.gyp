@@ -180,43 +180,41 @@
 			]
 		},
 		{
-			'target_name': "seasocks",
+			'target_name': "uWS",
 			'type': "static_library",
 			'cflags': [
 				'-std=c++11'
 			],
 			'link_settings': {
 				'libraries': [
-					'-lstdc++',
-					'-lz'
+				'-lstdc++',
+				'-lz'
 				],
 			},
-			'include_dirs': [
-				'../external/seasocks/src/main/c/'
-			],
 			'sources': [
-				'../external/seasocks/src/main/web/Embedded.cpp',
-				'../external/seasocks/src/main/c/Connection.cpp',
-				'../external/seasocks/src/main/c/HybiAccept.cpp',
-				'../external/seasocks/src/main/c/HybiPacketDecoder.cpp',
-				'../external/seasocks/src/main/c/Logger.cpp',
-				'../external/seasocks/src/main/c/PageRequest.cpp',
-				'../external/seasocks/src/main/c/Response.cpp',
-				'../external/seasocks/src/main/c/Server.cpp',
-				'../external/seasocks/src/main/c/StringUtil.cpp',
-				'../external/seasocks/src/main/c/md5/md5.cpp',
-				'../external/seasocks/src/main/c/internal/Base64.cpp',
-				'../external/seasocks/src/main/c/seasocks/Request.cpp',
-				'../external/seasocks/src/main/c/seasocks/ResponseCode.cpp',
-				'../external/seasocks/src/main/c/seasocks/SynchronousResponse.cpp',
-				'../external/seasocks/src/main/c/seasocks/ResponseBuilder.cpp',
-				'../external/seasocks/src/main/c/seasocks/StreamingResponse.cpp',
-				'../external/seasocks/src/main/c/seasocks/ZlibContextDisabled.cpp',
-				'../external/seasocks/src/main/c/sha1/sha1.cpp',
-				'../external/seasocks/src/main/c/util/CrackedUri.cpp',
-				'../external/seasocks/src/main/c/util/Json.cpp',
-				'../external/seasocks/src/main/c/util/PathHandler.cpp',
-				'../external/seasocks/src/main/c/util/RootPageHandler.cpp',
+				'../external/uWS/src/Asio.h',
+				'../external/uWS/src/Backend.h',
+				'../external/uWS/src/Epoll.cpp',
+				'../external/uWS/src/Epoll.h',
+				'../external/uWS/src/Extensions.cpp',
+				'../external/uWS/src/Extensions.h',
+				'../external/uWS/src/Group.cpp',
+				'../external/uWS/src/Group.h',
+				'../external/uWS/src/HTTPSocket.cpp',
+				'../external/uWS/src/HTTPSocket.h',
+				'../external/uWS/src/Hub.cpp',
+				'../external/uWS/src/Hub.h',
+				'../external/uWS/src/Libuv.h',
+				'../external/uWS/src/Networking.cpp',
+				'../external/uWS/src/Networking.h',
+				'../external/uWS/src/Node.cpp',
+				'../external/uWS/src/Node.h',
+				'../external/uWS/src/Socket.cpp',
+				'../external/uWS/src/Socket.h',
+				'../external/uWS/src/uWS.h',
+				'../external/uWS/src/WebSocket.cpp',
+				'../external/uWS/src/WebSocket.h',
+				'../external/uWS/src/WebSocketProtocol.h'
 			]
 		},
 		{

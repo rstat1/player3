@@ -5,24 +5,16 @@
 * found in the included LICENSE file.
 */
 
-#include <base/Utils.h>
-#include <seasocks/Request.h>
-#include <seasocks/SynchronousResponse.h>
 #include <ui/handlers/WebPageHandler.h>
-#include <ui/packaging/AsarResponse.h>
-
-using namespace base::utils;
 
 namespace player3 { namespace ui
 {
-	std::shared_ptr<Response> WebPageHandler::handle(const seasocks::Request& request)
+	void WebPageHandler::handle(HttpResponse* resp, HttpRequest req, char* data, size_t len, size_t remaining)
 	{
 		std::string contentType("");
 		std::string folder("/");
 		Log("UI", "handle request");
-		//ResponseBuilder resp(ResponseCode::Ok);
-		std::string requestURL = request.getRequestUri();
-		if (requestURL == "/ws") { return nullptr; }
+		std::string requestURL = req.getUrl().toString();
 		if (requestURL == "/" || requestURL == "/login" || requestURL == "/home")
 		{
 			requestURL = "index.html";
@@ -36,16 +28,13 @@ namespace player3 { namespace ui
 				requestURL = requestURL.replace(0, 7, "");
 				folder = "assets";
 			}
-
 		}
-		return make_shared<AsarResponse>(std::move(requestURL), folder, std::move(contentType.c_str()));
-		//return make_shared<SynchronousResponse>()
+		if (EndsWith(requestURL, ".css") == true) { contentType = "text/css"; }
+		else if (EndsWith(requestURL, ".js") == true) { contentType = "application/javascript"; }
+		else if (EndsWith(requestURL, ".html") == true) { contentType = "text/html"; }
+		else { contentType = "text/plain"; }
 
-	}
-	std::shared_ptr<Response> WebPageHandler::HandleImageRequest(std::string fileName)
-	{
-
-
-		return nullptr;
+		auto response = Archive::Get()->GetFile(requestURL, folder);
+		resp->end(response.data(), response.size());
 	}
 }}
