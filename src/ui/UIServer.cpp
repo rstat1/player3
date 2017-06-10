@@ -29,7 +29,7 @@ namespace player3 { namespace ui
 			port = 8080;
 #endif
 			std::shared_ptr<PrintfLogger> logger = std::make_shared<PrintfLogger>(Logger::Level::_DEBUG);
-
+//"/home/rstat1/Apps/streamlink/player/src/ui/ui/dist"
 			Server web(logger);
 			web.addWebSocketHandler("/ws", std::make_shared<WebSocketHandler>());
 			web.addPageHandler(std::make_shared<WebPageHandler>());

@@ -20,8 +20,9 @@ namespace player3 { namespace ui
 				  FLAG_OPEN = 1 << 0, // Opens a file, only if it exists.
 				  FLAG_READ = 1 << 5,
 			};
+			File() {}
 			File(std::string path, uint32_t flags);
-			void Open();
+			void Open(std::string path);
 			void Close();
 			bool Exists();
 			bool IsValid();

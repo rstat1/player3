@@ -5,7 +5,7 @@
 * found in the included LICENSE file.
 */
 
-#include <iostream>
+#include <memory>
 #include <vector>
 #include <base/pickle/Pickle.h>
 #include <ui/packaging/Archive.h>
@@ -15,6 +15,8 @@ using namespace base;
 
 namespace player3 { namespace ui
 {
+	std::shared_ptr<Archive> Archive::ref;
+
 	Archive::Archive(std::string path)
 		: file(path, File::Flags::FLAG_OPEN | File::Flags::FLAG_READ)
 	{
@@ -49,12 +51,38 @@ namespace player3 { namespace ui
 			return false;
 		}
 
+		Log("UI", header.c_str());
+
 		Json::Value headerFromJSON;
 		Json::Reader reader;
 		reader.parse(header, headerFromJSON, false);
 		this->filesList = headerFromJSON["files"];
 		this->headerSize = 8 + headerSize;
 		return true;
+	}
+	std::vector<char> Archive::GetFile(std::string name, std::string folder)
+	{
+		char* end;
+		std::vector<char> buf;
+		Json::Value fileInfo;
+		if (folder != "/")
+		{
+			fileInfo = this->filesList[folder]["files"];
+			fileInfo = fileInfo[name];
+		}
+		else { fileInfo = this->filesList[name]; }
+
+		int size = fileInfo.get("size", -1).asInt();
+		const char* offsetAsStr = fileInfo.get("offset", 0).asString().c_str();
+		uint64_t offset = std::strtoull(offsetAsStr, &end, 10);
+
+		Log("UI", "folder name = %s, filename = %s, size = %i", folder.c_str(), name.c_str(), size);
+
+		buf.resize(size + 1);
+		int bytesRead = file.Read(offset + this->headerSize, buf.data(), size);
+		return buf;
+		// buf.clear();
+		// buf.resize(0);
 	}
 	std::string Archive::GetFileFromRoot(std::string name)
 	{

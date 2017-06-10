@@ -74,6 +74,7 @@
 				'../src/player/infooverlay/InfoOverlay.cpp',
 				'../src/ui/UIServer.cpp',
 				'../src/ui/packaging/Archive.cpp',
+				'../src/ui/packaging/AsarResponse.cpp',
 				'../src/ui/handlers/WebPageHandler.cpp',
 				'../src/ui/handlers/WebSocketHandler.cpp',
 				'../src/ui/packaging/File.cpp',
@@ -86,6 +87,7 @@
 				'../src/platform/Platfroms.h',
 				'../src/platform/PlatformInterface.h',
 				'../src/ui/packaging/Archive.h',
+				'../src/ui/packaging/AsarResponse.h',
 				'../src/ui/handlers/WebPageHandler.h',
 				'../src/ui/handlers/WebSocketHandler.h'
 			],

@@ -23,14 +23,13 @@ namespace player3 { namespace ui
 		public:
 			WebPageHandler()
 			{
-				UIFiles = new Archive(GetAppPath().append("/ui.asar"));
-				UIFiles->Init();
-
-				//else { Log("UI", "UIFiles failed init"); }
+				// UIFiles = new Archive(GetAppPath().append("/ui.asar"));
+				// UIFiles->Init();
 			}
 			virtual std::shared_ptr<Response> handle(const Request& request);
 		private:
 			Archive* UIFiles;
+			std::shared_ptr<Response> HandleImageRequest(std::string fileName);
 	};
 }}
 

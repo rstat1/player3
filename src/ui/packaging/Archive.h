@@ -13,23 +13,38 @@
 #include <map>
 #include <string>
 #include <memory>
-#include <vector>
-#include <unordered_map>
+#include <base/Utils.h>
 #include <ui/packaging/File.h>
 #include <jsoncpp/json/json.h>
+#include <ui/packaging/AsarResponse.h>
+
+using namespace base::utils;
 
 namespace player3 { namespace ui
 {
 	class Archive
 	{
 		public:
+			Archive()
+			{
+				Log("UI", "archive init");
+				file.Open(GetAppPath().append("/ui.asar"));
+				Init();
+			}
 			Archive(std::string path);
 			~Archive() { file.Close(); }
 			bool Init();
+			std::vector<char> GetFile(std::string name, std::string folder);
 			std::string GetFileFromRoot(std::string name);
 			std::string GetFileFromFolder(std::string folderName, std::string fileName);
+			static Archive* Get()
+			{
+				if (!Archive::ref) { ref = std::make_shared<Archive>(); }
+				return ref.get();
+			}
 		private:
 			File file;
+			static std::shared_ptr<Archive> ref;
 			std::map<std::string, std::string> FileCache;
 			uint32_t headerSize;
 			Json::Value filesList;
