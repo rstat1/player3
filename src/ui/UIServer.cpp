@@ -7,14 +7,14 @@
 
 #include <thread>
 #include <memory>
+#include <uWS/src/uWS.h>
 #include <ui/UIServer.h>
-#include <seasocks/Server.h>
-#include <seasocks/PrintfLogger.h>
-#include <ui/handlers/WebSocketHandler.h>
+#include <base/logging.h>
 #include <ui/handlers/WebPageHandler.h>
+#include <ui/handlers/WebSocketHandler.h>
 
 using namespace std;
-using namespace seasocks;
+using namespace uWS;
 
 namespace player3 { namespace ui
 {
@@ -22,18 +22,28 @@ namespace player3 { namespace ui
 	{
 		std::thread ui([&] {
 			int port;
-
+			uWS::Hub h;
+			WebPageHandler* handler = new WebPageHandler();
+			WebSocketHandler* wsHandler = new WebSocketHandler();
 #if defined(OS_STEAMLINK)
 			port = 80;
 #else
 			port = 8080;
 #endif
-			std::shared_ptr<PrintfLogger> logger = std::make_shared<PrintfLogger>(Logger::Level::_DEBUG);
-//"/home/rstat1/Apps/streamlink/player/src/ui/ui/dist"
-			Server web(logger);
-			web.addWebSocketHandler("/ws", std::make_shared<WebSocketHandler>());
-			web.addPageHandler(std::make_shared<WebPageHandler>());
-			web.serve("", port);
+			h.onHttpRequest([&](HttpResponse* res, HttpRequest req, char* data, size_t len, size_t rem) {
+				handler->handle(res,req, data, len, rem);
+			});
+			h.onMessage([&](WebSocket<SERVER>* ws, char* msg, size_t len, OpCode code) {
+				wsHandler->onData(ws, msg, len);
+			});
+			h.onDisconnection([&](WebSocket<SERVER> *ws, int code, char *message, size_t length) {
+				wsHandler->onDisconnect(ws);
+			});
+			bool listenSuccess = h.listen(port);
+			if (listenSuccess) { Log("UI", "Listening on port whatever."); }
+			else { Log("UI", "Not listening on port whatever"); }
+			h.run();
+//
 		});
 		ui.detach();
 	}

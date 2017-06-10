@@ -10,10 +10,13 @@
 
 #include <map>
 #include <set>
-#include <seasocks/Server.h>
-#include <seasocks/WebSocket.h>
+#include <uWS/src/uWS.h>
 
-using namespace seasocks;
+using namespace uWS;
+// #include <seasocks/Server.h>
+// #include <seasocks/WebSocket.h>
+
+// using namespace seasocks;
 
 namespace player3 { namespace ui
 {
@@ -28,13 +31,12 @@ namespace player3 { namespace ui
 		REMOTEAUDIO,
 		PLAYERSTATE
 	};
-	class WebSocketHandler : public WebSocket::Handler
-	{
-		public:
+ 	class WebSocketHandler
+ 	{
+ 		public:
 			WebSocketHandler();
-			virtual void onConnect(WebSocket* connection);
-			virtual void onDisconnect(WebSocket* connection);
-			virtual void onData(WebSocket* connection, const char* data);
+			void onDisconnect(uWS::WebSocket<SERVER>* connection);
+			void onData(uWS::WebSocket<SERVER>* connection, char* data, int length);
 		private:
 			void InitMessageMap();
 			std::string GetUsherToken(std::string url);
@@ -44,7 +46,7 @@ namespace player3 { namespace ui
 			std::string clientID;
 			bool isPlaying = false;
 			bool isMuted = false;
-			std::set<WebSocket*> clientConnections;
+ 			std::set<uWS::WebSocket<SERVER>*> clientConnections;
 			std::map<std::string, MessageType> messageTypeMappings;
 	};
 }}
