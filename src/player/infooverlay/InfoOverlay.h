@@ -66,8 +66,11 @@ namespace player3 { namespace overlay
 			Overlay* UpdateOverlay();
 			void AddIntValue(const char* label, int value);
 			void AddDoubleValue(const char* label, double value);
+			void AddStringValue(const char* label, const char* value);
+			
 			void UpdateIntValue(const char* label, int newValue);
 			void UpdateDoubleValue(const char* label, double newValue);
+			void UpdateStringValue(const char* label, const char* newValue);
 		private:
 			SDL_Surface* GetTextSurface(const char* text);
 			void CreateOverlayItem(const char* label, const char* value);

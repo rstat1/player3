@@ -28,6 +28,10 @@ namespace player3 { namespace overlay
 	{
 		this->CreateOverlayItem(label, to_string(value).c_str());
 	}
+	void InfoOverlay::AddStringValue(const char* label, const char* value)
+	{
+		this->CreateOverlayItem(label, value);
+	}
 	void InfoOverlay::UpdateDoubleValue(const char* label, double newValue)
 	{
 		this->UpdateOverlayItem(label, to_string(newValue).c_str());
@@ -35,6 +39,10 @@ namespace player3 { namespace overlay
 	void InfoOverlay::UpdateIntValue(const char* label, int newValue)
 	{
 		this->UpdateOverlayItem(label, to_string(newValue).c_str());
+	}
+	void InfoOverlay::UpdateStringValue(const char* label, const char* newValue)
+	{
+		this->UpdateOverlayItem(label, newValue);
 	}
 	void InfoOverlay::UpdateOverlayItem(const char* label, const char* newValue)
 	{
