@@ -174,10 +174,18 @@ def BuildZipMaker():
 def GetSymbols():
         clientSymbolizerCmd = "mono build/tools/Symbolizer.exe " + outputDir + "/player3 " + buildDir + "/syms/"
         subprocess.call(clientSymbolizerCmd, shell=True)
+        clientSymbolizerCmd = "mono build/tools/Symbolizer.exe " + outputDir + "/lib/libexternal.so " + buildDir + "/syms/"
+        subprocess.call(clientSymbolizerCmd, shell=True)
+
+def GenerateBuildInfo():
+        branchName = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+        with open('build/BuildInfo.h.in', 'r') as template:
+                data = template.read().replace("##BRANCHNAME##", branchName.strip())
+        with open("src/BuildInfo.h", 'w+') as buildInfo:
+                buildInfo.write(data)
 
 InitBuildEnv()
+GenerateBuildInfo()
 os.chdir(buildDir)
 Build()
-#BuildManaged()
-#BuildZipMaker()
 GetSymbols()

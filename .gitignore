@@ -27,7 +27,6 @@ external/OmniXAML/
 src/app/managed/Libraries/ui
 **/monologue.txt
 **/armite-log.txt
-.vscode/**
 **/packages/**
 external/breakpad/
 *.dmp
@@ -48,5 +47,5 @@ build/tools/Cake/
 *.zip
 **/syms/**
 \.directory
-
 src/ui/ui/ui\.asar
+**/node_modules/**

@@ -101,19 +101,19 @@
 			'msvs_guid': '2BAEC9E5-8F23-47C6-93E9-C3B328B3DE65',
 			'include_dirs': [
 				#'../src/',
-				#'../external/nanovg/',
+				'../external/nanovg/',
 				'../external/jsoncpp/',
 			],
 			'sources': [
-				#'../external/nanovg/nanovg.c',
+				'../external/nanovg/nanovg.c',
 				'../external/jsoncpp/jsoncpp.cpp',
 				'../external/jsoncpp/json/json.h',
-				#'../external/nanovg/stb_image.h',
-				#'../external/nanovg/stb_truetype.h',
-				#'../external/nanovg/nanovg.h',
-				#'../external/nanovg/nanovg_gl.h',
-				#'../external/nanovg/nanovg_gl_utils.h',
-				#'../external/nanovg/fontstash.h',
+				'../external/nanovg/stb_image.h',
+				'../external/nanovg/stb_truetype.h',
+				'../external/nanovg/nanovg.h',
+				'../external/nanovg/nanovg_gl.h',
+				'../external/nanovg/nanovg_gl_utils.h',
+				'../external/nanovg/fontstash.h',
 			],
 			'conditions': [
 				['OS=="win"', {

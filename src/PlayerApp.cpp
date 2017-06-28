@@ -7,7 +7,9 @@
 
 #include <PlayerApp.h>
 #include <player/Player.h>
-#include <ui/UIServer.h>
+#include <ui/web/UIServer.h>
+#include <ui/native/NativeUIHost.h>
+#include <platform/PlatformManager.h>
 
 using namespace player3::ui;
 
@@ -26,9 +28,12 @@ namespace player3 { namespace player
 	TaskResult* PlayerApp::OnInitComplete()
 	{
 		Log("PlayerApp", "init complete");
-
+		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO);
+		
 		UIServer* server = new UIServer();
+		PlatformManager::Get()->InitPlatformInterface();
 		Player::Get()->InitPlayer();
+		NativeUIHost::Get()->InitUIHost();
 
 		return nullptr;
 	}

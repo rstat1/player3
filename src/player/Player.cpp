@@ -8,14 +8,17 @@
 #include <SDL.h>
 #include <chrono>
 #include <thread>
+#include <iostream>
 #include <signal.h>
 #include <player/Player.h>
 #include <base/platform/linux/memtrack.h>
-
-#include <iostream>
+#include <BuildInfo.h>
+#include <platform/PlatformManager.h>
 
 using namespace std;
+using namespace player3;
 using namespace base::platform;
+using namespace player3::platform;
 
 #define AV_SYNC_THRESHOLD 0.01
 
@@ -33,9 +36,6 @@ namespace player3 { namespace player
 		av_register_all();
 		avcodec_register_all();
 		avformat_network_init();
-		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO);
-
-		VIDEO_DECODE_INIT
 
 		this->state = new InternalPlayerState();
 		this->state->videoClock = 0;
@@ -45,7 +45,8 @@ namespace player3 { namespace player
 		this->state->audioState->audioClock = 0;
 		this->state->bufferSignal = new ConditionVariable();
 
-		this->InitOverlay();
+		platformInterface = PlatformManager::Get()->GetPlatformInterface();
+		//this->InitOverlay();
 
 #if defined(OS_LINUX) && !defined(OS_STEAMLINK)
 		signal(SIGTERM, Player::SigTermHandler);
@@ -55,6 +56,8 @@ namespace player3 { namespace player
 	{
 		this->state->overlay = new InfoOverlay();
 		this->state->overlay->InitOverlay();
+
+		this->state->overlay->AddStringValue("BuildBranch", BranchName);
 		this->state->overlay->AddDoubleValue("AVDelayDiff", 0);
 		this->state->overlay->AddDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
 		this->state->overlay->AddDoubleValue("FrameTimer", 0);
@@ -226,7 +229,7 @@ namespace player3 { namespace player
 		video = this->state->video.front();
 
 		this->state->overlay->UpdateIntValue("QueuedVideo", this->platformInterface->GetQueuedVideo());
-		this->platformInterface->DecodeVideoFrame(video.data, video.size);
+		PlatformManager::Get()->GetPlatformInterface()->DecodeVideoFrame(video.data, video.size);
 
 		video.DeleteData();
 		this->state->video.pop();
@@ -290,9 +293,10 @@ namespace player3 { namespace player
 			playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
 			lastMemoryUse = currentUse;
 		}
+		playerState->overlay->UpdateStringValue("BuildBranch", BranchName);
 
 		Overlay* overlay = playerState->overlay->UpdateOverlay();
-		Player::platformInterface->ShowOverlay(overlay->overlay->pixels, overlay->pitch);
+		PlatformManager::Get()->GetPlatformInterface()->ShowOverlay(overlay->overlay->pixels, overlay->pitch);
 		return interval;
 	}
 	void Player::SDLAudioCallback(void* userdata, uint8_t* stream, int len)

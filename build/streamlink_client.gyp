@@ -17,7 +17,7 @@
 			],
 			'dependencies': [
 				'streamlink_client.gyp:player3lib',
-				'libs.gyp:base'
+				'libs.gyp:base',
 			],
 			'conditions': [
 				['OS=="linux"', {
@@ -55,6 +55,7 @@
 			[
 				'../src/',
 				'../external/',
+				'../external/duktape/',
 				"../external/ffmpeg",
 				'../external/cpr/include/',
 				'../external/sdl/include/',
@@ -66,30 +67,38 @@
 				'libs.gyp:base',
 				'libs.gyp:uWS',
 				'libs.gyp:cpr',
-				'libs.gyp:external'
+				'libs.gyp:external',
 			],
 			'sources': [
 				'../src/PlayerApp.cpp',
 				'../src/player/Player.cpp',
 				'../src/player/infooverlay/InfoOverlay.cpp',
-				'../src/ui/UIServer.cpp',
-				'../src/ui/packaging/Archive.cpp',
-				'../src/ui/packaging/AsarResponse.cpp',
-				'../src/ui/handlers/WebPageHandler.cpp',
-				'../src/ui/handlers/WebSocketHandler.cpp',
-				'../src/ui/packaging/File.cpp',
-				'../src/ui/packaging/File.h',
-				'../src/ui/UIServer.h',
+				'../src/ui/web/UIServer.cpp',
+				'../src/ui/web/packaging/Archive.cpp',
+				'../src/ui/web/packaging/AsarResponse.cpp',
+				'../src/ui/web/handlers/WebPageHandler.cpp',
+				'../src/ui/web/handlers/WebSocketHandler.cpp',
+				'../src/ui/web/packaging/File.cpp',
+				'../src/ui/native/rendering/NanoVGRenderer.cpp',
+				'../src/ui/native/NativeUIHost.cpp',
+				'../src/platform/PlatformManager.cpp',
+				'../src/ui/web/UIServer.h',
 				'../src/player/Player.h',
 				'../src/player/infooverlay/InfoOverlay.h',
 				'../src/PlayerApp.h',
 				'../src/player/VideoPlayerBase.h',
 				'../src/platform/Platfroms.h',
 				'../src/platform/PlatformInterface.h',
-				'../src/ui/packaging/Archive.h',
-				'../src/ui/packaging/AsarResponse.h',
-				'../src/ui/handlers/WebPageHandler.h',
-				'../src/ui/handlers/WebSocketHandler.h'
+				'../src/ui/web/packaging/Archive.h',
+				'../src/ui/web/handlers/WebPageHandler.h',
+				'../src/ui/web/handlers/WebSocketHandler.h'
+				'../src/ui/native/rendering/NanoVGDefines.h',
+				'../src/ui/native/rendering/NanoVGRenderer.h',
+				'../src/ui/native/rendering/RendererTypes.h',
+				'../src/ui/web/packaging/File.h',
+				'../src/BuildInfo.h',
+				'../src/ui/native/NativeUIHost.h',
+				'../src/platform/PlatformManager.h',
 			],
 			'conditions': [
 				['OS=="linux"', {

@@ -14,7 +14,7 @@
 #include <base/common.h>
 #include <player/VideoPlayerBase.h>
 #include <base/threading/common/ConditionVariable.h>
-#include <platform/Platforms.h>
+#include <platform/PlatformManager.h>
 
 using namespace std;
 using namespace base::threading;
@@ -30,11 +30,6 @@ namespace player3 { namespace player
 			void Mute();
 			void InitPlayer();
 			void StartStream(std::string url);
-			static Player* Get()
-			{
-				if (!Player::ref) { ref = make_shared<Player>(); }
-				return ref.get();
-			}
 			InternalPlayerState* GetPlayerState() { return state; }
 		private:
 			void Play();
@@ -55,8 +50,9 @@ namespace player3 { namespace player
 
 			InternalPlayerState* state;
 			static double lastMemoryUse;
-			static std::shared_ptr<Player> ref;
 			static PlatformInterface* platformInterface;
+
+			SINGLETON(Player)
 	};
 }}
 

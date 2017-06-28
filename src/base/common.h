@@ -67,6 +67,16 @@
 	#define DISALLOW_COPY_AND_ASSIGN(TypeName) TypeName(const TypeName&); void operator=(const TypeName&)
 #endif
 #ifdef __cplusplus
+#include <memory>
 #include <base/logging.h>
 #define NOTIMPLEMENTED(name) Log("All", "%s is not currently implemented.",  name);
+#define SINGLETON(name) public: \
+			static name* Get() \
+			{ \
+				if (!name::ref) { ref = std::make_shared<name>(); } \
+				return ref.get();\
+			}\
+			private: \
+				static std::shared_ptr<name> ref;
+
 #endif
