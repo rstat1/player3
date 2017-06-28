@@ -12,9 +12,9 @@
 
 #if defined(OS_STEAMLINK)
 	#include <platform/steamlink/SteamLinkPlatform.h>
-	#define VIDEO_DECODE_INIT platformInterface = new SteamLinkPlatform();
+	#define PLATFORM_INIT platformInterface = new SteamLinkPlatform();
 #elif defined(OS_LINUX) && !defined(OS_STEAMLINK)
 	#include <platform/desktop/DesktopPlatform.h>
-	#define VIDEO_DECODE_INIT platformInterface = new DesktopPlatform();
+	#define PLATFORM_INIT platformInterface = new DesktopPlatform();
 #endif
 #endif
