@@ -15,7 +15,8 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "intelliSenseMode": "clang-x64"
         },
         {
             "name": "Linux",
@@ -23,11 +24,11 @@
                 "${workspaceRoot}/external/",
                 "${workspaceRoot}/external/breakpad/src",
                 "${workspaceRoot}/external/sdl/include/",
-				"${workspaceRoot}/external/ffmpeg",
+                "${workspaceRoot}/external/ffmpeg",
                 "${workspaceRoot}",
-				"${workspaceRoot}/src/",
-				"${workspaceRoot}/external/cpr/include/",
-				"${workspaceRoot}/external/seasocks/src/main/c",
+                "${workspaceRoot}/src/",
+                "${workspaceRoot}/external/cpr/include/",
+                "${workspaceRoot}/external/seasocks/src/main/c",
                 "/usr/include/x86_64-linux-gnu/c++/5.4.0",
                 "/usr/include/c++/5.4.0",
                 "/usr/local/include",
@@ -48,7 +49,8 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "intelliSenseMode": "clang-x64"
         },
         {
             "name": "Win32",
@@ -66,7 +68,8 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "intelliSenseMode": "msvc-x64"
         }
     ]
 }
