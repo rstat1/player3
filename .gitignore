@@ -43,7 +43,6 @@ Release_x64/
 *.sln
 *.lib
 *.ninja
-environment.*
 build/tools/Cake/
 *.zip
 **/syms/**

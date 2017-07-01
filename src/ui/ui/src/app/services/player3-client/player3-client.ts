@@ -12,7 +12,7 @@ export class Player3Client {
 
 	public IsPlaying: Observable<boolean>;
 	public MuteButtonText: string = "Mute";
-	public isMuted: boolean;
+	public isMuted: boolean = false;
 	private isPlaying: Subject<boolean>;
 
 	constructor(private socket: WebSocketClient, private twitch: TwitchAPI) {
