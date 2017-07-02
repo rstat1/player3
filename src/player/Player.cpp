@@ -41,6 +41,7 @@ namespace player3 { namespace player
 		this->state->videoClock = 0;
 		this->state->lastVideoPts = 0;
 		this->state->lastAudioPts = 0;
+		this->state->status = PlayerStatus::Stopped;
 		this->state->audioState = new AudioState();
 		this->state->audioState->audioClock = 0;
 		this->state->bufferSignal = new ConditionVariable();
@@ -64,21 +65,21 @@ namespace player3 { namespace player
 		this->state->overlay->AddDoubleValue("AVClockDiff", 0);
 		this->state->overlay->AddIntValue("QueuedVideo", 0);
 
-		std::thread overlayUpdate([&] {
-			Overlay* o = this->state->overlay->UpdateOverlay();
-			if (o != nullptr)
-			{
-				platformInterface->CreateOverlay(o->surfaceW, o->surfaceH);
-				platformInterface->ShowOverlay(o->overlay->pixels, o->pitch);
-				SDL_AddTimer(750, Player::RefreshOverlay, this->state);
-			}
-		});
-		overlayUpdate.detach();
+		// std::thread overlayUpdate([&] {
+		// 	Overlay* o = this->state->overlay->UpdateOverlay();
+		// 	if (o != nullptr && this->state->status == PlayerStatus::Playing)
+		// 	{
+		// 		platformInterface->CreateOverlay(o->surfaceW, o->surfaceH);
+		// 		platformInterface->ShowOverlay(o->overlay->pixels, o->pitch);
+		// 		SDL_AddTimer(750, Player::RefreshOverlay, this->state);
+		// 	}
+		// });
+		// overlayUpdate.detach();
 	}
 	void Player::StartStream(std::string url)
 	{
 		Log("Player", "playing url %s", url.c_str());
-		if (url != "")
+		if (url != "" && this->state->status == PlayerStatus::Stopped)
 		{
 			this->state->status = PlayerStatus::Playing;
 			this->state->currentURL = url;
@@ -88,7 +89,7 @@ namespace player3 { namespace player
 	}
 	void Player::StartDecodeThread()
 	{
-		 std::thread decode([&] {
+		 decode = std::thread([&] {
 			AVFormatContext* avFormat;
 			AVDictionary* audioOptions = nullptr;
 			if (avformat_open_input(&this->state->format, this->state->currentURL.c_str(), nullptr, nullptr) != 0)
@@ -128,7 +129,7 @@ namespace player3 { namespace player
 	}
 	void Player::StartPlaybackThread()
 	{
-		std::thread play([&] {
+		play = std::thread([&] {
 			Player::SetRefreshTimer(40, this);
 		});
 		play.detach();
@@ -183,11 +184,7 @@ namespace player3 { namespace player
 				else { av_free_packet(&pkt); }
 			}
 		}
-		platformInterface->DecoderShutdown();
-
-		avformat_close_input(&this->state->format);
-		avcodec_close(this->state->audioState->aCtx);
-		SDL_CloseAudioDevice(this->state->audioDevice);
+		this->ResetPlayer();
 	}
 	int Player::ProcessAudio(AVPacket* pkt)
 	{
@@ -233,6 +230,7 @@ namespace player3 { namespace player
 	}
 	void Player::Stop()
 	{
+		Log("Player", "Stopping stream...");
 		bool locked = this->state->stateGuard.try_lock();
 		if (locked)
 		{
@@ -303,7 +301,7 @@ namespace player3 { namespace player
 		AudioState* audioState = state->audioState;
 
 		memset(stream, 0, len);
-		if (state->audio.empty() == false)
+		if (state->audio.empty() == false && state->status == PlayerStatus::Playing)
 		{
 			audio = state->audio.front();
 
@@ -341,5 +339,40 @@ namespace player3 { namespace player
 	{
 		if (this->state->audioState->silence) { this->state->audioState->silence = false; }
 		else { this->state->audioState->silence = true; }
+	}
+	void Player::ResetPlayer()
+	{
+		platformInterface->DecoderReset();
+		Data d;
+
+		if (this->state->video.size() > 0)
+		{
+			while (!this->state->video.empty())
+			{
+				d = this->state->video.front();
+				d.DeleteData();
+				this->state->video.pop();
+			}
+		}
+
+		if (this->state->audio.size() > 0)
+		{
+			while (!this->state->audio.empty())
+			{
+				d = this->state->audio.front();
+				d.DeleteData();
+				this->state->audio.pop();
+			}
+		}
+
+		this->state->format = nullptr;
+		this->state->videoClock = 0;
+		this->state->lastAudioPts = 0;
+		this->state->audioState->lastDelay = 0;
+		this->state->audioState->audioClock = 0;
+
+		avformat_close_input(&this->state->format);
+		avcodec_close(this->state->audioState->aCtx);
+		SDL_CloseAudioDevice(this->state->audioDevice);
 	}
 }}

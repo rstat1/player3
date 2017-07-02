@@ -8,6 +8,7 @@
 #ifndef PLAY
 #define PLAY
 
+#include <thread>
 #include <memory>
 #include <string>
 #include <vector>
@@ -40,6 +41,7 @@ namespace player3 { namespace player
 			void Play();
 			void Decode();
 			void InitOverlay();
+			void ResetPlayer();
 			double GetAudioClock();
 			bool CheckPlayerState();
 			void StartDecodeThread();
@@ -53,6 +55,7 @@ namespace player3 { namespace player
 			static uint32_t RefreshOverlay(uint32_t interval, void* opaque);
 			static void SDLAudioCallback(void* userdata, uint8_t* stream, int len);
 
+			std::thread decode, play;
 			InternalPlayerState* state;
 			static double lastMemoryUse;
 			static std::shared_ptr<Player> ref;

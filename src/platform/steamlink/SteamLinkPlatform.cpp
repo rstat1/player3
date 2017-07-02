@@ -13,16 +13,15 @@ namespace player3 { namespace platform
 {
 	SteamLinkPlatform::SteamLinkPlatform()
 	{
-		slVideoContext = SLVideo_CreateContext();
-		SLVideo_SetLogLevel(k_ESLVideoLogDebug);
-		SLVideo_SetLogFunction(VideoLogFunc, nullptr);
-		videoStream = SLVideo_CreateStream(slVideoContext, k_ESLVideoFormatH264, false);
+		InitVideoDecoder();
 		SLVideo_GetDisplayResolution(slVideoContext, &screenW, &screenH);
 	}
 	void SteamLinkPlatform::DecoderReset()
 	{
 		if (videoStream != nullptr) { SLVideo_FreeStream(videoStream); }
-		videoStream = SLVideo_CreateStream(slVideoContext, k_ESLVideoFormatH264, false);
+		SLVideo_FreeContext(slVideoContext);
+		InitVideoDecoder();
+		//videoStream = SLVideo_CreateStream(slVideoContext, k_ESLVideoFormatH264, false);
 	}
 	void SteamLinkPlatform::DecoderShutdown()
 	{
@@ -67,6 +66,8 @@ namespace player3 { namespace platform
 		uint32_t* surface = static_cast<uint32_t*>(pixels);
 		SLVideo_GetOverlayPixels(infoOverlay, &pixelBuf, &dstPitch);
 
+		if (pixelBuf == nullptr) { this->CreateOverlay(this->w, this->h); }
+
 		pitch /= sizeof(*surface);
 		dstPitch /= sizeof(*pixelBuf);
 		for(int row = 0; row < this->h; ++row)
@@ -80,4 +81,11 @@ namespace player3 { namespace platform
 	}
 	int SteamLinkPlatform::GetAudioSampleCount() { return 1024; }
 	int SteamLinkPlatform::GetQueuedVideo() { return SLVideo_GetQueuedVideoMS(videoStream); }
+	void SteamLinkPlatform::InitVideoDecoder()
+	{
+		slVideoContext = SLVideo_CreateContext();
+		SLVideo_SetLogLevel(k_ESLVideoLogDebug);
+		SLVideo_SetLogFunction(VideoLogFunc, nullptr);
+		videoStream = SLVideo_CreateStream(slVideoContext, k_ESLVideoFormatH264, false);
+	}
 }}

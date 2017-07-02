@@ -20,6 +20,7 @@ import { MobileControlComponent } from './components/mobile-control/mobile-contr
 import { Player3Client } from "app/services/player3-client/player3-client";
 import { TwitchAPI } from "app/services/twitch/twitch";
 import { WebSocketClient } from "app/services/player3-client/websocket-client";
+import { AppControls } from "app/services/app-control/app-control";
 
 @NgModule({
   declarations: [
@@ -42,7 +43,7 @@ import { WebSocketClient } from "app/services/player3-client/websocket-client";
     RouterModule.forRoot(ROUTES),
     BrowserAnimationsModule
   ],
-  providers: [ WebSocketClient, Player3Client, TwitchAPI ],
+  providers: [ WebSocketClient, Player3Client, TwitchAPI, AppControls ],
   bootstrap: [AppRoot]
 })
 export class AppModule { }

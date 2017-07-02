@@ -25,6 +25,7 @@ namespace player3 { namespace ui
 		ID,
 		MUTE,
 		STOP,
+		EXIT,
 		START,
 		USHER,
 		ACCESS,

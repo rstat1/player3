@@ -26,6 +26,7 @@ namespace player3 { namespace platform
 			bool DecodeVideoFrame(uint8_t* data, int size) override;
 		private:
 			static void VideoLogFunc(void* pContext, ESLVideoLog eLogLevel, const char *pszMessage);
+			void InitVideoDecoder();
 
 			int w, h, screenW, screenH;
 			CSLVideoStream* videoStream;

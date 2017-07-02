@@ -18,7 +18,7 @@ export class WebSocketClient {
 	public IsConnected: Observable<boolean>;
 	private isConnected: Subject<boolean>;
 	private socket: WebSocket;
-	private ValidMessageTypes: Array<string> = [ "ACCESS", "USHER", "START", "STOP", "MUTE", "REMOTEAUDIO", "ID", "PLAYERSTATE" ];
+	private ValidMessageTypes: Array<string> = [ "ACCESS", "USHER", "START", "STOP", "MUTE", "REMOTEAUDIO", "ID", "PLAYERSTATE", "EXIT" ];
 	private messageSubscriptions: Map<string, Subscription>;
 
 	constructor() {
