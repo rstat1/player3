@@ -30,6 +30,7 @@ namespace player3 { namespace ui
 		messageTypeMappings["START"] = MessageType::START;
 		messageTypeMappings["USHER"] = MessageType::USHER;
 		messageTypeMappings["ACCESS"] = MessageType::ACCESS;
+		messageTypeMappings["EXIT"] = MessageType::EXIT;
 	}
  	void WebSocketHandler::onDisconnect(uWS::WebSocket<SERVER>* connection)
 	{
@@ -81,6 +82,9 @@ namespace player3 { namespace ui
 			case MessageType::REMOTEAUDIO:
 				break;
 			case MessageType::PLAYERSTATE:
+				break;
+			case MessageType::EXIT:
+				exit(0);
 				break;
  		}
  	}

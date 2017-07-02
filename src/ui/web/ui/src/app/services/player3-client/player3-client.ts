@@ -14,6 +14,7 @@ export class Player3Client {
 	public MuteButtonText: string = "Mute";
 	public isMuted: boolean = false;
 	private isPlaying: Subject<boolean>;
+	private playingStream: boolean = false;
 
 	constructor(private socket: WebSocketClient, private twitch: TwitchAPI) {
 		this.isPlaying = new Subject<boolean>();
@@ -21,10 +22,11 @@ export class Player3Client {
 		this.socket.SubscribeToMessage("PLAYERSTATE", false, message => {
 			let state: string[] = message.split(";");
 			state[0] == "Muted" ? this.SetVolumeState(true) : this.SetVolumeState(false);
-			state[1] == "Playing" ? this.isPlaying.next(true) : this.isPlaying.next(false);
+			state[1] == "Playing" ? this.SetPlayingState(true) : this.SetPlayingState(false);
 		})
 	}
 	public StartStream(streamName: string) {
+		if (this.playingStream) { this.StopStream(); }
 		this.twitch.startStream(streamName);
 	}
 	public StopStream() {
@@ -34,9 +36,16 @@ export class Player3Client {
 	public Mute() {
 		this.socket.SendMessage("MUTE", "");
 	}
+	public Exit() {
+		this.socket.SendMessage("EXIT", "");
+	}
 	private SetVolumeState(muted: boolean) {
 		this.isMuted = !this.isMuted;
 		if (this.isMuted) { this.MuteButtonText = "Unmute"; }
 		else { this.MuteButtonText = "Mute"; }
+	}
+	private SetPlayingState(isPlaying: boolean) {
+		this.isPlaying.next(isPlaying);
+		this.playingStream = isPlaying;
 	}
 }

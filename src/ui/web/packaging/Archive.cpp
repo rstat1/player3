@@ -76,9 +76,9 @@ namespace player3 { namespace ui
 		const char* offsetAsStr = fileInfo.get("offset", 0).asString().c_str();
 		uint64_t offset = std::strtoull(offsetAsStr, &end, 10);
 
-		Log("UI", "folder name = %s, filename = %s, size = %i", folder.c_str(), name.c_str(), size);
+		buf.resize(size);
+		Log("UI", "folder name = %s, filename = %s, size = %i, bufsize = %i", folder.c_str(), name.c_str(), size, buf.size());
 
-		buf.resize(size + 1);
 		int bytesRead = file.Read(offset + this->headerSize, buf.data(), size);
 		return buf;
 		// buf.clear();
@@ -98,7 +98,7 @@ namespace player3 { namespace ui
 
 			char* end;
 			std::vector<char> buf;
-			std::string fileContent("");
+			std::string fileContent;
 			Json::Value fileInfo = this->filesList[name];
 			int size = fileInfo.get("size", -1).asInt();
 			const char* offsetAsStr = fileInfo.get("offset", 0).asString().c_str();

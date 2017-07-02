@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
 import { AppRoutes } from '../../app.routes'
-import { Player3Client } from '../../services/player3-client/player3-client'
+import { Player3Client } from 'app/services/player3-client/player3-client'
+import { AppControls, AppControl } from "app/services/app-control/app-control";
 
 @Component({
 	selector: 'mobile-controls',
@@ -9,13 +10,9 @@ import { Player3Client } from '../../services/player3-client/player3-client'
 	templateUrl: './html/mobile-control.html',
 	styleUrls: ['./css/mobile-control.scss']
 })
-export class MobileControlComponent {
+export class MobileControlComponent implements OnInit {
+	controlsList: AppControl[];
 	public routes = AppRoutes.AppRoutes;
-	public playing: boolean = false;
-
-	constructor(public client: Player3Client) {
-		this.client.IsPlaying.subscribe(message => {
-			this.playing = message;
-		})
-	}
+	constructor(public client: Player3Client, public controls: AppControls) {}
+	ngOnInit(): void { this.controlsList = AppControls.appControls; }
 }
