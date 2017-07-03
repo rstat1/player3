@@ -22,7 +22,6 @@
 			'conditions': [
 				['OS=="linux"', {
 					'cflags': [
-						'-std=c++11',
 						'-frtti',
 						'-fPIC', '-g3', '-O -g',
 					],
@@ -45,6 +44,16 @@
 							'-lstdc++'
 						],
 					},
+				}],
+				['skylight_arch=="armv7l"', {
+					'cflags_cc': [
+						'-std=c++1y'
+					],
+				}],
+				['skylight_arch=="x86_64"', {
+					'cflags_cc': [
+						'-std=c++14'
+					],
 				}],
 			],
 		},
@@ -82,6 +91,10 @@
 				'../src/ui/native/rendering/NanoVGRenderer.cpp',
 				'../src/ui/native/NativeUIHost.cpp',
 				'../src/platform/PlatformManager.cpp',
+				'../src/ui/native/LayoutManager.cpp',
+				'../src/ui/native/elements/LabelElement.cpp',
+				'../src/player/chat/ChatService.cpp',
+				'../src/player/chat/ChatServiceThread.cpp',
 				'../src/ui/web/UIServer.h',
 				'../src/player/Player.h',
 				'../src/player/infooverlay/InfoOverlay.h',
@@ -99,6 +112,11 @@
 				'../src/BuildInfo.h',
 				'../src/ui/native/NativeUIHost.h',
 				'../src/platform/PlatformManager.h',
+				'../src/ui/native/LayoutManager.h',
+				'../src/ui/native/ElementBase.h',
+				'../src/ui/native/elements/LabelElement.h',
+				'../src/player/chat/ChatService.h',
+				'../src/player/chat/ChatServiceThread.h',
 			],
 			'conditions': [
 				['OS=="linux"', {
@@ -109,7 +127,6 @@
 					],
 					'dependencies': [],
 					'cflags_cc': [
-						'-std=c++11',
 						'-frtti',
 						'-fPIC', '-g3', '-g',
 						'-fno-stack-protector',
@@ -144,6 +161,9 @@
 					],
 					'conditions': [
 						['OS=="linux"', {
+							'cflags_cc': [
+								'-std=c++1y',
+							],
 							'link_settings': {
 								'libraries': [
 								#	'../external/libs/linux/armv7l/libmonosgen-2.0.a',
@@ -167,6 +187,9 @@
 					],
 					'conditions': [
 						['OS=="linux"', {
+							'cflags_cc': [
+								'-std=c++14',
+							],
 							'include_dirs': [
 								'/usr/include/gl/',
 							],

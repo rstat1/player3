@@ -4,6 +4,7 @@
 * Use of this source code is governed by a "BSD-style" license that can be
 * found in the included LICENSE file.
 */
+
 #include <base/Utils.h>
 #include <ui/native/rendering/NanoVGDefines.h>
 #include <ui/native/rendering/NanoVGRenderer.h>

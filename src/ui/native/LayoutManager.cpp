@@ -6,11 +6,13 @@
 */
 
 #include <string>
+#include <base/Utils.h>
 #include <boost/foreach.hpp>
+#include <ui/native/LayoutManager.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <ui/native/LayoutManager.h>
-#include <base/Utils.h>
+
+#include <ui/native/elements/LabelElement.h>
 
 using namespace base::utils;
 namespace proptree = boost::property_tree;
@@ -29,12 +31,26 @@ namespace player3 { namespace ui
 		for (proptree::ptree::value_type const& v: layout.get_child("layout"))
 		{
 			Log("UI", "v.first == %s", v.first.c_str());
-			if (v.first == "layout")
+			if (v.first == "label")
 			{
+				std::vector<PropertyBinding> bindings;
+				std::string textProperty = v.second.get<std::string>("<xmlattr>.text");
+				if (textProperty.find("{Binding") != std::string::npos)
+				{
+					PropertyBinding binding = ParsePropertyBinding(textProperty);
+					bindings.push_back(binding);
+				}
+				Style style = ParseStyleBlob(v.second.get<std::string>("<xmlattr>.style").c_str());
+				l.childElements.push_back(std::make_unique<LabelElement>(style, bindings));
 			}
+			if (v.first == "image") {}
 		}
 	}
-	void LayoutManager::RenderLayout() {}
+	void LayoutManager::RenderLayout()
+	{
+		//TODO: Do property binding.
+		//TODO: Draw all the things.
+	}
 	Style LayoutManager::ParseStyleBlob(std::string styleBlob)
 	{
 		Style elementStyle;
@@ -56,5 +72,9 @@ namespace player3 { namespace ui
 				//TODO: Implement margin.
 			}
 		}
+	}
+	PropertyBinding LayoutManager::ParsePropertyBinding(std::string binding)
+	{
+
 	}
 }}

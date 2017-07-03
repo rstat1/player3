@@ -76,13 +76,14 @@ namespace player3 { namespace ui
 		const char* offsetAsStr = fileInfo.get("offset", 0).asString().c_str();
 		uint64_t offset = std::strtoull(offsetAsStr, &end, 10);
 
-		buf.resize(size);
-		Log("UI", "folder name = %s, filename = %s, size = %i, bufsize = %i", folder.c_str(), name.c_str(), size, buf.size());
+		if (size != - 1)
+		{
+			buf.resize(size);
+			Log("UI", "folder name = %s, filename = %s, size = %i, bufsize = %i", folder.c_str(), name.c_str(), size, buf.size());
 
-		int bytesRead = file.Read(offset + this->headerSize, buf.data(), size);
+			int bytesRead = file.Read(offset + this->headerSize, buf.data(), size);
+		}
 		return buf;
-		// buf.clear();
-		// buf.resize(0);
 	}
 	std::string Archive::GetFileFromRoot(std::string name)
 	{

@@ -1,4 +1,4 @@
-<layout name="streamIsLive" style="width:250px;height:50px;margin-bottom:20px;margin-left:10px;bgcolor:#FFFFFF;" anchor="bottom-right">
+<layout name="streamIsLive" style="width:250px;height:50px;margin-bottom:20px;margin-left:10px;bgcolor:#FFFFFF;anchor:bottom-right">
 	<img src="{Binding: ChannelImg}" style="width:64px;height:64px;padding-left:25px" />
 	<label text="{Binding: ChannelName}" style="margin-top:10px;color:#FFFFFF" />
 	<label text="{Binding: ChannelTitle}" style="margin-top:20px; color:#CCCCCC" />

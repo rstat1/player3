@@ -22,6 +22,7 @@ namespace player3 { namespace ui
 			void DoLayout();
 			void RenderLayout();
 			void CreateElement();
+			PropertyBinding ParsePropertyBinding(std::string binding);
 			Style ParseStyleBlob(std::string styleBlob);
 	};
 }}

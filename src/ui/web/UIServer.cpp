@@ -30,6 +30,7 @@ namespace player3 { namespace ui
 #else
 			port = 8080;
 #endif
+
 			h.onHttpRequest([&](HttpResponse* res, HttpRequest req, char* data, size_t len, size_t rem) {
 				handler->handle(res,req, data, len, rem);
 			});

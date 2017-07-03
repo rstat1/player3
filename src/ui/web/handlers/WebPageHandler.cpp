@@ -35,6 +35,7 @@ namespace player3 { namespace ui
 		else { contentType = "text/plain"; }
 
 		auto response = Archive::Get()->GetFile(requestURL, folder);
-		resp->end(response.data(), response.size());
+		if (response.size() > 0) { resp->end(response.data(), response.size()); }
+		else { resp->end(); }
 	}
 }}

@@ -1,7 +1,15 @@
+/*
+* Copyright (c) 2017 The Incredibly Big Red Robot
+*
+* Use of this source code is governed by a "BSD-style" license that can be
+* found in the included LICENSE file.
+*/
+
 #ifndef ELEMBASE
 #define ELEMBASE
 
 #include <vector>
+#include <memory>
 
 namespace player3 { namespace ui
 {
@@ -10,16 +18,13 @@ namespace player3 { namespace ui
 		Image,
 		Label
 	};
-	struct Style
+	enum AnchorPoint
 	{
-		public:
-			int width;
-			int height;
-			Box margin;
-			Box padding;
-			int fontSize;
-			const char* bgColor;
-			const char* fgColor;
+		None,
+		TopLeft,
+		TopRight,
+		BottomLeft,
+		BottomRight
 	};
 	struct Box
 	{
@@ -39,20 +44,36 @@ namespace player3 { namespace ui
 				: Left(left), Right(right), Top(top), Bottom(bottom)
 			{}
 	};
-	struct Layout
+	struct Style
 	{
 		public:
-			Style style;
-			const char* name;
-			std::vector<ElementBase> childElements;
+			int width;
+			int height;
+			Box margin;
+			Box padding;
+			int fontSize;
+			AnchorPoint anchor;
+			const char* bgColor;
+			const char* fgColor;
+	};
+	struct PropertyBinding
+	{
+		public:
+			const char* propertyName;
+			const char* bindingName;
 	};
 	class ElementBase
 	{
 		public:
 			virtual Box GetBoundingBox() = 0;
 			virtual ElementType GetElementType() = 0;
-			virtual void SetElementStyle(Style style) = 0;
-			virtual void SetValidPropertyBindings(const char* bindingName, const char* boundProperty) = 0;
+	};
+	struct Layout
+	{
+		public:
+			Style style;
+			const char* name;
+			std::vector<std::unique_ptr<ElementBase>> childElements;
 	};
 }}
 

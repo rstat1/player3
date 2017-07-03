@@ -14,9 +14,11 @@
 #include <base/platform/linux/memtrack.h>
 #include <BuildInfo.h>
 #include <platform/PlatformManager.h>
+#include <player/chat/ChatServiceThread.h>
 
 using namespace std;
 using namespace player3;
+using namespace player3::chat;
 using namespace base::platform;
 using namespace player3::platform;
 
@@ -52,6 +54,23 @@ namespace player3 { namespace player
 #if defined(OS_LINUX) && !defined(OS_STEAMLINK)
 		signal(SIGTERM, Player::SigTermHandler);
 #endif
+		//TODO: Move back to StartStream after testing. Might break out connecting to the server
+		//		and connecting to channel in to 2 different functions.
+
+		ConnectionDetails* details = new ConnectionDetails("csx62qos1qay8eoxqrhe0cvf05m4yh", "rstat1");
+		const char* channelName = "lil_lexi";
+
+		ChatServiceThread::Get()->Start("ChatService");
+
+		NEW_TASK1(connectToIRC, ChatService, ChatService::Get(), ChatService::ConnectToTwitchIRC, details);
+		POST_TASK(connectToIRC, "ChatService");
+
+
+		NEW_TASK1(joinChannel, ChatService, ChatService::Get(), ChatService::JoinChannel, (void*)channelName);
+		POST_TASK(joinChannel, "ChatService");
+
+		// chat->ConnectToTwitchIRC("csx62qos1qay8eoxqrhe0cvf05m4yh", "rstat1");
+		// chat->JoinChannel("lil_lexi");
 	}
 	void Player::InitOverlay()
 	{
@@ -78,6 +97,7 @@ namespace player3 { namespace player
 		// 	}
 		// });
 		// overlayUpdate.detach();
+
 	}
 	void Player::StartStream(std::string url)
 	{

@@ -105,16 +105,16 @@ namespace player3 { namespace platform
 		// uint32_t* surface = static_cast<uint32_t*>(pixels);
 		// SLVideo_GetOverlayPixels(infoOverlay, &pixelBuf, &dstPitch);
 
-		if (pixelBuf == nullptr) { this->CreateOverlay(this->w, this->h); }
+		// if (pixelBuf == nullptr) { this->CreateOverlay(this->w, this->h); }
 
-		pitch /= sizeof(*surface);
-		dstPitch /= sizeof(*pixelBuf);
-		for(int row = 0; row < this->h; ++row)
-		{
-			memcpy(pixelBuf, surface, this->w*sizeof(*surface));
-			surface += pitch;
-			pixelBuf += dstPitch;
-		}
+		// pitch /= sizeof(*surface);
+		// dstPitch /= sizeof(*pixelBuf);
+		// for(int row = 0; row < this->h; ++row)
+		// {
+		// 	memcpy(pixelBuf, surface, this->w*sizeof(*surface));
+		// 	surface += pitch;
+		// 	pixelBuf += dstPitch;
+		// }
 
 		// SLVideo_ShowOverlay(infoOverlay);
 	}

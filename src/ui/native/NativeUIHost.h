@@ -11,6 +11,7 @@
 #include <vector>
 #include <memory>
 #include <ui/web/packaging/Archive.h>
+#include <ui/native/elements/ElementBase.h>
 #include <ui/native/rendering/NanoVGRenderer.h>
 
 namespace player3 { namespace ui
@@ -20,6 +21,7 @@ namespace player3 { namespace ui
 		public:
 			NativeUIHost();
 			void InitUIHost();
+			void LoadInstanceOfLayout(const char* layoutName); //TODO: Property bindings.
 		private:
 			void LoadLayoutFile();
 
