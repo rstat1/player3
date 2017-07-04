@@ -29,14 +29,16 @@ namespace player3 { namespace chat
 	class ChatService
 	{
 		public:
-			TaskResult* LeaveCurrentChannel();
-			TaskResult* JoinChannel(void* channel);
-			TaskResult* ConnectToTwitchIRC(void* details);
+			void LeaveCurrentChannel();
+			void JoinChannel(const char* channel);
+			void ConnectToTwitchIRC(const char* token, const char* user);
 		private:
-			WebSocket<CLIENT>* twitchChat;
+			Hub chatHub;
+			std::mutex sendBlocker;
 			std::string currentChannel;
+			WebSocket<CLIENT>* twitchChat;
 
-			void MessageReceived(uWS::WebSocket<CLIENT>* connection, char* data, int length);
+			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
 
 		SINGLETON(ChatService)
 	};

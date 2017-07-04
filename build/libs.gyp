@@ -185,6 +185,9 @@
 			'cflags': [
 				'-std=c++11'
 			],
+			'defines': [
+				'UWS_THREADSAFE'
+			],
 			'link_settings': {
 				'libraries': [
 				'-lstdc++',
