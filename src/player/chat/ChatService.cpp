@@ -8,25 +8,29 @@
 #include <mutex>
 #include <thread>
 #include <base/Utils.h>
+#include <ui/native/EventHub.h>
 #include <player/chat/ChatService.h>
 
+using namespace player3::ui;
 using namespace base::utils;
 
 namespace player3 { namespace chat
 {
 	std::shared_ptr<ChatService> ChatService::ref;
 
-	void ChatService::ConnectToTwitchIRC(const char* token, const char* user)//void* connectionDetails)
+	void ChatService::InitChatService()
 	{
-		Log("Chat", "%s %s", token, user);
-
+		EventHub::Get()->RegisterEvent("MessageReceived");
+	}
+	void ChatService::ConnectToTwitchIRC(const char* token, const char* user)
+	{
 		chatHub.onConnection([token, user, this](WebSocket<CLIENT> *ws, HttpRequest req) {
+			Log("Chat", "Connected...");
 			this->twitchChat = ws;
 			std::string tokenStr("PASS oauth:");
 			std::string username("NICK ");
 			tokenStr.append(token);
 			username.append(user);
-			Log("Chat", "Connected...");
 			ws->send("CAP REQ :twitch.tv/tags");
 			ws->send(tokenStr.c_str());
 			ws->send(username.c_str());
@@ -39,10 +43,6 @@ namespace player3 { namespace chat
 		});
 		chatHub.onMessage([&](WebSocket<CLIENT>* ws, char* msg, size_t len, OpCode code) {
 			this->MessageReceived(ws, msg, len);
-		});
-		chatHub.onPing([&](WebSocket<CLIENT>* ws, char* msg, size_t len) {
-			Log("Chat", "PING-PONG");
-
 		});
 		std::thread chatHubRunner([&]{
 			chatHub.connect("wss://irc-ws.chat.twitch.tv", nullptr, {}, 1000);
@@ -66,7 +66,7 @@ namespace player3 { namespace chat
 	{
 		std::string partCmd("PART #");
 		partCmd.append(this->currentChannel);
-		this->twitchChat->send(partCmd.c_str());
+		chatHub.getDefaultGroup<CLIENT>().broadcast(partCmd.c_str(), partCmd.length(), OpCode::TEXT);
 	}
 	void ChatService::MessageReceived(uWS::WebSocket<CLIENT>* connection, char* data, int length)
 	{
@@ -76,19 +76,38 @@ namespace player3 { namespace chat
 		std::vector<std::string> msgParts = split(receivedMessage, ';');
 		if (msgParts.size() >= 12)
 		{
-			std::vector<std::string> actualMessage = split(msgParts[msgParts.size() -1], ':');
-			std::string sender(msgParts[2].c_str());
-			sender.replace(0, 13, "");
-			//TODO: Move this out of the log file.
-			Log("Chat", "%s: %s", sender.c_str(), actualMessage[actualMessage.size() -1].c_str());
+			this->ParseChatMessage(msgParts);
 		}
 		else
 		{
-			if (msgParts[0] == "PING :tmi.twitch.tv")
+			if (msgParts[0].find("PING :tmi") != std::string::npos)
 			{
-				chatHub.getDefaultGroup<CLIENT>().broadcast("PONG :tmi.twitch.tv", 19, OpCode::TEXT);
+				Log("Chat", "PING");
+				chatHub.getDefaultGroup<CLIENT>().broadcast("PONG :tmi.twitch.tv", 20, OpCode::TEXT);
 			}
 			Log("Chat", "msgparts length = %i, %s", msgParts.size(), msgParts[0].c_str());
 		}
+	}
+	void ChatService::ParseChatMessage(std::vector<std::string> rawMessage)
+	{
+		ChatMessage msg;
+		bool emoteOnly = false;
+		std::vector<std::string> actualMessage = split(rawMessage[rawMessage.size() -1], ':');
+		std::string sender(rawMessage[2].c_str());
+
+		sender.replace(0, 13, "");
+		if (rawMessage[3] == "emote-only=1")
+		{
+			emoteOnly = true;
+			msg.emotes = rawMessage[4].c_str();
+		}
+		else { msg.emotes = rawMessage[3].c_str(); }
+		Log("Chat", "%s: %s", sender.c_str(), actualMessage[actualMessage.size() -1].c_str());
+
+		msg.emotesOnly = emoteOnly;
+		msg.sender = sender.c_str();;
+		msg.message = actualMessage[actualMessage.size() -1].c_str();
+
+		EventHub::Get()->TriggerEvent("MessageReceived", &msg);
 	}
 }}

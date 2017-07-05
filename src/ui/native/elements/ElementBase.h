@@ -1,4 +1,4 @@
-/*
+/*name
 * Copyright (c) 2017 The Incredibly Big Red Robot
 *
 * Use of this source code is governed by a "BSD-style" license that can be
@@ -13,10 +13,18 @@
 
 namespace player3 { namespace ui
 {
+	#define ELEMENT_CTOR(name) name::name(Style style, std::vector<PropertyBinding> bindings)
+	#define ELEMENT_BASE(name, type) name(Style style, std::vector<PropertyBinding> bindings); \
+							   		 Box GetBoundingBox() override; \
+									 ElementType GetElementType() override { return type; }
+
 	enum ElementType
 	{
 		Image,
-		Label
+		Label,
+		Block,
+		ListBlock,
+		Invalid
 	};
 	enum AnchorPoint
 	{
@@ -52,15 +60,14 @@ namespace player3 { namespace ui
 			Box margin;
 			Box padding;
 			int fontSize;
-			AnchorPoint anchor;
 			const char* bgColor;
 			const char* fgColor;
 	};
 	struct PropertyBinding
 	{
 		public:
-			const char* propertyName;
-			const char* bindingName;
+			const char* PropertyName;
+			const char* BindingName;
 	};
 	class ElementBase
 	{
@@ -68,12 +75,26 @@ namespace player3 { namespace ui
 			virtual Box GetBoundingBox() = 0;
 			virtual ElementType GetElementType() = 0;
 	};
+	class ContainerElementBase : public ElementBase
+	{
+		public:
+			virtual bool AllowChildrenToSetWidth() = 0;
+			virtual bool AllowChildrenToSetHeight() = 0;
+			virtual int GetChildWidth() = 0;
+			virtual int GetChildHeight() = 0;
+			virtual Box GetBoundingBox() { return Box(0, 0, 0, 0); }
+			virtual ElementType GetElementType() { return ElementType::Invalid; }
+
+			AnchorPoint anchor;
+			Style ElementStyle;
+			std::vector<std::unique_ptr<ElementBase>> Children;
+	};
 	struct Layout
 	{
 		public:
 			Style style;
 			const char* name;
-			std::vector<std::unique_ptr<ElementBase>> childElements;
+			ContainerElementBase* rootElement;
 	};
 }}
 

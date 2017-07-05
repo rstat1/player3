@@ -25,14 +25,11 @@ namespace player3 { namespace player
 			void Start();
 			TaskResult* StopStream();
 			TaskResult* OnInitComplete();
-			static PlayerApp* Get()
-			{
-				if (!PlayerApp::ref) { ref = make_shared<PlayerApp>(); }
-				return ref.get();
-			}
+
 		private:
 			TaskRunner* taskRunner;
-			static std::shared_ptr<PlayerApp> ref;
+
+		SINGLETON(PlayerApp)
 	};
 }}
 

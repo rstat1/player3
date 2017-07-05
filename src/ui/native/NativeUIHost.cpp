@@ -8,10 +8,8 @@
 #include <base/Utils.h>
 #include <base/common.h>
 #include <ui/native/NativeUIHost.h>
+#include <ui/native/LayoutManager.h>
 #include <platform/PlatformManager.h>
-#include <boost/foreach.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
 
 using namespace base::utils;
 using namespace player3::platform;
@@ -47,7 +45,8 @@ namespace player3 { namespace ui
 		}
 		else { Log("SteamLinkPlatform", "%s", SDL_GetError()); }
 		SDL_ShowWindow(win);
-		this->LoadLayoutFile();
+		LayoutManager* lm = new LayoutManager();
+		lm->LoadAndCacheLayout("");
 	}
 	void NativeUIHost::LoadLayoutFile()
 	{

@@ -1,0 +1,33 @@
+/*
+* Copyright (c) 2017 The Incredibly Big Red Robot
+*
+* Use of this source code is governed by a "BSD-style" license that can be
+* found in the included LICENSE file.
+*/
+
+#ifndef EVNTHUB
+#define EVNTHUB
+
+#include <map>
+#include <vector>
+#include <functional>
+#include <base/common.h>
+
+namespace player3 { namespace ui
+{
+	typedef std::function<void(void*)> EventHandler;
+	typedef std::vector<EventHandler> EventHandlers;
+	class EventHub
+	{
+		public:
+			void RegisterEvent(const char* name);
+			void RegisterEventHandler(const char* name, EventHandler handler);
+			void TriggerEvent(const char* name, void* args);
+		private:
+			std::map<const char*, EventHandlers> eventHandlers;
+
+		SINGLETON(EventHub)
+	};
+}}
+
+#endif

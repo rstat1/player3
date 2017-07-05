@@ -8,6 +8,7 @@
 #include <PlayerApp.h>
 #include <player/Player.h>
 #include <ui/web/UIServer.h>
+#include <ui/native/EventHub.h>
 #include <ui/native/NativeUIHost.h>
 #include <platform/PlatformManager.h>
 
@@ -29,11 +30,15 @@ namespace player3 { namespace player
 	{
 		Log("PlayerApp", "init complete");
 		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO);
-		
+
 		UIServer* server = new UIServer();
 		PlatformManager::Get()->InitPlatformInterface();
 		Player::Get()->InitPlayer();
 		NativeUIHost::Get()->InitUIHost();
+
+		EventHub::Get()->RegisterEventHandler("MessageReceived", [&](void* args) {
+
+		});
 
 		return nullptr;
 	}

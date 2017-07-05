@@ -95,6 +95,9 @@
 				'../src/ui/native/elements/LabelElement.cpp',
 				'../src/player/chat/ChatService.cpp',
 				'../src/player/chat/ChatServiceThread.cpp',
+				'../src/ui/native/EventHub.cpp',
+				'../src/ui/native/elements/containers/BlockElement.cpp',
+				'../src/ui/native/elements/containers/ListBlockElement.cpp',
 				'../src/ui/web/UIServer.h',
 				'../src/player/Player.h',
 				'../src/player/infooverlay/InfoOverlay.h',
@@ -117,6 +120,9 @@
 				'../src/ui/native/elements/LabelElement.h',
 				'../src/player/chat/ChatService.h',
 				'../src/player/chat/ChatServiceThread.h',
+				'../src/ui/native/EventHub.h',
+				'../src/ui/native/elements/containers/BlockElement.h',
+				'../src/ui/native/elements/containers/ListBlockElement.h',
 			],
 			'conditions': [
 				['OS=="linux"', {

@@ -61,6 +61,19 @@
 		"ratio": "cpp",
 		"sstream": "cpp",
 		"stdexcept": "cpp",
-		"streambuf": "cpp"
+		"streambuf": "cpp",
+		"parsedate.c": "cpp",
+		"security.c": "cpp",
+		"gskit.c": "cpp",
+		"nss.c": "cpp",
+		"tool_help.c": "cpp",
+		"tool_vms.c": "cpp",
+		"tool_writeenv.c": "cpp",
+		"tool_writeout.c": "cpp",
+		"unit1309.c": "cpp",
+		"md4.c": "cpp",
+		"md5.c": "cpp",
+		"tftp.c": "cpp",
+		"convert_utf.c": "cpp"
 	}
 }

@@ -26,19 +26,29 @@ namespace player3 { namespace chat
 				: token(Token), username(Username)
 			{}
 	};
+	struct ChatMessage
+	{
+		public:
+			const char* emotes;
+			const char* sender;
+			const char* message;
+			bool emotesOnly = false;
+			const char* senderColor;
+	};
 	class ChatService
 	{
 		public:
+			void InitChatService();
 			void LeaveCurrentChannel();
 			void JoinChannel(const char* channel);
 			void ConnectToTwitchIRC(const char* token, const char* user);
 		private:
 			Hub chatHub;
-			std::mutex sendBlocker;
 			std::string currentChannel;
 			WebSocket<CLIENT>* twitchChat;
 
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
+			void ParseChatMessage(std::vector<std::string> rawMessage);
 
 		SINGLETON(ChatService)
 	};

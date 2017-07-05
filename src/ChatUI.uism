@@ -1,0 +1,3 @@
+<layout name="ChatUI">
+	<listblock items="{Binding ListItems}" anchor="{Binding ChatLocation}" style="width: 100px;height: 250px;" />
+</layout>

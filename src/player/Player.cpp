@@ -48,13 +48,9 @@ namespace player3 { namespace player
 
 		platformInterface = PlatformManager::Get()->GetPlatformInterface();
 		//this->InitOverlay();
+		ChatService::Get()->InitChatService();
 		//TODO: Not hard-coded oauth token and username.
-		// ChatServiceThread::Get()->Start("ChatService");
-		//details = new ConnectionDetails("csx62qos1qay8eoxqrhe0cvf05m4yh", "rstat1");
-
-		// NEW_TASK1(connectToIRC, ChatService, ChatService::Get(), ChatService::ConnectToTwitchIRC, (void*)details);
-		// POST_TASK(connectToIRC, "ChatService");
-		ChatService::Get()->ConnectToTwitchIRC("csx62qos1qay8eoxqrhe0cvf05m4yh", "rstat1");
+		//ChatService::Get()->ConnectToTwitchIRC("csx62qos1qay8eoxqrhe0cvf05m4yh", "rstat1");
 
 #if defined(OS_LINUX) && !defined(OS_STEAMLINK)
 		signal(SIGTERM, Player::SigTermHandler);
@@ -92,7 +88,7 @@ namespace player3 { namespace player
 		Log("Player", "playing url %s", url.c_str());
 
 		//TOOD: Not hard-codedd channel name.
-		ChatService::Get()->JoinChannel("lil_lexi");
+		ChatService::Get()->JoinChannel("rstat1");
 
 		if (url != "" && this->state->status == PlayerStatus::Stopped)
 		{
