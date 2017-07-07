@@ -8,13 +8,12 @@
 #ifndef LAYOUT
 #define LAYOUT
 
-#include <map>
 #include <vector>
 #include <base/common.h>
 #include <boost/property_tree/ptree.hpp>
-#include <ui/native/elements/ElementBase.h>
-#include <ui/native/elements/LabelElement.h>
 #include <boost/property_tree/xml_parser.hpp>
+
+#include <ui/native/elements/LabelElement.h>
 
 using namespace boost::property_tree;
 
@@ -24,8 +23,8 @@ namespace player3 { namespace ui
 	{
 		public:
 			void LoadAndCacheLayout(const char* name);
-			void CreateLayoutInstance(std::map<const char*, void*> bindings, const char* type, const char* tag);
-			void UpdateLayoutInstance(std::map<const char*, void*> bindings, const char* tag);
+			void CreateLayoutInstance(std::map<const char*, boost::any> bindings, const char* type, const char* tag);
+			void UpdateLayoutInstance(std::map<const char*, boost::any> bindings, const char* tag);
 		private:
 			void DoLayout();
 			void RenderLayout();
@@ -38,8 +37,10 @@ namespace player3 { namespace ui
 			//std::unique_ptr<ImageElement> CreateImageElement(ptree::value_type const& details);
 			ContainerElementBase* CreateRootElement(ptree::value_type const& details, const char* type);
 			AnchorPoint ConvertAnchorProperty(std::string prop);
+			ElementType ConvertItemTypeProperty(std::string prop);
 
 			std::map<const char*, Layout> cachedLayouts;
+			std::map<const char*, Layout> layoutInstances;
 	};
 }}
 

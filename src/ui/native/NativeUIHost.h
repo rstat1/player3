@@ -11,7 +11,7 @@
 #include <vector>
 #include <memory>
 #include <ui/web/packaging/Archive.h>
-#include <ui/native/elements/ElementBase.h>
+#include <ui/native/elements/LayoutManagerBase.h>
 #include <ui/native/rendering/NanoVGRenderer.h>
 
 namespace player3 { namespace ui

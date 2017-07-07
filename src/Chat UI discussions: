@@ -19,16 +19,18 @@ Chat UI discussions:
 
 				a <listblock> lays out elements in a horizontal fashion, and forces the width of each element to be equal to the width of the <listblock>. Optionally enforces top/bottom padding between all contained elements.
 
-	How does a layout go from its backing file to fully drawn/data bound
+	How does a layout go from its backing file to fully drawn/data bound?
 		Probably should add a startup task or something that loads/caches all the layouts, but stops just before the data binding step.
 
 		I guess this would work like the following:
 		First use:
-			void LayoutManager::CreateLayoutInstance(std::map<string, void*> bindings, string layoutName, string tag)
-															  prop    value 
+			void LayoutManager::CreateLayoutInstance(std::map<string, void*> bindings, string layoutName, string tag, bool render)
+															  prop    value
 		After uses
 			void LayoutManager::UpdateLayoutInstance(std::map<string, void*> bindings, string tag)
 															  prop    value
 
-		both functions would cause the layout to be rendered.
+		the later function would cause the layout to be rendered, the former, might cause a render.
 
+	How does the PropertyBinding system work?
+		

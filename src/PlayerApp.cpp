@@ -36,9 +36,7 @@ namespace player3 { namespace player
 		Player::Get()->InitPlayer();
 		NativeUIHost::Get()->InitUIHost();
 
-		EventHub::Get()->RegisterEventHandler("MessageReceived", [&](void* args) {
 
-		});
 
 		return nullptr;
 	}

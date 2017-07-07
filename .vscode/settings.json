@@ -74,6 +74,8 @@
 		"md4.c": "cpp",
 		"md5.c": "cpp",
 		"tftp.c": "cpp",
-		"convert_utf.c": "cpp"
+		"convert_utf.c": "cpp",
+		"unit1398.c": "cpp",
+		"easy.c": "cpp"
 	}
 }

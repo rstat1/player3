@@ -11,10 +11,10 @@ namespace player3 { namespace ui
 {
 	ELEMENT_CTOR(BlockElement)
 	{
-
+		this->SetBoundingBox(Box(0, 0, 0, 0));
 	}
-	Box BlockElement::GetBoundingBox()
+	void BlockElement::Render()
 	{
-		return Box(0, 0, 0, 0);
+
 	}
 }}

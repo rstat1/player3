@@ -6,13 +6,24 @@
 */
 
 #include <ui/native/elements/LabelElement.h>
+#include <ui/native/rendering/NanoVGRenderer.h>
 
 namespace player3 { namespace ui
 {
-	LabelElement::LabelElement(Style style, std::vector<PropertyBinding> bindings)
+	ELEMENT_CTOR(LabelElement)
 	{
-		this->style = style;
+		this->SetElementStyle(style);
 	}
-	Box LabelElement::GetBoundingBox() { return this->boundingBox; }
-	ElementType LabelElement::GetElementType() { return ElementType::Label; }
+	void LabelElement::Measure()
+	{
+		Box bounds = this->GetBoundingBox();
+		TextMeasurement* textMeasure = NanoVGRenderer::Get()->MeasureText(std::string(this->GetText()), bounds.Y);
+		bounds.Height = textMeasure->height;
+		bounds.X = 0;
+		this->SetBoundingBox(bounds);
+  	}
+	void LabelElement::Render()
+	{
+
+	}
 }}

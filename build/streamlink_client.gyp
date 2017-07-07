@@ -116,7 +116,7 @@
 				'../src/ui/native/NativeUIHost.h',
 				'../src/platform/PlatformManager.h',
 				'../src/ui/native/LayoutManager.h',
-				'../src/ui/native/ElementBase.h',
+				'../src/ui/native/LayoutManagerBase.h',
 				'../src/ui/native/elements/LabelElement.h',
 				'../src/player/chat/ChatService.h',
 				'../src/player/chat/ChatServiceThread.h',

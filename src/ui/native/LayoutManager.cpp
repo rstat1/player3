@@ -21,23 +21,34 @@ namespace player3 { namespace ui
 	{
 		Layout l;
 		ptree layout;
-		std::string layoutsFile("/home/rstat1/Apps/streamlink/player/src/StreamIsLive.uism");
-
+		std::string layoutsFile("/home/rstat1/Apps/streamlink/player/src/ChatUI.uism");
 		read_xml(layoutsFile, layout);
-
 		l.name = layout.get<std::string>("layout.<xmlattr>.name").c_str();
-
 		for (ptree::value_type const& v: layout.get_child("layout"))
 		{
 			Log("UI", "v.first == %s", v.first.c_str());
 			if (v.first == "block") { l.rootElement = this->CreateRootElement(v, "block"); }
-			else if (v.first == "listblock") { l.rootElement = nullptr;  }
+			else if (v.first == "listblock") { l.rootElement = this->CreateRootElement(v, "listblock");  }
 		}
 		if (l.name != nullptr) { cachedLayouts[l.name] = l; }
 	}
+	void LayoutManager::CreateLayoutInstance(std::map<const char*, boost::any> bindings, const char* type, const char* tag)
+	{
+		if (this->cachedLayouts.find(type) != this->cachedLayouts.end())
+		{
+			Layout toInstance = this->cachedLayouts[type];
+			toInstance.rootElement->BindProperties(bindings);
+			toInstance.rootElement->Measure();
+			toInstance.rootElement->ArrangeChildren();
+			toInstance.rootElement->Render();
+		}
+	}
+	void LayoutManager::UpdateLayoutInstance(std::map<const char*, boost::any> bindings, const char* tag)
+	{
+
+	}
 	void LayoutManager::RenderLayout()
 	{
-		//TODO: Do property binding.
 		//TODO: Draw all the things.
 	}
 	Style LayoutManager::ParseStyleBlob(std::string styleBlob)
@@ -50,17 +61,17 @@ namespace player3 { namespace ui
 			for (const std::string element : styleElements)
 			{
 				elementDetails = split(element, ':');
-				if (elementDetails[0] == "width") { elementStyle.width = stoi(elementDetails[1]); }
-				else if (elementDetails[0] == "height") { elementStyle.height = stoi(elementDetails[1]); }
-				else if (elementDetails[0] == "font-size") { elementStyle.fontSize = stoi(elementDetails[1]); }
+				if (elementDetails[0] == "width") { elementStyle.Width = stoi(elementDetails[1]); }
+				else if (elementDetails[0] == "height") { elementStyle.Height = stoi(elementDetails[1]); }
+				else if (elementDetails[0] == "font-size") { elementStyle.FontSize = stoi(elementDetails[1]); }
 				else if (elementDetails[0].find("padding") != std::string::npos)
 				{
-					//TODO: Implement padding.
+					//TODO: Implement padding. Maybe.
 					//elementStyle.width = stoi(elementDetails[1]);
 				}
 				else if (elementDetails[0].find("margin") != std::string::npos)
 				{
-					//TODO: Implement margin.
+					//TODO: Implement margin. Maybe.
 				}
 			}
 		}
@@ -71,25 +82,20 @@ namespace player3 { namespace ui
 		PropertyBinding bind;
 		std::vector<std::string> parts = split(binding, ':');
 		bind.PropertyName = property;
-		bind.BindingName = parts[1].substr(0, parts[1].size() -1).c_str();
+		bind.BindingName = parts[1].substr(1, parts[1].size() - 2).c_str();
+
+		Log("LM", "property = %s, bindingName = %s", bind.PropertyName, bind.BindingName);
+
 		return bind;
-	}
-	void LayoutManager::CreateLayoutInstance(std::map<const char*, void*> bindings, const char* type, const char* tag)
-	{
-
-	}
-	void LayoutManager::UpdateLayoutInstance(std::map<const char*, void*> bindings, const char* tag)
-	{
-
 	}
 	std::unique_ptr<LabelElement> LayoutManager::CreateLabelElement(ptree::value_type const& details)
 	{
-		std::vector<PropertyBinding> bindings;
+		std::map<const char*, const char*> bindings;
 		std::string textProperty = details.second.get<std::string>("<xmlattr>.text");
-		if (textProperty.find("{Binding") != std::string::npos)
+		if (textProperty.find("{Binding:") != std::string::npos)
 		{
 			PropertyBinding binding = ParsePropertyBinding(textProperty, "text");
-			bindings.push_back(binding);
+			bindings["text"] = binding.BindingName;
 		}
 		Style style = ParseStyleBlob(details.second.get<std::string>("<xmlattr>.style").c_str());
 		return std::make_unique<LabelElement>(style, bindings);
@@ -97,41 +103,58 @@ namespace player3 { namespace ui
 	ContainerElementBase* LayoutManager::CreateRootElement(ptree::value_type const& details, const char* type)
 	{
 		Style s;
+		AnchorPoint anchor;
 		ContainerElementBase* root;
-		std::vector<PropertyBinding> bindings;
+		std::map<const char*, const char*> bindings;
 
-		if (type == "block")
+		if (strncmp(type, "block", 5) == 0)
 		{
 			s = ParseStyleBlob(details.second.get("block.<xmlattr>.style", ""));
-			root = new BlockElement(s, std::vector<PropertyBinding>());
+			root = new BlockElement(s, std::map<const char*, const char*>());
 			root->anchor = ConvertAnchorProperty(details.second.get("block.<xmlattr>.anchor", "bottom-left"));
 		}
-		else if (type == "listblock")
+		else if (strncmp(type, "listblock", 9) == 0)
 		{
 			s = ParseStyleBlob(details.second.get("listblock.<xmlattr>.style", ""));
 			std::string itemsProperty = details.second.get<std::string>("<xmlattr>.items");
-			if (itemsProperty.find("{Binding") != std::string::npos)
+			std::string anchorProperty = details.second.get<std::string>("<xmlattr>.anchor");
+			std::string itemTypeProperty = details.second.get<std::string>("<xmlattr>.itemType");
+			if (itemsProperty.find("{Binding:") != std::string::npos)
 			{
 				PropertyBinding binding = ParsePropertyBinding(itemsProperty, "items");
-				bindings.push_back(binding);
+				bindings["items"] = binding.BindingName;
+			}
+			if (anchorProperty.find("{Binding:") != std::string::npos)
+			{
+				PropertyBinding binding = ParsePropertyBinding(anchorProperty, "anchor");
+				bindings["anchor"] = binding.BindingName;
 			}
 			root = new ListBlockElement(s, bindings);
+			root->SetItemType(ConvertItemTypeProperty(itemTypeProperty));
 			root->anchor = ConvertAnchorProperty(details.second.get("listblock.<xmlattr>.anchor", "bottom-left"));
 		}
 
 		for (ptree::value_type const& w: details.second)
 		{
 			if (w.first == "label") { root->Children.push_back(CreateLabelElement(w)); }
-			if (w.first == "img") {  }
-			if (w.first == "imglabel") { }
+			else if (w.first == "img") {  }
+			else if (w.first == "imglabel") { }
 		}
 		return root;
 	}
 	AnchorPoint LayoutManager::ConvertAnchorProperty(std::string property)
 	{
 		if (property == "bottom-left") { return AnchorPoint::BottomLeft; }
-		if (property == "bottom-right") { return AnchorPoint::BottomRight; }
-		if (property == "top-left") { return AnchorPoint::TopLeft; }
-		if (property == "top-right") { return AnchorPoint::TopRight; }
+		else if (property == "bottom-right") { return AnchorPoint::BottomRight; }
+		else if (property == "top-left") { return AnchorPoint::TopLeft; }
+		else if (property == "top-right") { return AnchorPoint::TopRight; }
+		else { return AnchorPoint::None; }
+	}
+	ElementType LayoutManager::ConvertItemTypeProperty(std::string property)
+	{
+		if (property == "label") { return ElementType::Label; }
+		else if (property == "imglabel") { return ElementType::ImageLabel; }
+		else if (property == "img") { return ElementType::Image; }
+		else { return ElementType::Invalid; }
 	}
 }}

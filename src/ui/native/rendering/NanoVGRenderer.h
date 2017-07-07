@@ -11,6 +11,7 @@
 #include <SDL.h>
 #include <string>
 #include <memory>
+#include <base/common.h>
 #include <ui/native/rendering/RendererTypes.h>
 
 #define NVG_RENDER0(func) nvg##func(this->context);
@@ -41,7 +42,7 @@ namespace player3 { namespace ui
 			void RendererInit(SDL_Window* window);
 		  	void DrawString(const char* text, const char* color, int x, int y, int textSize);
 			void DrawRectangle(int x, int y, int w, int h, const char* color);
-			TextMeasurement* MeasureText(std::string text, int posX, int posY);
+			TextMeasurement* MeasureText(std::string text, int width);
 			void SetViewport(SkylightRectangle* newViewport);
 			void SetWindowBackgroundColor(SkylightColor* color);
 			const char* GetRendererType() { return "NanoVG Renderer"; }

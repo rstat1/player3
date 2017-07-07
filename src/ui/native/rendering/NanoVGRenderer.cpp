@@ -148,7 +148,7 @@ namespace player3 { namespace ui
 		glClearColor(R, G, B, A);
 		Clear();
 	}
-	TextMeasurement* NanoVGRenderer::MeasureText(std::string text, int posX, int posY)
+	TextMeasurement* NanoVGRenderer::MeasureText(std::string text, int width)
 	{
 		TextMeasurement* textMeasure = new TextMeasurement();
 		float bounds[4] = {0};
@@ -158,7 +158,7 @@ namespace player3 { namespace ui
 
 		NVG_RENDER1(TextAlign, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 		NVG_RENDER1(TextLineHeight, 1.2f);
-		NVG_RENDER6(TextBoxBounds, 0, 0, this->winW / 2, text.c_str(), nullptr, bounds)
+		NVG_RENDER6(TextBoxBounds, 0, 0, width, text.c_str(), nullptr, bounds)
 		if (bounds != nullptr)
 		{
 			textMeasure->width = bounds[2] - bounds[0];
