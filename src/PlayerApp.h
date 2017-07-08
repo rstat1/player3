@@ -9,10 +9,12 @@
 #define PLAYAPP
 
 #include <memory>
+#include <ui/native/EventHub.h>
 #include <base/threading/common/TaskRunner.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
 
 using namespace std;
+using namespace player3::ui;
 using namespace base::threading;
 
 namespace player3 { namespace player
@@ -25,6 +27,7 @@ namespace player3 { namespace player
 			void Start();
 			TaskResult* StopStream();
 			TaskResult* OnInitComplete();
+			TaskResult* ChatUIEvent(void* handler);
 
 		private:
 			TaskRunner* taskRunner;

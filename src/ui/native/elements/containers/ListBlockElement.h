@@ -24,12 +24,17 @@ namespace player3 { namespace ui
 			void ArrangeChildren() override;
 			bool AllowChildrenToSetWidth() override { return true; }
 			bool AllowChildrenToSetHeight() override { return false; }
-			void BindProperties(std::map<const char*, boost::any> bindingValues) override;
+			void BindProperties(std::map<std::string, boost::any> bindingValues) override;
 		private:
+			void AddChildItems(boost::any itemValue);
+			std::unique_ptr<LabelElement> CreateChildElement(std::string elementValue);
+
 			Style defaultLabelStyle;
-			std::unique_ptr<LabelElement> CreateChildElement(const char* elementValue);
 			std::vector<int> screenSize;
-			std::map<const char*, const char*> propertyBindings;
+			std::string anchorPropertyBinding;
+			std::string listItemsPropertyBinding;
+			//std::map<const char*, const char*> propertyBindings;
+			std::vector<PropertyBinding> propertyBindings;
 
 	};
 }}

@@ -98,6 +98,7 @@
 				'../src/ui/native/EventHub.cpp',
 				'../src/ui/native/elements/containers/BlockElement.cpp',
 				'../src/ui/native/elements/containers/ListBlockElement.cpp',
+				'../src/player/chat/ChatUI.cpp',
 				'../src/ui/web/UIServer.h',
 				'../src/player/Player.h',
 				'../src/player/infooverlay/InfoOverlay.h',
@@ -123,6 +124,7 @@
 				'../src/ui/native/EventHub.h',
 				'../src/ui/native/elements/containers/BlockElement.h',
 				'../src/ui/native/elements/containers/ListBlockElement.h',
+				'../src/player/chat/ChatUI.h',
 			],
 			'conditions': [
 				['OS=="linux"', {

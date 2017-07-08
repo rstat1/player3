@@ -38,23 +38,24 @@ namespace player3 { namespace ui
 			void Clear();
 			void Present();
 			void ResetViewport();
-			SkylightRectangle* GetViewport();
+			Box* GetViewport();
 			void RendererInit(SDL_Window* window);
 		  	void DrawString(const char* text, const char* color, int x, int y, int textSize);
 			void DrawRectangle(int x, int y, int w, int h, const char* color);
 			TextMeasurement* MeasureText(std::string text, int width);
-			void SetViewport(SkylightRectangle* newViewport);
+			void SetViewport(Box* newViewport);
 			void SetWindowBackgroundColor(SkylightColor* color);
 			const char* GetRendererType() { return "NanoVG Renderer"; }
-			void DrawImage(std::string imagePath, SkylightRectangle* dst);
+			void DrawImage(std::string imagePath, Box* dst);
 		private:
 	  		double PointsToPixels(int points);
-			SkylightColor* ConvertStringToSkColor(const char* string);
+			SkylightColor* ConvertStringToSkColor(std::string str);
 
 			SDL_Window* win;
 			NVGcontext* context;
 			SDL_GLContext glContext;
 			int winW = 0, winH = 0;
+			Box* currentViewport;
 
 			SINGLETON(NanoVGRenderer)
 	};

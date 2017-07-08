@@ -15,8 +15,26 @@
 
 namespace player3 { namespace ui
 {
-	typedef std::function<void(void*)> EventHandler;
+	struct EventHandler
+	{
+		public:
+			bool runHandlerAsTask = false;
+			const char* owningThread = "App";
+			std::function<void(void*)> handler;
+			EventHandler(bool runAsTask, const char* onThread, std::function<void(void*)> handlerFunc) :
+				runHandlerAsTask(runAsTask), owningThread(onThread), handler(handlerFunc)
+			{}
+	};
 	typedef std::vector<EventHandler> EventHandlers;
+	struct ThreadedEventHandlerArgs
+	{
+		public:
+			EventHandler eventHandler;
+			void* args;
+			ThreadedEventHandlerArgs(EventHandler handler, void* eventArgs) :
+				eventHandler(handler), args(eventArgs)
+			{}
+	};
 	class EventHub
 	{
 		public:

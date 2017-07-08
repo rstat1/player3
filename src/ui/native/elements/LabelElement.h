@@ -19,7 +19,7 @@ namespace player3 { namespace ui
 			void Measure() override;
 			void Render() override;
 
-			PROPERTY(Text, const char*)
+			PROPERTY(Text, std::string)
 	};
 }}
 

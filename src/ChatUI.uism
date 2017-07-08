@@ -1,6 +1,6 @@
 <layout name="ChatUI">
 	<listblock name="messages" items="{Binding: ListItems}" anchor="{Binding: ChatLocation}" 
-			   style="width:100px;height:250px;" 
+			   style="width:400px;height:250px;bgcolor:rgba(40,40,40, 75)" 
 			   itemType="imglabel" 			   
 			   max="5" />
 </layout>

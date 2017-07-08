@@ -8,7 +8,7 @@
 #ifndef LAYOUT
 #define LAYOUT
 
-#include <vector>
+#include <map>
 #include <base/common.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -23,25 +23,20 @@ namespace player3 { namespace ui
 	{
 		public:
 			void LoadAndCacheLayout(const char* name);
-			void CreateLayoutInstance(std::map<const char*, boost::any> bindings, const char* type, const char* tag);
-			void UpdateLayoutInstance(std::map<const char*, boost::any> bindings, const char* tag);
+			void RenderLayout(std::map<std::string, boost::any> bindings, const char* type);
 		private:
-			void DoLayout();
-			void RenderLayout();
-			void CreateElement();
 			Style ParseStyleBlob(std::string styleBlob);
-			PropertyBinding ParsePropertyBinding(std::string binding, const char* propertyName);
-
-			std::unique_ptr<LabelElement> CreateLabelElement(ptree::value_type const& details);
-			//std::unique_ptr<ImageLabelElement> CreateImageLabelElement(ptree::value_type const& details);
-			//std::unique_ptr<ImageElement> CreateImageElement(ptree::value_type const& details);
-			ContainerElementBase* CreateRootElement(ptree::value_type const& details, const char* type);
 			AnchorPoint ConvertAnchorProperty(std::string prop);
 			ElementType ConvertItemTypeProperty(std::string prop);
+			PropertyBinding ParsePropertyBinding(std::string binding, const char* propertyName);
+
+			ContainerElementBase* CreateRootElement(ptree::value_type const& details, const char* type);
+			std::unique_ptr<LabelElement> CreateLabelElement(ptree::value_type const& details);
 
 			std::map<const char*, Layout> cachedLayouts;
-			std::map<const char*, Layout> layoutInstances;
 	};
 }}
 
 #endif
+			//std::unique_ptr<ImageLabelElement> CreateImageLabelElement(ptree::value_type const& details);
+			//std::unique_ptr<ImageElement> CreateImageElement(ptree::value_type const& details);

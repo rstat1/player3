@@ -13,14 +13,15 @@
 #include <memory>
 #include <boost/any.hpp>
 #include <ui/native/PropertyMacros.h>
+#include <ui/native/rendering/RendererTypes.h>
 
 namespace player3 { namespace ui
 {
 	#define UPTR(type) std::unique_ptr<type>
 	#define UPTRVAR(name, type) std::unique_ptr<type> name
 	#define MAKEUPTR(type, arg1, arg2) std::make_unique<type>(arg1, arg2);
-	#define ELEMENT_CTOR(name) name::name(Style style, std::map<const char*, const char*> bindings)
-	#define ELEMENT_BASE(name, type) name(Style style, std::map<const char*, const char*> bindings); \
+	#define ELEMENT_CTOR(name) name::name(Style style, std::vector<PropertyBinding> bindings)
+	#define ELEMENT_BASE(name, type) name(Style style, std::vector<PropertyBinding> bindings); \
 									 ElementType GetElementType() override { return type; }
 
 	enum ElementType
@@ -40,24 +41,6 @@ namespace player3 { namespace ui
 		BottomLeft,
 		BottomRight,
 	};
-	struct Box
-	{
-		public:
-			int X;
-			int Y;
-			int Width;
-			int Height;
-			Box()
-			{
-				X = 0;
-				Y = 0;
-				Width = 0;
-				Height = 0;
-			}
-			Box(int x, int y, int width, int height)
-				: X(x), Y(y), Width(width), Height(height)
-			{}
-	};
 	struct Style
 	{
 		public:
@@ -66,14 +49,14 @@ namespace player3 { namespace ui
 			Box Margin;
 			Box Padding;
 			int FontSize;
-			const char* BGColor;
-			const char* FGColor;
+			std::string BGColor;
+			std::string FGColor;
 	};
 	struct PropertyBinding
 	{
 		public:
-			const char* PropertyName;
-			const char* BindingName;
+			std::string PropertyName;
+			std::string BindingName;
 	};
 	class ElementBase
 	{
@@ -81,9 +64,10 @@ namespace player3 { namespace ui
 			virtual void Measure() {};
 			virtual void Render() = 0;
 			virtual ElementType GetElementType() = 0;
-			virtual void BindProperties(std::map<const char*, boost::any> bindingValues) {};
+			virtual void UpdatePropertyBinding(const char* name, boost::any newValue) {};
+			virtual void BindProperties(std::map<std::string, boost::any> bindingValues) {};
 
-			PROPERTY(BoundingBox, Box)
+			PROPERTY(BoundingBox, Box*)
 			PROPERTY(ElementStyle, Style)
 	};
 	class ContainerElementBase : public ElementBase
@@ -101,13 +85,11 @@ namespace player3 { namespace ui
 			std::vector<std::unique_ptr<ElementBase>> Children;
 
 			PROPERTY(MaxItems, int)
-			PROPERTY(BoundingBox, Box)
 			PROPERTY(ItemType, ElementType)
 	};
 	struct Layout
 	{
 		public:
-			Style style;
 			const char* name;
 			ContainerElementBase* rootElement;
 	};

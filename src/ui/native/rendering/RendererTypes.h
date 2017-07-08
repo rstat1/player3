@@ -21,15 +21,23 @@ namespace player3 { namespace ui
 			uint8_t b;
 			uint8_t a;
 	};
-	struct SkylightRectangle
+	struct Box
 	{
 		public:
-			int x;
-			int y;
-			int w;
-			int h;
-			bool filledBG;
-			SkylightColor background;
+			int X;
+			int Y;
+			int Width;
+			int Height;
+			Box()
+			{
+				X = 0;
+				Y = 0;
+				Width = 0;
+				Height = 0;
+			}
+			Box(int x, int y, int width, int height)
+				: X(x), Y(y), Width(width), Height(height)
+			{}
 	};
 	enum TextStyle {
 		TextStyle_Normal = 0,
@@ -52,7 +60,7 @@ namespace player3 { namespace ui
 		public:
 			const char* text;
 			int fontSize;
-			SkylightRectangle* position;
+			Box* position;
 			TextStyle textStyle;
 			SkylightColor background;
 			SkylightColor foreground;

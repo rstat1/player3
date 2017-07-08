@@ -36,14 +36,20 @@ namespace player3 { namespace player
 		Player::Get()->InitPlayer();
 		NativeUIHost::Get()->InitUIHost();
 
-
-
 		return nullptr;
 	}
 	TaskResult* PlayerApp::StopStream()
 	{
 		Log("PlayerApp", "stopstream");
 		Player::Get()->Stop();
+
+		return nullptr;
+	}
+	TaskResult* PlayerApp::ChatUIEvent(void* args)
+	{
+		Log("PlayerApp", "Chat event received..");
+		ThreadedEventHandlerArgs* eventArgs = (ThreadedEventHandlerArgs*)args;
+		eventArgs->eventHandler.handler(args);
 
 		return nullptr;
 	}

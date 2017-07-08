@@ -11,7 +11,7 @@ namespace player3 { namespace ui
 {
 	ELEMENT_CTOR(BlockElement)
 	{
-		this->SetBoundingBox(Box(0, 0, 0, 0));
+		this->SetBoundingBox(new Box(0, 0, 0, 0));
 	}
 	void BlockElement::Render()
 	{

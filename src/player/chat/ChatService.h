@@ -5,11 +5,12 @@
 * found in the included LICENSE file.
 */
 
-#ifndef CHATUI
-#define CHATUI
+#ifndef CHATSERV
+#define CHATSERV
 
 #include <uWS/src/uWS.h>
 #include <base/common.h>
+#include <player/chat/ChatUI.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
 
 using namespace uWS;
@@ -43,12 +44,14 @@ namespace player3 { namespace chat
 			void JoinChannel(const char* channel);
 			void ConnectToTwitchIRC(const char* token, const char* user);
 		private:
+			void ParseChatMessage(std::vector<std::string> rawMessage);
+			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
+
 			Hub chatHub;
+			ChatUI* chatUI;
 			std::string currentChannel;
 			WebSocket<CLIENT>* twitchChat;
 
-			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
-			void ParseChatMessage(std::vector<std::string> rawMessage);
 
 		SINGLETON(ChatService)
 	};

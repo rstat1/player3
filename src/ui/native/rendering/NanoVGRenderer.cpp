@@ -47,14 +47,17 @@ namespace player3 { namespace ui
 			this->winH = dims[3];
 
 			NANOVG_INIT
-
-			//NVG_RENDER2(CreateFont, "sans", "/usr/share/fonts/noto/NotoSans-Regular.ttf");
+#if defined(OS_STEAMLINK)
+			NVG_RENDER2(CreateFont, "sans", "/usr/share/fonts/noto/NotoSans-Regular.ttf");
+#else
+			NVG_RENDER2(CreateFont, "sans", "NotoSans-Regular.ttf");
+#endif
 			if (context == nullptr) { Log("NanoVG::Init", "Failed to create NanoVG ctx"); }
 		}
 	}
 	void NanoVGRenderer::DrawRectangle(int x, int y, int w, int h, const char* color)
 	{
-		SkylightColor* actualColor = this->ConvertStringToSkColor(color);
+		SkylightColor* actualColor = this->ConvertStringToSkColor(std::string(color));
 
 		if (actualColor != nullptr)
 		{
@@ -74,17 +77,22 @@ namespace player3 { namespace ui
 	}
 	void NanoVGRenderer::DrawString(const char* text, const char* color, int x, int y, int textSize)
 	{
-		// NVG_RENDER3(BeginFrame, this->winW, this->winH, 1)
+		Log("NANOVG_TEXTCOLOR", "%i", currentViewport->Y);
 
-		// NVG_RENDER1(FontSize, PointsToPixels(textLayout->fontSize));
-		// NVG_RENDER1(FontFace, "sans");
-		// NVG_RENDER1(FillColor, nvgRGBA(255,255,255,255));
-		// NVG_RENDER1(TextAlign, NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE)
-		// NVG_RENDER4(Text, textLayout->position->x, textLayout->position->y, textLayout->text, NULL)
+		SkylightColor* actualColor = this->ConvertStringToSkColor(std::string(color));
 
-		// NVG_RENDER0(EndFrame)
+		NVG_RENDER3(BeginFrame, this->winW, this->winH, 1)
+		//NVG_RENDER4(Scissor, (float)currentViewport->X, (float)currentViewport->Y, (float)currentViewport->Width, (float)currentViewport->Height);
+
+		NVG_RENDER1(FontSize, PointsToPixels(textSize));
+		NVG_RENDER1(FontFace, "sans");
+		NVG_RENDER1(FillColor, nvgRGBA(actualColor->r, actualColor->g, actualColor->b, actualColor->a));
+		NVG_RENDER1(TextAlign, NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE)
+		NVG_RENDER4(Text, x, y, text, NULL)
+
+		NVG_RENDER0(EndFrame)
 	}
-	void NanoVGRenderer::DrawImage(std::string imagePath, SkylightRectangle* dst)
+	void NanoVGRenderer::DrawImage(std::string imagePath, Box* dst)
 	{
 		float ix,iy,iw,ih, tx, ty, v, a;
 		int imgw, imgh;
@@ -96,8 +104,8 @@ namespace player3 { namespace ui
 		NVG_RENDER0(BeginPath)
 		NVG_RENDER2_R2(CreateImage, imagePath.c_str(), 0);
 		NVG_RENDER3(ImageSize, r2, &imgw, &imgh);
-		tx = dst->x;
-		ty = dst->y;
+		tx = dst->X;
+		ty = dst->Y;
 		if (imgw < imgh)
 		{
 			iw = (float)imgw;
@@ -113,7 +121,7 @@ namespace player3 { namespace ui
 			iy = 0;
 		}
 		NVG_RENDER7_R7(ImagePattern, tx + ix, ty + iy, iw, ih, 0.0f, r2, 1)
-		NVG_RENDER4(Rect, dst->x, dst->y, dst->w, dst->h)
+		NVG_RENDER4(Rect, dst->X, dst->Y, dst->Width, dst->Height)
 		NVG_RENDER1(FillPaint, r7);
 		NVG_RENDER0(Fill)
 
@@ -121,16 +129,17 @@ namespace player3 { namespace ui
 
 		NVG_RENDER1(DeleteImage, r2)
 	}
-	SkylightRectangle* NanoVGRenderer::GetViewport()
+	Box* NanoVGRenderer::GetViewport()
 	{
 		return nullptr;
 	}
-	void NanoVGRenderer::SetViewport(SkylightRectangle* newViewport)
+	void NanoVGRenderer::SetViewport(Box* newViewport)
 	{
-		Log("NanoVG", "Setting viewport: (%i, %i, %i, %i)", newViewport->x, newViewport->y, newViewport->w, newViewport->h);
+		Log("NanoVG", "Setting viewport: (%i, %i, %i, %i)", newViewport->X, newViewport->Y, newViewport->Width, newViewport->Height);
+		currentViewport = newViewport;
 
-		NVG_RENDER3(BeginFrame, newViewport->w, newViewport->h, 1)
-		NVG_RENDER4(Scissor, (float)newViewport->x, (float)newViewport->y, (float)newViewport->w, (float)newViewport->h);
+		NVG_RENDER3(BeginFrame, newViewport->Width, newViewport->Height, 1)
+		NVG_RENDER4(Scissor, (float)newViewport->X, (float)newViewport->Y, (float)newViewport->Width, (float)newViewport->Height);
 		NVG_RENDER0(EndFrame)
 	}
 	void NanoVGRenderer::ResetViewport()
@@ -150,6 +159,7 @@ namespace player3 { namespace ui
 	}
 	TextMeasurement* NanoVGRenderer::MeasureText(std::string text, int width)
 	{
+		Log("NANOVG_TM", "%s", text.c_str());
 		TextMeasurement* textMeasure = new TextMeasurement();
 		float bounds[4] = {0};
 
@@ -158,7 +168,7 @@ namespace player3 { namespace ui
 
 		NVG_RENDER1(TextAlign, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 		NVG_RENDER1(TextLineHeight, 1.2f);
-		NVG_RENDER6(TextBoxBounds, 0, 0, width, text.c_str(), nullptr, bounds)
+		NVG_RENDER6(TextBoxBounds, 0, 0, 400, text.c_str(), nullptr, bounds)
 		if (bounds != nullptr)
 		{
 			textMeasure->width = bounds[2] - bounds[0];
@@ -175,13 +185,12 @@ namespace player3 { namespace ui
 		return points * (96.0 / 72.0);
 
 	}
-	SkylightColor* NanoVGRenderer::ConvertStringToSkColor(const char* color)
+	SkylightColor* NanoVGRenderer::ConvertStringToSkColor(std::string str)
 	{
 		SkylightColor* actualColor;
-		std::string c(color);
-		c.replace(0, 5, "");
-		c.replace(c.end() - 1, c.end(), "");
-		std::vector<std::string> colorParts = split(c, ',');
+		str.replace(0, 5, "");
+		str.replace(str.end() - 1, str.end(), "");
+		std::vector<std::string> colorParts = split(str, ',');
 
 
 		if (colorParts.empty() == false && colorParts.size() == 4)

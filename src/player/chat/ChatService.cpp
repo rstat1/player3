@@ -20,7 +20,11 @@ namespace player3 { namespace chat
 
 	void ChatService::InitChatService()
 	{
+		EventHub::Get()->RegisterEvent("Connected");
 		EventHub::Get()->RegisterEvent("MessageReceived");
+
+		this->chatUI = new ChatUI();
+		this->chatUI->InitChatUI();
 	}
 	void ChatService::ConnectToTwitchIRC(const char* token, const char* user)
 	{
@@ -34,6 +38,7 @@ namespace player3 { namespace chat
 			ws->send("CAP REQ :twitch.tv/tags");
 			ws->send(tokenStr.c_str());
 			ws->send(username.c_str());
+			EventHub::Get()->TriggerEvent("Connected", nullptr);
 		});
 		chatHub.onError([&](void* user) {
 			Log("Chat", "connect failed");

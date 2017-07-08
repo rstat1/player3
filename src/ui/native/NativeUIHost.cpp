@@ -5,10 +5,10 @@
 * found in the included LICENSE file.
 */
 
+#include <vector>
 #include <base/Utils.h>
 #include <base/common.h>
 #include <ui/native/NativeUIHost.h>
-#include <ui/native/LayoutManager.h>
 #include <platform/PlatformManager.h>
 
 using namespace base::utils;
@@ -21,6 +21,9 @@ namespace player3 { namespace ui
 	void NativeUIHost::InitUIHost()
 	{
 		screenSize = PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
+		layoutManager = new LayoutManager();
+		layoutManager->LoadAndCacheLayout("ChatUI");
+		layoutManager->LoadAndCacheLayout("StreamIsLive");
 
 		Log("UI", "new window %i, %i, %s", screenSize[0], screenSize[1], "Player3");
 
@@ -45,11 +48,10 @@ namespace player3 { namespace ui
 		}
 		else { Log("SteamLinkPlatform", "%s", SDL_GetError()); }
 		SDL_ShowWindow(win);
-		LayoutManager* lm = new LayoutManager();
-		lm->LoadAndCacheLayout("");
-	}
-	void NativeUIHost::LoadLayoutFile()
-	{
 
+	}
+	void NativeUIHost::RenderLayout(const char* name, std::map<std::string, boost::any> propertyBindings)
+	{
+		layoutManager->RenderLayout(propertyBindings, name);
 	}
 }}

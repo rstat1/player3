@@ -20,90 +20,104 @@ namespace player3 { namespace ui
 	ELEMENT_CTOR(ListBlockElement)
 	{
 		ElementStyle = style;
+		defaultLabelStyle.FontSize = 12;
+		defaultLabelStyle.FGColor.assign("rgba(255, 255, 255, 255)");
+		for (const PropertyBinding p : bindings)
+		{
+			if (p.PropertyName == "anchor") { anchorPropertyBinding.assign(p.BindingName); }
+			else if (p.PropertyName == "items") { listItemsPropertyBinding.assign(p.BindingName); }
+		}
 		screenSize = PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
 	}
-	void ListBlockElement::BindProperties(std::map<const char*, boost::any> bindingValues)
+	void ListBlockElement::BindProperties(std::map<std::string, boost::any> bindingValues)
 	{
-		defaultLabelStyle.FGColor = "#FFFFFFFF";
-		defaultLabelStyle.FontSize = 12;
-		const char* anchorPropertyBinding = this->propertyBindings["anchor"];
-		const char* listItemsPropertyBinding = this->propertyBindings["listitems"];
-
-		if (anchorPropertyBinding != "")
+		if (bindingValues.find(anchorPropertyBinding.c_str()) != bindingValues.end())
 		{
-			if (bindingValues.find(anchorPropertyBinding) != bindingValues.end())
+			if (bindingValues[anchorPropertyBinding.c_str()].type() == typeid(AnchorPoint))
 			{
-				if (bindingValues[anchorPropertyBinding].type() == typeid(AnchorPoint))
-				{
-					this->anchor = boost::any_cast<AnchorPoint>(bindingValues[anchorPropertyBinding]);
-				}
+				this->anchor = boost::any_cast<AnchorPoint>(bindingValues[anchorPropertyBinding.c_str()]);
 			}
 		}
-		if (bindingValues.find(listItemsPropertyBinding) != bindingValues.end())
+		if (bindingValues.find(listItemsPropertyBinding.c_str()) != bindingValues.end())
 		{
-			if (bindingValues[listItemsPropertyBinding].type() == typeid(std::vector<const char*>))
+			if (bindingValues[listItemsPropertyBinding.c_str()].type() == typeid(std::string))
 			{
-				std::vector<const char*> items = boost::any_cast<std::vector<const char*>>(bindingValues[listItemsPropertyBinding]);
-				for (const char* listItem: items)
+				if (this->Children.size() <= this->GetMaxItems())
 				{
-					this->Children.push_back(this->CreateChildElement(listItem));
+					this->AddChildItems(bindingValues[listItemsPropertyBinding.c_str()]);
 				}
+				else {  }
 			}
 		}
 	}
 	void ListBlockElement::Measure()
 	{
-		Box bounds;
+		Box* bounds = new Box();
 		switch (anchor)
 		{
 			case AnchorPoint::BottomLeft:
-				bounds.X = 0;
-				bounds.Y = screenSize[1] - this->ElementStyle.Height;
+				bounds->X = 0;
+				bounds->Y = screenSize[1] - this->ElementStyle.Height;
 				break;
 			case AnchorPoint::BottomRight:
-				bounds.X = screenSize[0] - this->ElementStyle.Width;
-				bounds.Y = screenSize[1] - this->ElementStyle.Height;
+				bounds->X = screenSize[0] - this->ElementStyle.Width;
+				bounds->Y = screenSize[1] - this->ElementStyle.Height;
 				break;
 			case AnchorPoint::TopLeft:
-				bounds.Y = screenSize[1] - this->ElementStyle.Height;
+				bounds->Y = screenSize[1] - this->ElementStyle.Height;
 				break;
 			case AnchorPoint::TopRight:
-				bounds.X = screenSize[0] - this->ElementStyle.Width;
-				bounds.Y = 0;
+				bounds->X = screenSize[0] - this->ElementStyle.Width;
+				bounds->Y = 0;
 				break;
 			case AnchorPoint::None:
 				break;
 		}
-		bounds.Height = this->ElementStyle.Height;
-		bounds.Width = this->ElementStyle.Width;
+		bounds->Height = this->ElementStyle.Height;
+		bounds->Width = this->ElementStyle.Width;
 		this->SetBoundingBox(bounds);
 	}
 	void ListBlockElement::ArrangeChildren()
 	{
 		// Note: X-coord on children is not set here because when children are
-		// rendered, they're all rendered into a viewport set to the bounds of it's parent.
-		Box elementBounds;
+		// rendered, they're all rendered into a viewport set to the bounds of it's parent,
+		// meaning
+		Box* elementBounds;
 		int previousHeight = 0;
 		for (std::unique_ptr<ElementBase> const& e : this->Children)
 		{
-			elementBounds = e->GetBoundingBox();
-			elementBounds.Width = this->ElementStyle.Width;
-			elementBounds.Y = previousHeight;
-			e->SetBoundingBox(elementBounds);
 			e->Measure();
-			previousHeight += elementBounds.Height + 5;
+			elementBounds = e->GetBoundingBox();
+			elementBounds->X = 0;
+			elementBounds->Width = this->ElementStyle.Width;
+			elementBounds->Y = previousHeight;
+			e->SetBoundingBox(elementBounds);
+			previousHeight += elementBounds->Height + 5;
 		}
 	}
 	void ListBlockElement::Render()
 	{
+		Box* bounds = this->GetBoundingBox();
+		NanoVGRenderer::Get()->DrawRectangle(bounds->X, bounds->Y, bounds->Width, bounds->Height, this->ElementStyle.BGColor.c_str());
+		NanoVGRenderer::Get()->SetViewport(bounds);
+		for (std::unique_ptr<ElementBase> const& e : this->Children)
+		{
+			e->Render();
+		}
+		NanoVGRenderer::Get()->Present();
 
 	}
 	int ListBlockElement::GetChildWidth() { return this->ElementStyle.Width; }
 	int ListBlockElement::GetChildHeight() { return 0; }
-	UPTR(LabelElement) ListBlockElement::CreateChildElement(const char* elementValue)
+	UPTR(LabelElement) ListBlockElement::CreateChildElement(std::string elementValue)
 	{
-		UPTRVAR(Label, LabelElement) = std::make_unique<LabelElement>(defaultLabelStyle, std::map<const char*, const char*>());
+		UPTRVAR(Label, LabelElement) = std::make_unique<LabelElement>(defaultLabelStyle, std::vector<PropertyBinding>());
 		Label->SetText(elementValue);
 		return Label;
+	}
+	void ListBlockElement::AddChildItems(boost::any itemValue)
+	{
+		std::string item = boost::any_cast<std::string>(itemValue);
+		this->Children.push_back(this->CreateChildElement(item));
 	}
 }}
