@@ -28,6 +28,7 @@ namespace player3 { namespace ui
 			else if (p.PropertyName == "items") { listItemsPropertyBinding.assign(p.BindingName); }
 		}
 		screenSize = PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
+		this->SetNeedsRender(true);
 	}
 	void ListBlockElement::BindProperties(std::map<std::string, boost::any> bindingValues)
 	{
@@ -46,7 +47,7 @@ namespace player3 { namespace ui
 				{
 					this->AddChildItems(bindingValues[listItemsPropertyBinding.c_str()]);
 				}
-				else {  }
+				else { Log("LB_BINDPROP", "%s", "max items reached!"); }
 			}
 		}
 	}
@@ -79,36 +80,38 @@ namespace player3 { namespace ui
 	}
 	void ListBlockElement::ArrangeChildren()
 	{
-		// Note: X-coord on children is not set here because when children are
-		// rendered, they're all rendered into a viewport set to the bounds of it's parent,
-		// meaning
 		Box* elementBounds;
-		int previousHeight = 0;
+		int x, y, width;
+		previousHeight = this->GetBoundingBox()->Y + 25;
 		for (std::unique_ptr<ElementBase> const& e : this->Children)
 		{
+			x = this->GetBoundingBox()->X + 20;
+			width = this->ElementStyle.Width - 20;
+			e->SetBoundingBox(new Box(0, previousHeight, width, 0));
+
 			e->Measure();
 			elementBounds = e->GetBoundingBox();
-			elementBounds->X = 0;
-			elementBounds->Width = this->ElementStyle.Width;
-			elementBounds->Y = previousHeight;
-			e->SetBoundingBox(elementBounds);
+			e->SetBoundingBox(new Box(x, previousHeight, width, elementBounds->Height));
 			previousHeight += elementBounds->Height + 5;
 		}
 	}
 	void ListBlockElement::Render()
 	{
 		Box* bounds = this->GetBoundingBox();
-		NanoVGRenderer::Get()->DrawRectangle(bounds->X, bounds->Y, bounds->Width, bounds->Height, this->ElementStyle.BGColor.c_str());
-		NanoVGRenderer::Get()->SetViewport(bounds);
+		//NanoVGRenderer::Get()->SetViewport(bounds); TODO: Flutz with this later.
+
+		if (this->GetNeedsRender())
+		{
+			NanoVGRenderer::Get()->DrawRectangle(bounds->X, bounds->Y, bounds->Width, bounds->Height, this->ElementStyle.BGColor.c_str());
+			this->SetNeedsRender(false);
+		}
 		for (std::unique_ptr<ElementBase> const& e : this->Children)
 		{
-			e->Render();
+			if (e->GetNeedsRender()) { e->Render(); }
 		}
+		NanoVGRenderer::Get()->ResetViewport();
 		NanoVGRenderer::Get()->Present();
-
 	}
-	int ListBlockElement::GetChildWidth() { return this->ElementStyle.Width; }
-	int ListBlockElement::GetChildHeight() { return 0; }
 	UPTR(LabelElement) ListBlockElement::CreateChildElement(std::string elementValue)
 	{
 		UPTRVAR(Label, LabelElement) = std::make_unique<LabelElement>(defaultLabelStyle, std::vector<PropertyBinding>());
@@ -120,4 +123,6 @@ namespace player3 { namespace ui
 		std::string item = boost::any_cast<std::string>(itemValue);
 		this->Children.push_back(this->CreateChildElement(item));
 	}
+	int ListBlockElement::GetChildWidth() { return this->ElementStyle.Width; }
+	int ListBlockElement::GetChildHeight() { return 0; }
 }}

@@ -15,21 +15,24 @@ namespace player3 { namespace chat
 	void ChatUI::InitChatUI()
 	{
 		EventHandler connectedEvent(true, "PlayerApp", [&](void* args) {
-			Log("ChatUI", "Connected...");
-
-			std::string cl("ChatLocation");
-			std::string li("ListItems");
-			std::string msg("Connected to TwitchIRC");
+			std::string message("Connected to TwitchIRC");
 
 			std::map<std::string, boost::any> bindings;
-			bindings[cl] = AnchorPoint::BottomLeft;
-			bindings[li] = msg;
+			bindings["ChatLocation"] = AnchorPoint::BottomLeft;
+			bindings["ListItems"] = message;
 
 			NativeUIHost::Get()->RenderLayout("ChatUI", bindings);
 		});
 		EventHandler msgReceivedEvent(true, "PlayerApp", [&](void* args) {
 			ChatMessage* chatMessage = (ChatMessage*)args;
-			Log("ChatUI", "message received. %s", chatMessage->message);
+
+			std::string received(chatMessage->sender);
+			received.append(":").append(" ").append(chatMessage->message);
+
+			std::map<std::string, boost::any> bindings;
+			bindings["ListItems"] = received;
+
+			NativeUIHost::Get()->RenderLayout("ChatUI", bindings);
 		});
 		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
 		EventHub::Get()->RegisterEventHandler("MessageReceived", msgReceivedEvent);

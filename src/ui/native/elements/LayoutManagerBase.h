@@ -68,6 +68,7 @@ namespace player3 { namespace ui
 			virtual void BindProperties(std::map<std::string, boost::any> bindingValues) {};
 
 			PROPERTY(BoundingBox, Box*)
+			PROPERTY(NeedsRender, bool);
 			PROPERTY(ElementStyle, Style)
 	};
 	class ContainerElementBase : public ElementBase

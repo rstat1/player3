@@ -76,6 +76,16 @@
 		"tftp.c": "cpp",
 		"convert_utf.c": "cpp",
 		"unit1398.c": "cpp",
-		"easy.c": "cpp"
+		"easy.c": "cpp",
+		"rtspd.c": "cpp",
+		"sws.c": "cpp",
+		"ftplistparser.c": "cpp",
+		"smb.c": "cpp",
+		"unit1330.c": "cpp",
+		"unit1303.c": "cpp",
+		"unit1307.c": "cpp",
+		"unit1395.c": "cpp",
+		"unit1396.c": "cpp",
+		"unit1604.c": "cpp"
 	}
 }

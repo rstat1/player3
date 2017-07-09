@@ -26,7 +26,6 @@ namespace player3 { namespace ui
 			{}
 	};
 	typedef std::vector<EventHandler> EventHandlers;
-	struct ThreadedEventHandlerArgs
 	{
 		public:
 			EventHandler eventHandler;

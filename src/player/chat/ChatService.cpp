@@ -10,6 +10,7 @@
 #include <base/Utils.h>
 #include <ui/native/EventHub.h>
 #include <player/chat/ChatService.h>
+#include <boost/algorithm/string/trim.hpp>
 
 using namespace player3::ui;
 using namespace base::utils;
@@ -29,7 +30,6 @@ namespace player3 { namespace chat
 	void ChatService::ConnectToTwitchIRC(const char* token, const char* user)
 	{
 		chatHub.onConnection([token, user, this](WebSocket<CLIENT> *ws, HttpRequest req) {
-			Log("Chat", "Connected...");
 			this->twitchChat = ws;
 			std::string tokenStr("PASS oauth:");
 			std::string username("NICK ");
@@ -87,15 +87,13 @@ namespace player3 { namespace chat
 		{
 			if (msgParts[0].find("PING :tmi") != std::string::npos)
 			{
-				Log("Chat", "PING");
 				chatHub.getDefaultGroup<CLIENT>().broadcast("PONG :tmi.twitch.tv", 20, OpCode::TEXT);
 			}
-			Log("Chat", "msgparts length = %i, %s", msgParts.size(), msgParts[0].c_str());
 		}
 	}
 	void ChatService::ParseChatMessage(std::vector<std::string> rawMessage)
 	{
-		ChatMessage msg;
+		ChatMessage* msg = new ChatMessage();
 		bool emoteOnly = false;
 		std::vector<std::string> actualMessage = split(rawMessage[rawMessage.size() -1], ':');
 		std::string sender(rawMessage[2].c_str());
@@ -104,15 +102,16 @@ namespace player3 { namespace chat
 		if (rawMessage[3] == "emote-only=1")
 		{
 			emoteOnly = true;
-			msg.emotes = rawMessage[4].c_str();
+			msg->emotes = rawMessage[4].c_str();
 		}
-		else { msg.emotes = rawMessage[3].c_str(); }
-		Log("Chat", "%s: %s", sender.c_str(), actualMessage[actualMessage.size() -1].c_str());
+		else { msg->emotes = rawMessage[3].c_str(); }
 
-		msg.emotesOnly = emoteOnly;
-		msg.sender = sender.c_str();;
-		msg.message = actualMessage[actualMessage.size() -1].c_str();
+		boost::trim(actualMessage[actualMessage.size() -1]);
 
-		EventHub::Get()->TriggerEvent("MessageReceived", &msg);
+		msg->emotesOnly = emoteOnly;
+		msg->sender.assign(sender);
+		msg->message.assign(actualMessage[actualMessage.size() -1]);
+
+		EventHub::Get()->TriggerEvent("MessageReceived", msg);
 	}
 }}

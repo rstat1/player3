@@ -5,6 +5,7 @@
 * found in the included LICENSE file.
 */
 
+#include <memory>
 #include <PlayerApp.h>
 #include <ui/native/EventHub.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
@@ -20,26 +21,23 @@ namespace player3 { namespace ui
 	{
 		if (this->eventHandlers.find(name) == this->eventHandlers.end())
 		{
-			Log("EventHub", "Registering event %s", name);
 			this->eventHandlers.insert(std::make_pair(name, EventHandlers()));
 		}
 	}
 	void EventHub::RegisterEventHandler(const char* name, EventHandler handler)
 	{
-		Log("EventHub", "Registering eventhandler for event %s", name);
 		this->eventHandlers[name].push_back(handler);
 	}
 	void EventHub::TriggerEvent(const char* name, void* args)
 	{
 		if (this->eventHandlers.find(name) != this->eventHandlers.end())
 		{
-			Log("EventHub", "Triggering eventhandler for event %s", name);
 			EventHandlers handlers = this->eventHandlers[name];
 			for (EventHandler eh : handlers)
 			{
 				if (eh.runHandlerAsTask)
 				{
-					ThreadedEventHandlerArgs *teArgs = new ThreadedEventHandlerArgs(eh, args);
+					ThreadedEventHandlerArgs *teArgs = new ThreadedEventHandlerArgs(eh, std::move(args));
 					NEW_TASK1(EventDispatch, PlayerApp, PlayerApp::Get(), PlayerApp::ChatUIEvent, teArgs);
 					POST_TASK(EventDispatch, eh.owningThread);
 				}

@@ -51,6 +51,10 @@ namespace player3 { namespace player
 		ChatService::Get()->InitChatService();
 		//TODO: Not hard-coded oauth token and username.
 		ChatService::Get()->ConnectToTwitchIRC("csx62qos1qay8eoxqrhe0cvf05m4yh", "rstat1");
+		EventHandler connectedEvent(false, "Player", [&](void* args) {
+			ChatService::Get()->JoinChannel("rstat1");
+		});
+		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
 
 #if defined(OS_LINUX) && !defined(OS_STEAMLINK)
 		signal(SIGTERM, Player::SigTermHandler);
@@ -88,7 +92,7 @@ namespace player3 { namespace player
 		Log("Player", "playing url %s", url.c_str());
 
 		//TOOD: Not hard-codedd channel name.
-		ChatService::Get()->JoinChannel("soaryn");
+//		ChatService::Get()->JoinChannel("rstat1");
 
 		if (url != "" && this->state->status == PlayerStatus::Stopped)
 		{

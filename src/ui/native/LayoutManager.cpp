@@ -30,20 +30,17 @@ namespace player3 { namespace ui
 		l.name = layout.get<std::string>("layout.<xmlattr>.name").c_str();
 		for (ptree::value_type const& v: layout.get_child("layout"))
 		{
-			Log("UI", "v.first == %s", v.first.c_str());
 			if (v.first == "block") { l.rootElement = this->CreateRootElement(v, "block"); }
 			else if (v.first == "listblock") { l.rootElement = this->CreateRootElement(v, "listblock"); }
 		}
 		if (strncmp(l.name, "", 1) == 0) { Log("LM", "layout has no name"); }
 		else
 		{
-			Log("LM", "caching layout named %s", l.name);
 			this->cachedLayouts[name] = l;
 		}
 	}
 	void LayoutManager::RenderLayout(std::map<std::string, boost::any> bindings, const char* type)
 	{
-		Log("LM", "rendering %s", type);
 		if (this->cachedLayouts.find(type) != this->cachedLayouts.end())
 		{
 			Layout toInstance = this->cachedLayouts[type];
@@ -55,7 +52,6 @@ namespace player3 { namespace ui
 	}
 	Style LayoutManager::ParseStyleBlob(std::string styleBlob)
 	{
-		Log("LM", "%s", styleBlob.c_str());
 		Style elementStyle;
 		std::vector<std::string> elementDetails;
 		std::vector<std::string> styleElements = split(styleBlob, ';');
@@ -94,12 +90,8 @@ namespace player3 { namespace ui
 	{
 		PropertyBinding bind;
 		std::vector<std::string> parts = split(binding, ':');
-		//std::string bindingName = parts[1].substr(1, parts[1].size() - 2);
 		bind.PropertyName = property;
 		bind.BindingName.assign(parts[1].substr(1, parts[1].size() - 2));
-
-		Log("LM", "property = %s, bindingName = %s", bind.PropertyName.c_str(), bind.BindingName.c_str());
-
 		return bind;
 	}
 	std::unique_ptr<LabelElement> LayoutManager::CreateLabelElement(ptree::value_type const& details)
@@ -128,13 +120,12 @@ namespace player3 { namespace ui
 		AnchorPoint anchor;
 		bool anchorIsBound;
 		ContainerElementBase* root;
-		//std::map<const char*, const char*> bindings;
 		std::vector<PropertyBinding> bindings;
 
 		if (strncmp(type, "block", 5) == 0)
 		{
 			s = ParseStyleBlob(details.second.get("<xmlattr>.style", ""));
-			root = new BlockElement(s, std::vector<PropertyBinding>());//std::map<const char*, const char*>());
+			root = new BlockElement(s, std::vector<PropertyBinding>());
 			root->anchor = ConvertAnchorProperty(details.second.get("block.<xmlattr>.anchor", "bottom-left"));
 		}
 		else if (strncmp(type, "listblock", 9) == 0)
@@ -143,25 +134,22 @@ namespace player3 { namespace ui
 			std::string itemsProperty = details.second.get<std::string>("<xmlattr>.items");
 			std::string anchorProperty = details.second.get<std::string>("<xmlattr>.anchor");
 			std::string itemTypeProperty = details.second.get<std::string>("<xmlattr>.itemType");
-
-			Log("LM", "anchor = %s", anchorProperty.c_str());
+			int maxItemsProperty = details.second.get<int>("<xmlattr>.max");
 
 			if (itemsProperty.find("{Binding:") != std::string::npos)
 			{
 				PropertyBinding binding = ParsePropertyBinding(itemsProperty, "items");
 				bindings.push_back(binding);
-				//bindings["items"] = std::move(binding.BindingName);
 			}
 			if (anchorProperty.find("{Binding:") != std::string::npos)
 			{
 				PropertyBinding binding = ParsePropertyBinding(anchorProperty, "anchor");
 				bindings.push_back(binding);
-				//bindings["anchor"] = std::move(binding.BindingName);
 				anchorIsBound = true;
 			}
 			else { anchor = ConvertAnchorProperty(details.second.get("<xmlattr>.anchor", "bottom-right")); }
 			root = new ListBlockElement(s, bindings);
-
+			root->SetMaxItems(maxItemsProperty);
 			root->SetItemType(ConvertItemTypeProperty(itemTypeProperty));
 			if (!anchorIsBound) { root->anchor = anchor; }
 		}

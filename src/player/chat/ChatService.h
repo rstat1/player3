@@ -8,8 +8,8 @@
 #ifndef CHATSERV
 #define CHATSERV
 
-#include <uWS/src/uWS.h>
 #include <base/common.h>
+#include <uWS/src/uWS.h>
 #include <player/chat/ChatUI.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
 
@@ -30,11 +30,11 @@ namespace player3 { namespace chat
 	struct ChatMessage
 	{
 		public:
-			const char* emotes;
-			const char* sender;
-			const char* message;
+			std::string emotes;
+			std::string sender;
+			std::string message;
 			bool emotesOnly = false;
-			const char* senderColor;
+			std::string senderColor;
 	};
 	class ChatService
 	{
@@ -43,6 +43,11 @@ namespace player3 { namespace chat
 			void LeaveCurrentChannel();
 			void JoinChannel(const char* channel);
 			void ConnectToTwitchIRC(const char* token, const char* user);
+
+			typedef boost::signals2::signal<void(ChatMessage*)> NewMessageSignal;
+			typedef boost::signals2::signal<void()> ConnectedSignal;
+			ConnectedSignal Connected;
+			NewMessageSignal NewMessage;
 		private:
 			void ParseChatMessage(std::vector<std::string> rawMessage);
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
