@@ -8,8 +8,8 @@
 #ifndef CHATSERV
 #define CHATSERV
 
-#include <uWS/src/uWS.h>
 #include <base/common.h>
+#include <uWS/src/uWS.h>
 #include <player/chat/ChatUI.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
 
@@ -30,11 +30,11 @@ namespace player3 { namespace chat
 	struct ChatMessage
 	{
 		public:
-			const char* emotes;
-			const char* sender;
-			const char* message;
+			std::string emotes;
+			std::string sender;
+			std::string message;
 			bool emotesOnly = false;
-			const char* senderColor;
+			std::string senderColor;
 	};
 	class ChatService
 	{

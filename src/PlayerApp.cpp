@@ -47,10 +47,13 @@ namespace player3 { namespace player
 	}
 	TaskResult* PlayerApp::ChatUIEvent(void* args)
 	{
-		Log("PlayerApp", "Chat event received..");
 		ThreadedEventHandlerArgs* eventArgs = (ThreadedEventHandlerArgs*)args;
-		eventArgs->eventHandler.handler(args);
-
+		eventArgs->eventHandler.handler(eventArgs->args);
 		return nullptr;
+	}
+	void PlayerApp::ChatMessageEvent(std::shared_ptr<void> handler)
+	{
+		ThreadedEventHandlerArgs* eventArgs = (ThreadedEventHandlerArgs*)handler.get();
+
 	}
 }}

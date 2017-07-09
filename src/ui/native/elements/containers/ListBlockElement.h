@@ -29,11 +29,12 @@ namespace player3 { namespace ui
 			void AddChildItems(boost::any itemValue);
 			std::unique_ptr<LabelElement> CreateChildElement(std::string elementValue);
 
+			int previousHeight = 0;
+			bool containerDrawn = false;
 			Style defaultLabelStyle;
 			std::vector<int> screenSize;
 			std::string anchorPropertyBinding;
 			std::string listItemsPropertyBinding;
-			//std::map<const char*, const char*> propertyBindings;
 			std::vector<PropertyBinding> propertyBindings;
 
 	};

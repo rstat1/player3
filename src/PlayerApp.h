@@ -27,6 +27,7 @@ namespace player3 { namespace player
 			void Start();
 			TaskResult* StopStream();
 			TaskResult* OnInitComplete();
+			void ChatMessageEvent(std::shared_ptr<void> handler);
 			TaskResult* ChatUIEvent(void* handler);
 
 		private:
