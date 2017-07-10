@@ -43,11 +43,6 @@ namespace player3 { namespace chat
 			void LeaveCurrentChannel();
 			void JoinChannel(const char* channel);
 			void ConnectToTwitchIRC(const char* token, const char* user);
-
-			typedef boost::signals2::signal<void(ChatMessage*)> NewMessageSignal;
-			typedef boost::signals2::signal<void()> ConnectedSignal;
-			ConnectedSignal Connected;
-			NewMessageSignal NewMessage;
 		private:
 			void ParseChatMessage(std::vector<std::string> rawMessage);
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);

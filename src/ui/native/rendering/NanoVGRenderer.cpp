@@ -170,7 +170,7 @@ namespace player3 { namespace ui
 			textMeasure.push_back(bounds[2] - bounds[0]); //width
 			textMeasure.push_back(bounds[3] - bounds[1]); //height
 
-			Log("NanoVG::MeasureText", "%f, %f, %f, %f, boxwidth = %i", bounds[0], bounds[1], bounds[2], bounds[3], boxWidth);
+//			Log("NanoVG::MeasureText", "%f, %f, %f, %f, boxwidth = %i", bounds[0], bounds[1], bounds[2], bounds[3], boxWidth);
 
 			return textMeasure;
 		}

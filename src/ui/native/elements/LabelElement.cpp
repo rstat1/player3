@@ -29,6 +29,6 @@ namespace player3 { namespace ui
 		Style style = this->GetElementStyle();
 		NanoVGRenderer::Get()->DrawString(this->GetText().c_str(), this->GetElementStyle().FGColor.c_str(), bounds->X,
 										  bounds->Y, 12, bounds->Width);
-		this->SetNeedsRender(false);
+		//this->SetNeedsRender(false);
 	}
 }}

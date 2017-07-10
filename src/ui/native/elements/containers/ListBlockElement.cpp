@@ -36,25 +36,21 @@ namespace player3 { namespace ui
 		{
 			if (bindingValues[anchorPropertyBinding.c_str()].type() == typeid(AnchorPoint))
 			{
-				this->anchor = boost::any_cast<AnchorPoint>(bindingValues[anchorPropertyBinding.c_str()]);
+				this->SetAnchor(boost::any_cast<AnchorPoint>(bindingValues[anchorPropertyBinding.c_str()]));
 			}
 		}
 		if (bindingValues.find(listItemsPropertyBinding.c_str()) != bindingValues.end())
 		{
 			if (bindingValues[listItemsPropertyBinding.c_str()].type() == typeid(std::string))
 			{
-				if (this->Children.size() <= this->GetMaxItems())
-				{
-					this->AddChildItems(bindingValues[listItemsPropertyBinding.c_str()]);
-				}
-				else { Log("LB_BINDPROP", "%s", "max items reached!"); }
+				this->AddChildItems(bindingValues[listItemsPropertyBinding.c_str()]);
 			}
 		}
 	}
 	void ListBlockElement::Measure()
 	{
 		Box* bounds = new Box();
-		switch (anchor)
+		switch (this->GetAnchor())
 		{
 			case AnchorPoint::BottomLeft:
 				bounds->X = 0;
@@ -87,27 +83,23 @@ namespace player3 { namespace ui
 		{
 			x = this->GetBoundingBox()->X + 20;
 			width = this->ElementStyle.Width - 20;
-			e->SetBoundingBox(new Box(0, previousHeight, width, 0));
-
-			e->Measure();
 			elementBounds = e->GetBoundingBox();
 			e->SetBoundingBox(new Box(x, previousHeight, width, elementBounds->Height));
 			previousHeight += elementBounds->Height + 5;
+			Log("LBE_ARRANGE", "previousHeight %i", previousHeight);
 		}
 	}
 	void ListBlockElement::Render()
 	{
 		Box* bounds = this->GetBoundingBox();
-		//NanoVGRenderer::Get()->SetViewport(bounds); TODO: Flutz with this later.
+		NanoVGRenderer::Get()->SetViewport(bounds);
+		NanoVGRenderer::Get()->Clear();
+		NanoVGRenderer::Get()->ResetViewport();
 
-		if (this->GetNeedsRender())
-		{
-			NanoVGRenderer::Get()->DrawRectangle(bounds->X, bounds->Y, bounds->Width, bounds->Height, this->ElementStyle.BGColor.c_str());
-			this->SetNeedsRender(false);
-		}
+		NanoVGRenderer::Get()->DrawRectangle(bounds->X, bounds->Y, bounds->Width, bounds->Height, this->ElementStyle.BGColor.c_str());
 		for (std::unique_ptr<ElementBase> const& e : this->Children)
 		{
-			if (e->GetNeedsRender()) { e->Render(); }
+			e->Render();
 		}
 		NanoVGRenderer::Get()->ResetViewport();
 		NanoVGRenderer::Get()->Present();
@@ -116,12 +108,28 @@ namespace player3 { namespace ui
 	{
 		UPTRVAR(Label, LabelElement) = std::make_unique<LabelElement>(defaultLabelStyle, std::vector<PropertyBinding>());
 		Label->SetText(elementValue);
+		Label->SetBoundingBox(new Box(0, 0, this->ElementStyle.Width - 20, 0));
+		Label->Measure();
+		totalRequiredHeight += Label->GetBoundingBox()->Height;
+		Log("ACI", "totalRequiredHeight %i", totalRequiredHeight);
 		return Label;
 	}
 	void ListBlockElement::AddChildItems(boost::any itemValue)
 	{
+		int maxHeight = this->ElementStyle.Height - 80;
 		std::string item = boost::any_cast<std::string>(itemValue);
 		this->Children.push_back(this->CreateChildElement(item));
+
+		if (totalRequiredHeight >= maxHeight)
+		{
+			Log("ACI", "totalRequiredHeight %i, maxHeight %i, child count %i", totalRequiredHeight, maxHeight, this->Children.size());
+			for (std::unique_ptr<ElementBase> const& e : this->Children)
+			{
+				totalRequiredHeight -= this->Children.front()->GetBoundingBox()->Height;
+				this->Children.pop_front();
+				if (totalRequiredHeight < maxHeight ) { break; }
+			}
+		}
 	}
 	int ListBlockElement::GetChildWidth() { return this->ElementStyle.Width; }
 	int ListBlockElement::GetChildHeight() { return 0; }

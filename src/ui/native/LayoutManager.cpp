@@ -9,6 +9,7 @@
 #include <base/Utils.h>
 #include <boost/foreach.hpp>
 #include <ui/native/LayoutManager.h>
+#include <boost/algorithm/string/trim.hpp>
 
 #include <ui/native/elements/containers/BlockElement.h>
 #include <ui/native/elements/containers/ListBlockElement.h>
@@ -126,7 +127,7 @@ namespace player3 { namespace ui
 		{
 			s = ParseStyleBlob(details.second.get("<xmlattr>.style", ""));
 			root = new BlockElement(s, std::vector<PropertyBinding>());
-			root->anchor = ConvertAnchorProperty(details.second.get("block.<xmlattr>.anchor", "bottom-left"));
+			root->SetAnchor(ConvertAnchorProperty(details.second.get("block.<xmlattr>.anchor", "bottom-left")));
 		}
 		else if (strncmp(type, "listblock", 9) == 0)
 		{
@@ -134,7 +135,6 @@ namespace player3 { namespace ui
 			std::string itemsProperty = details.second.get<std::string>("<xmlattr>.items");
 			std::string anchorProperty = details.second.get<std::string>("<xmlattr>.anchor");
 			std::string itemTypeProperty = details.second.get<std::string>("<xmlattr>.itemType");
-			int maxItemsProperty = details.second.get<int>("<xmlattr>.max");
 
 			if (itemsProperty.find("{Binding:") != std::string::npos)
 			{
@@ -147,11 +147,10 @@ namespace player3 { namespace ui
 				bindings.push_back(binding);
 				anchorIsBound = true;
 			}
-			else { anchor = ConvertAnchorProperty(details.second.get("<xmlattr>.anchor", "bottom-right")); }
+
 			root = new ListBlockElement(s, bindings);
-			root->SetMaxItems(maxItemsProperty);
+			if (anchorIsBound == false) { root->SetAnchor(ConvertAnchorProperty(details.second.get("<xmlattr>.anchor", "bottom-right"))); }
 			root->SetItemType(ConvertItemTypeProperty(itemTypeProperty));
-			if (!anchorIsBound) { root->anchor = anchor; }
 		}
 
 		for (ptree::value_type const& w: details.second)
@@ -164,6 +163,10 @@ namespace player3 { namespace ui
 	}
 	AnchorPoint LayoutManager::ConvertAnchorProperty(std::string property)
 	{
+		Log("LM", "anchor = %s", property.c_str());
+
+		boost::trim(property);
+
 		if (property == "bottom-left") { return AnchorPoint::BottomLeft; }
 		else if (property == "bottom-right") { return AnchorPoint::BottomRight; }
 		else if (property == "top-left") { return AnchorPoint::TopLeft; }

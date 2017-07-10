@@ -9,6 +9,7 @@
 #define ELEMBASE
 
 #include <map>
+#include <deque>
 #include <vector>
 #include <memory>
 #include <boost/any.hpp>
@@ -81,11 +82,11 @@ namespace player3 { namespace ui
 			virtual bool AllowChildrenToSetWidth() = 0;
 			virtual bool AllowChildrenToSetHeight() = 0;
 
-			AnchorPoint anchor;
+			//AnchorPoint anchor;
 			Style ElementStyle;
-			std::vector<std::unique_ptr<ElementBase>> Children;
+			std::deque<std::unique_ptr<ElementBase>> Children;
 
-			PROPERTY(MaxItems, int)
+			PROPERTY(Anchor, AnchorPoint)
 			PROPERTY(ItemType, ElementType)
 	};
 	struct Layout
