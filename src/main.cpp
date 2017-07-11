@@ -5,11 +5,11 @@
 * found in the included LICENSE file.
 */
 
+#include <client/linux/handler/exception_handler.h>
 #include <iostream>
 #include <base/Utils.h>
 #include <base/common.h>
 #include <PlayerApp.h>
-#include <client/linux/handler/exception_handler.h>
 
 using namespace base::utils;
 using namespace player3::player;
@@ -23,10 +23,15 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor, 
 
 int main(int argc, char* argv[])
 {
+	INIT_PROFILER
+
 	writeToLog("Init player3", true);
 	MinidumpDescriptor descriptor(GetAppPath());
 	ExceptionHandler eh(descriptor, NULL, dumpCallback, NULL, true, -1);
 
 	PlayerApp::Get()->Start();
+
+	UNINIT_PROFILER
+
 	return 0;
 }

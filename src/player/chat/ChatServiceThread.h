@@ -8,9 +8,11 @@
 #ifndef CHTSRVTHRD
 #define CHTSRVTHRD
 
-#include <player/chat/ChatService.h>
+#include <uWS/src/uWS.h>
+#include <base/threading/dispatcher/DispatcherTypes.h>
 #include <base/threading/common/Thread.h>
 
+using namespace uWS;
 using namespace base::threading;
 
 namespace player3 { namespace chat
@@ -19,6 +21,7 @@ namespace player3 { namespace chat
 	{
 		public:
 			void Init() override;
+			void ConnectTask();
 
 		SINGLETON(ChatServiceThread)
 	};

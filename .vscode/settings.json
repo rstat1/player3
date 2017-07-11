@@ -88,6 +88,8 @@
 		"unit1396.c": "cpp",
 		"unit1604.c": "cpp",
 		"nwlib.c": "cpp",
-		"http2-upload.c": "cpp"
+		"http2-upload.c": "cpp",
+		"web_server.c": "cpp",
+		"remotery.c": "cpp"
 	}
 }

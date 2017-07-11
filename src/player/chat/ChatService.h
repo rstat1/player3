@@ -52,7 +52,6 @@ namespace player3 { namespace chat
 			std::string currentChannel;
 			WebSocket<CLIENT>* twitchChat;
 
-
 		SINGLETON(ChatService)
 	};
 }}

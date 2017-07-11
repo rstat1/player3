@@ -47,6 +47,7 @@ namespace player3 { namespace chat
 			Log("Chat", "Disconnected %s", message);
 		});
 		chatHub.onMessage([&](WebSocket<CLIENT>* ws, char* msg, size_t len, OpCode code) {
+			PROFILE_CPU(ChatServiceMsgRecv, RMTSF_Aggregate)
 			this->MessageReceived(ws, msg, len);
 		});
 		std::thread chatHubRunner([&]{

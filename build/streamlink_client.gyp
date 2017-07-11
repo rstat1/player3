@@ -47,12 +47,12 @@
 				}],
 				['skylight_arch=="armv7l"', {
 					'cflags_cc': [
-						'-std=c++1y'
+						'-std=c++11'
 					],
 				}],
 				['skylight_arch=="x86_64"', {
 					'cflags_cc': [
-						'-std=c++14'
+						'-std=c++11'
 					],
 				}],
 			],
@@ -170,7 +170,7 @@
 					'conditions': [
 						['OS=="linux"', {
 							'cflags_cc': [
-								'-std=c++1y',
+								'-std=c++11',
 							],
 							'link_settings': {
 								'libraries': [

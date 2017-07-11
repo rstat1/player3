@@ -58,6 +58,7 @@ namespace player3 { namespace ui
 	}
 	void NanoVGRenderer::DrawRectangle(int x, int y, int w, int h, const char* color)
 	{
+		PROFILE_GPU(DrawRectangle);
 		SkylightColor* actualColor = this->ConvertStringToSkColor(std::string(color));
 
 		if (actualColor != nullptr)
@@ -76,6 +77,8 @@ namespace player3 { namespace ui
 	}
 	void NanoVGRenderer::DrawString(const char* text, const char* color, int x, int y, int textSize, int boxWidth)
 	{
+		PROFILE_GPU(DrawString);
+
 		SkylightColor* actualColor = this->ConvertStringToSkColor(std::string(color));
 
 		NVG_RENDER3(BeginFrame, currentViewport->Width, currentViewport->Height, 1)

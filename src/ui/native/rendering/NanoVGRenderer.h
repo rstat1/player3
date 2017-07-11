@@ -11,6 +11,7 @@
 #include <SDL.h>
 #include <string>
 #include <memory>
+#include <vector>
 #include <base/common.h>
 #include <ui/native/rendering/RendererTypes.h>
 

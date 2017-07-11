@@ -32,6 +32,7 @@ namespace player3 { namespace ui
 	}
 	void ListBlockElement::BindProperties(std::map<std::string, boost::any> bindingValues)
 	{
+		PROFILE_CPU(BindProps, RMTSF_Aggregate);
 		if (bindingValues.find(anchorPropertyBinding.c_str()) != bindingValues.end())
 		{
 			if (bindingValues[anchorPropertyBinding.c_str()].type() == typeid(AnchorPoint))
@@ -76,6 +77,8 @@ namespace player3 { namespace ui
 	}
 	void ListBlockElement::ArrangeChildren()
 	{
+		PROFILE_CPU(Arrange, RMTSF_Aggregate)
+
 		Box* elementBounds;
 		int x, y, width;
 		previousHeight = this->GetBoundingBox()->Y + 25;
@@ -91,6 +94,9 @@ namespace player3 { namespace ui
 	}
 	void ListBlockElement::Render()
 	{
+		PROFILE_GPU(ListBlockRender);
+		PROFILE_CPU(ListBlockRenderCPU, RMTSF_Aggregate);
+
 		Box* bounds = this->GetBoundingBox();
 		NanoVGRenderer::Get()->SetViewport(bounds);
 		NanoVGRenderer::Get()->Clear();
@@ -106,7 +112,7 @@ namespace player3 { namespace ui
 	}
 	UPTR(LabelElement) ListBlockElement::CreateChildElement(std::string elementValue)
 	{
-		UPTRVAR(Label, LabelElement) = std::make_unique<LabelElement>(defaultLabelStyle, std::vector<PropertyBinding>());
+		UPTRVAR(Label, LabelElement) = boost::make_unique<LabelElement>(defaultLabelStyle, std::vector<PropertyBinding>());
 		Label->SetText(elementValue);
 		Label->SetBoundingBox(new Box(0, 0, this->ElementStyle.Width - 20, 0));
 		Label->Measure();
@@ -116,6 +122,7 @@ namespace player3 { namespace ui
 	}
 	void ListBlockElement::AddChildItems(boost::any itemValue)
 	{
+		PROFILE_CPU(AddChild, RMTSF_Aggregate)
 		int maxHeight = this->ElementStyle.Height - 80;
 		std::string item = boost::any_cast<std::string>(itemValue);
 		this->Children.push_back(this->CreateChildElement(item));

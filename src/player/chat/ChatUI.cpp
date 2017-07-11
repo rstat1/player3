@@ -5,6 +5,7 @@
 * found in the included LICENSE file.
 */
 
+#include <base/common.h>
 #include <player/chat/ChatService.h>
 #include <ui/native/NativeUIHost.h>
 

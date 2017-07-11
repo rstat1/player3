@@ -16,10 +16,8 @@
 #include <player/VideoPlayerBase.h>
 #include <base/threading/common/ConditionVariable.h>
 #include <platform/PlatformManager.h>
-#include <player/chat/ChatServiceThread.h>
 
 using namespace std;
-using namespace player3::chat;
 using namespace base::threading;
 using namespace player3::platform;
 
@@ -52,7 +50,7 @@ namespace player3 { namespace player
 			static uint32_t RefreshOverlay(uint32_t interval, void* opaque);
 			static void SDLAudioCallback(void* userdata, uint8_t* stream, int len);
 
-			ConnectionDetails* details;
+			//ConnectionDetails* details;
 			std::thread decode, play;
 			InternalPlayerState* state;
 			static double lastMemoryUse;

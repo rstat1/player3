@@ -132,17 +132,18 @@
 					},
 				}],
 				['with_profiler==1', {
-				    'cflags': [
+				    'cflags_c': [
 				        '-std=gnu11'
 				    ],
 					'sources':[
-						#'../external/remotery/Remotery.c',
-						#'../external/remotery/Remotery.h',
+						'../external/remotery/Remotery.c',
+						'../external/remotery/Remotery.h',
 					],
 				}],
 				['skylight_arch=="x86_64"', {
 					'defines': [
 						'NANOVG_GLEW'
+						'RMT_USE_OPENGL=1'
 					],
 					'conditions': [
 						['OS=="win"', {

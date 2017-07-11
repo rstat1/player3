@@ -7,9 +7,11 @@
 
 #include <string>
 #include <base/Utils.h>
+#include <base/common.h>
 #include <boost/foreach.hpp>
 #include <ui/native/LayoutManager.h>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/smart_ptr/make_unique.hpp>
 
 #include <ui/native/elements/containers/BlockElement.h>
 #include <ui/native/elements/containers/ListBlockElement.h>
@@ -23,7 +25,11 @@ namespace player3 { namespace ui
 		Style s;
 		Layout l;
 		ptree layout;
+#if !defined(OS_STEAMLINK)
 		std::string layoutsFile("/home/rstat1/Apps/streamlink/player/src/");
+#else
+		std::string layoutsFile("/home/apps/streamlink/");
+#endif
 		layoutsFile.append(name);
 		layoutsFile.append(".uism");
 
@@ -44,6 +50,7 @@ namespace player3 { namespace ui
 	{
 		if (this->cachedLayouts.find(type) != this->cachedLayouts.end())
 		{
+			PROFILE_CPU(RenderLayout, RMTSF_Aggregate)
 			Layout toInstance = this->cachedLayouts[type];
 			toInstance.rootElement->BindProperties(bindings);
 			toInstance.rootElement->Measure();
@@ -106,11 +113,11 @@ namespace player3 { namespace ui
 		{
 			PropertyBinding binding = ParsePropertyBinding(textProperty, "text");
 			bindings.push_back(binding);
-			label = std::make_unique<LabelElement>(style, bindings);
+			label = boost::make_unique<LabelElement>(style, bindings);
 		}
 		else
 		{
-			label = std::make_unique<LabelElement>(style, bindings);
+			label = boost::make_unique<LabelElement>(style, bindings);
 			label->SetText(textProperty.c_str());
 		}
 		return label;
