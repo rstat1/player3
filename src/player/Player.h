@@ -32,6 +32,11 @@ namespace player3 { namespace player
 			void InitPlayer();
 			void StartStream(std::string url);
 			InternalPlayerState* GetPlayerState() { return state; }
+			static Player* Get()
+			{
+				if (!Player::ref) { ref = std::make_shared<Player>(); }
+				return ref.get();
+			}
 		private:
 			void Play();
 			void Decode();
@@ -55,8 +60,7 @@ namespace player3 { namespace player
 			InternalPlayerState* state;
 			static double lastMemoryUse;
 			static PlatformInterface* platformInterface;
-
-			SINGLETON(Player)
+			static std::shared_ptr<Player> ref;
 	};
 }}
 

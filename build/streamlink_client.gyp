@@ -41,7 +41,7 @@
 					],
 					'link_settings': {
 						'libraries': [
-							'-lstdc++'
+							#'-lstdc++'
 						],
 					},
 				}],

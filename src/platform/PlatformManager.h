@@ -8,6 +8,7 @@
 #ifndef PLATMAN
 #define PLATMAN
 
+#include <memory>
 #include <base/common.h>
 #include <platform/Platforms.h>
 
@@ -18,10 +19,14 @@ namespace player3 { namespace platform
 		public:
 			void InitPlatformInterface();
 			PlatformInterface* GetPlatformInterface() { return platformInterface; }
+			static PlatformManager* Get()
+			{
+				if (!PlatformManager::ref) { ref = std::make_shared<PlatformManager>(); }
+				return ref.get();
+			}
 		private:
 			PlatformInterface* platformInterface;
-
-		SINGLETON(PlatformManager)
+			static std::shared_ptr<PlatformManager> ref;
 	};
 }}
 

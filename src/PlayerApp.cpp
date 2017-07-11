@@ -11,7 +11,9 @@
 #include <ui/native/EventHub.h>
 #include <ui/native/NativeUIHost.h>
 #include <platform/PlatformManager.h>
+#include <player/chat/ChatService.h>
 
+using namespace player3::chat;
 using namespace player3::ui;
 
 namespace player3 { namespace player
@@ -35,7 +37,9 @@ namespace player3 { namespace player
 		PlatformManager::Get()->InitPlatformInterface();
 		Player::Get()->InitPlayer();
 		NativeUIHost::Get()->InitUIHost();
-
+		ChatService::Get()->InitChatService();
+		//TODO: Not hard-coded oauth token and username.
+		ChatService::Get()->ConnectToTwitchIRC("csx62qos1qay8eoxqrhe0cvf05m4yh", "rstat1");
 		return nullptr;
 	}
 	TaskResult* PlayerApp::StopStream()

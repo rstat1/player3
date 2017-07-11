@@ -30,12 +30,12 @@ namespace player3 { namespace ui
 	}
 	void EventHub::TriggerEvent(const char* name, void* args)
 	{
-		Log("EventHub", "trigger event %s", name);
 		if (this->eventHandlers.find(name) != this->eventHandlers.end())
 		{
 			EventHandlers handlers = this->eventHandlers[name];
 			for (EventHandler eh : handlers)
 			{
+				Log("EventHub", "trigger event %s", name);
 				if (eh.runHandlerAsTask)
 				{
 					ThreadedEventHandlerArgs *teArgs = new ThreadedEventHandlerArgs(eh, std::move(args));

@@ -14,9 +14,11 @@
 #include <base/platform/linux/memtrack.h>
 #include <BuildInfo.h>
 #include <platform/PlatformManager.h>
+#include <player/chat/ChatService.h>
 
 using namespace std;
 using namespace player3;
+using namespace player3::chat;
 using namespace base::platform;
 using namespace player3::platform;
 
@@ -48,9 +50,6 @@ namespace player3 { namespace player
 
 		platformInterface = PlatformManager::Get()->GetPlatformInterface();
 		//this->InitOverlay();
-		ChatService::Get()->InitChatService();
-		//TODO: Not hard-coded oauth token and username.
-		ChatService::Get()->ConnectToTwitchIRC("csx62qos1qay8eoxqrhe0cvf05m4yh", "rstat1");
 		EventHandler connectedEvent(false, "Player", [&](void* args) {
 			ChatService::Get()->JoinChannel("rstat1");
 		});

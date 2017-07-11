@@ -29,11 +29,14 @@ namespace player3 { namespace player
 			TaskResult* OnInitComplete();
 			void ChatMessageEvent(std::shared_ptr<void> handler);
 			TaskResult* ChatUIEvent(void* handler);
-
+			static PlayerApp* Get()
+			{
+				if (!PlayerApp::ref) { ref = std::make_shared<PlayerApp>(); }
+				return ref.get();
+			}
 		private:
 			TaskRunner* taskRunner;
-
-		SINGLETON(PlayerApp)
+			static std::shared_ptr<PlayerApp> ref;
 	};
 }}
 

@@ -43,6 +43,11 @@ namespace player3 { namespace chat
 			void LeaveCurrentChannel();
 			void JoinChannel(const char* channel);
 			void ConnectToTwitchIRC(const char* token, const char* user);
+			static ChatService* Get()
+			{
+				if (!ChatService::ref) { ref = std::make_shared<ChatService>(); }
+				return ref.get();
+			}
 		private:
 			void ParseChatMessage(std::vector<std::string> rawMessage);
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
@@ -51,8 +56,7 @@ namespace player3 { namespace chat
 			ChatUI* chatUI;
 			std::string currentChannel;
 			WebSocket<CLIENT>* twitchChat;
-
-		SINGLETON(ChatService)
+			static std::shared_ptr<ChatService> ref;
 	};
 }}
 

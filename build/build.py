@@ -73,19 +73,21 @@ def RunGyp():
         gyp.main(args)
 
 def SetSteamLinkEnvVars():
+        os.environ["CROSS"] = "armv7a-cros-linux-gnueabi-"
         tcPath = os.environ["STEAMLINK_SDK_PATH"] + "/toolchain/bin"
         sdkBinPath = os.environ["STEAMLINK_SDK_PATH"] + "/bin"
+        sdkLibPath = os.environ["STEAMLINK_SDK_PATH"] + "/toolchain/usr/lib/gcc/armv7a-cros-linux-gnueabi/4.9.x-google/"
         currPath = os.environ["PATH"]
         os.environ["PATH"] = sdkBinPath + ":" + tcPath + ":" + currPath
         os.environ["MARVELL_ROOTFS"] = os.environ["STEAMLINK_SDK_PATH"] + "/rootfs"
-        os.environ["CROSS"] = "armv7a-cros-linux-gnueabi-"
         os.environ["CROSS_COMPILE"] = os.environ["CROSS"]
         os.environ["AS"] = os.environ["CROSS"] + "as"
-        os.environ["CC"] = os.environ["CROSS"] + "gcc --sysroot=" + os.environ["MARVELL_ROOTFS"] + " -marm -mfloat-abi=hard"
-        os.environ["CPP"] = os.environ["CROSS"] + "cpp --sysroot=" + os.environ["MARVELL_ROOTFS"] + "-marm -mfloat-abi=hard"
-        os.environ["CXX"] = os.environ["CROSS"] + "g++ --sysroot=" + os.environ["MARVELL_ROOTFS"] + " -marm -mfloat-abi=hard"
+        os.environ["CC"] = os.environ["CROSS"] + "clang --sysroot=" + os.environ["MARVELL_ROOTFS"] + " -marm -mfloat-abi=hard -L" + sdkLibPath #+ "/libstdc++.so.6"
+        os.environ["CPP"] = os.environ["CROSS"] + "cpp --sysroot=" + os.environ["MARVELL_ROOTFS"] + "-marm -mfloat-abi=hard -L" + sdkLibPath
+        os.environ["CXX"] = os.environ["CROSS"] + "clang++ --sysroot=" + os.environ["MARVELL_ROOTFS"] + " -marm -mfloat-abi=hard -L" + sdkLibPath
         os.environ["STRIP"] = os.environ["CROSS"] + "strip"
         os.environ["LC_ALL"] = "C"
+        os.environ["LDFLAGS"] = "-L" + sdkLibPath + " -static-libgcc -static-libstdc++"
 
 def MakeACake():
         currentPath = os.getcwd()

@@ -32,7 +32,7 @@
 					'link_settings': {
 						'libraries': [
 							'-lpthread',
-							'-lstdc++'
+							#'-lstdc++'
 						],
 					},
 					'sources': [
@@ -127,7 +127,7 @@
 					'link_settings': {
 						'libraries': [
 							'-lpthread',
-							'-lstdc++'
+							#'-lstdc++'
 						],
 					},
 				}],
@@ -191,7 +191,7 @@
 			],
 			'link_settings': {
 				'libraries': [
-				'-lstdc++',
+				#'-lstdc++',
 				'-lz'
 				],
 			},
@@ -229,7 +229,7 @@
 			],
 			'link_settings': {
 				'libraries': [
-					'-lstdc++',
+					#'-lstdc++',
 					'-lcurl'
 				]
 			},
