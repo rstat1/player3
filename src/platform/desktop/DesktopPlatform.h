@@ -8,6 +8,7 @@
 #ifndef DESKDEC
 #define DESKDEC
 
+#include <SDL.h>
 #include <stdint.h>
 #include <platform/PlatformInterface.h>
 
@@ -21,6 +22,7 @@ namespace player3 { namespace platform
 			void DecoderShutdown() override;
 			int GetAudioSampleCount() override;
 			void CreateOverlay(int w, int h) override;
+			std::vector<int> GetScreenSize() override;
 			int GetQueuedVideo() override { return 0; }
 			void ShowOverlay(void* pixels, int pitch) override;
 			bool DecodeVideoFrame(uint8_t* data, int size) override;

@@ -46,18 +46,18 @@ namespace player3 { namespace overlay
 	}
 	void InfoOverlay::UpdateOverlayItem(const char* label, const char* newValue)
 	{
-		OverlayItem overlayItem;
-		if (overlayItems.find(label) != overlayItems.end())
-		{
-			overlayItem = overlayItems[label];
-			string item("");
-			item.append(label);
-			item.append(": ");
-			item.append(newValue);
+		// OverlayItem overlayItem;
+		// if (overlayItems.find(label) != overlayItems.end())
+		// {
+		// 	overlayItem = overlayItems[label];
+		// 	string item("");
+		// 	item.append(label);
+		// 	item.append(": ");
+		// 	item.append(newValue);
 
-			overlayItem.itemInfo.swap(item);
-			overlayItems[label] = overlayItem;
-		}
+		// 	overlayItem.itemInfo.swap(item);
+		// 	overlayItems[label] = overlayItem;
+		// }
 	}
 	void InfoOverlay::CreateOverlayItem(const char* label, const char* value)
 	{

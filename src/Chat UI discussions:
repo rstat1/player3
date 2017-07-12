@@ -1,0 +1,36 @@
+Chat UI discussions:
+	ImageLabel
+		ImageLabel::ImageLabel(const char*, map<string, string>);
+												code	emote path
+
+		so this would require allowing elements to do custom rendering, custom constructors i think are already a thing (and are also a requirement)
+
+		This label derivative would still only have one PropertyBinding for text, in fact it should (would?) be the only thing that knows about the emote replacement crap
+
+		still don't how the replacement would work.
+		also still don't know what the performance will be like of rendering chat messages with emotes.
+
+	How can the chat ui use the LayoutMan work?
+		Or does it need to? Yea. Probably. There needs to be some sort of container element.
+		Could make the container element a layout with ChildElements binding that could contain the above label(s)
+		And change the format of the layout files, to denote container elements like <block> or <listblock>
+			Wherein:
+				a <block> has no real layout of its own, and instead allows elements to position themselves within its bounds.
+
+				a <listblock> lays out elements in a horizontal fashion, and forces the width of each element to be equal to the width of the <listblock>. Optionally enforces top/bottom padding between all contained elements.
+
+	How does a layout go from its backing file to fully drawn/data bound?
+		Probably should add a startup task or something that loads/caches all the layouts, but stops just before the data binding step.
+
+		I guess this would work like the following:
+		First use:
+			void LayoutManager::CreateLayoutInstance(std::map<string, void*> bindings, string layoutName, string tag, bool render)
+															  prop    value
+		After uses
+			void LayoutManager::UpdateLayoutInstance(std::map<string, void*> bindings, string tag)
+															  prop    value
+
+		the later function would cause the layout to be rendered, the former, might cause a render.
+
+	How does the PropertyBinding system work?
+		

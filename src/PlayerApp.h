@@ -9,10 +9,12 @@
 #define PLAYAPP
 
 #include <memory>
+#include <ui/native/EventHub.h>
 #include <base/threading/common/TaskRunner.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
 
 using namespace std;
+using namespace player3::ui;
 using namespace base::threading;
 
 namespace player3 { namespace player
@@ -24,10 +26,12 @@ namespace player3 { namespace player
 			PlayerApp();
 			void Start();
 			TaskResult* StopStream();
-			TaskResult* OnInitComplete();
+			void OnInitComplete();
+			void ChatMessageEvent(std::shared_ptr<void> handler);
+			void ChatUIEvent(void* handler);
 			static PlayerApp* Get()
 			{
-				if (!PlayerApp::ref) { ref = make_shared<PlayerApp>(); }
+				if (!PlayerApp::ref) { ref = std::make_shared<PlayerApp>(); }
 				return ref.get();
 			}
 		private:

@@ -45,6 +45,8 @@ namespace base { namespace utils
 		return "";
 #elif defined(OS_ANDROID)
 		return "/data/data/us.rdro.xpappfx/";
+#else
+		return "";
 #endif
 	}
 	int GetThreadID()
