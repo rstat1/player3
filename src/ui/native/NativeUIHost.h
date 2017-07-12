@@ -10,7 +10,6 @@
 
 #include <vector>
 #include <memory>
-#include <ui/web/packaging/Archive.h>
 #include <ui/native/LayoutManager.h>
 #include <ui/native/rendering/NanoVGRenderer.h>
 
@@ -23,12 +22,11 @@ namespace player3 { namespace ui
 			void InitUIHost();
 			void RenderLayout(const char* name, std::map<std::string, boost::any> propertyBindings);
 		private:
-			Archive* files;
 			SDL_Window* win;
 			std::vector<int> screenSize;
 			LayoutManager* layoutManager;
 
-			SINGLETON(NativeUIHost)
+		SINGLETON(NativeUIHost)
 
 	};
 }}

@@ -19,14 +19,10 @@ namespace player3 { namespace platform
 		public:
 			void InitPlatformInterface();
 			PlatformInterface* GetPlatformInterface() { return platformInterface; }
-			static PlatformManager* Get()
-			{
-				if (!PlatformManager::ref) { ref = std::make_shared<PlatformManager>(); }
-				return ref.get();
-			}
 		private:
 			PlatformInterface* platformInterface;
-			static std::shared_ptr<PlatformManager> ref;
+
+		SINGLETON(PlatformManager)
 	};
 }}
 

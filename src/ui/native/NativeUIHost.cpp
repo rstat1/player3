@@ -9,10 +9,8 @@
 #include <base/Utils.h>
 #include <base/common.h>
 #include <ui/native/NativeUIHost.h>
-#include <platform/PlatformManager.h>
 
 using namespace base::utils;
-using namespace player3::platform;
 
 namespace player3 { namespace ui
 {
@@ -20,22 +18,22 @@ namespace player3 { namespace ui
 	NativeUIHost::NativeUIHost() {}
 	void NativeUIHost::InitUIHost()
 	{
-		screenSize = PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
+		screenSize = {1280, 720};
 		layoutManager = new LayoutManager();
 		layoutManager->LoadAndCacheLayout("ChatUI");
 		layoutManager->LoadAndCacheLayout("StreamIsLive");
 
 		Log("UI", "new window %i, %i, %s", screenSize[0], screenSize[1], "Player3");
 
-		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
-		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+		// SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+		// SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+		// SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
 		SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 5);
-		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 5);
+		//SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 5);
 
 		win = SDL_CreateWindow("Player3", SDL_WINDOWPOS_UNDEFINED,
-									  SDL_WINDOWPOS_UNDEFINED, screenSize[0], screenSize[1],
-									  SDL_WINDOW_OPENGL);
+									  	  SDL_WINDOWPOS_UNDEFINED, screenSize[0], screenSize[1],
+									  	  SDL_FLAGS);
 
 		Log("SteamLinkPlatform", "%s", SDL_GetError());
 

@@ -19,10 +19,10 @@ namespace player3 { namespace ui
 	{
 		public:
 			bool runHandlerAsTask = false;
-			const char* owningThread = "App";
+			const char* owningThread = "PlayerApp";
 			std::function<void(void*)> handler;
 			EventHandler(bool runAsTask, const char* onThread, std::function<void(void*)> handlerFunc) :
-				runHandlerAsTask(runAsTask), owningThread(onThread), handler(handlerFunc)
+				runHandlerAsTask(runAsTask), owningThread("PlayerApp"), handler(handlerFunc)
 			{}
 	};
 	typedef std::vector<EventHandler> EventHandlers;
@@ -41,14 +41,10 @@ namespace player3 { namespace ui
 			void RegisterEvent(const char* name);
 			void RegisterEventHandler(const char* name, EventHandler handler);
 			void TriggerEvent(const char* name, void* args);
-			static EventHub* Get()
-			{
-				if (!EventHub::ref) { ref = std::make_shared<EventHub>(); }
-				return ref.get();
-			}
 		private:
 			std::map<const char*, EventHandlers> eventHandlers;
-			static std::shared_ptr<EventHub> ref;
+
+		SINGLETON(EventHub)
 	};
 }}
 

@@ -48,11 +48,7 @@ namespace player3 { namespace ui
 			defaultViewport = new Box(0, 0, this->winW, this->winH);
 			currentViewport = defaultViewport;
 			NANOVG_INIT
-#if defined(OS_STEAMLINK)
-			NVG_RENDER2(CreateFont, "sans", "/usr/share/fonts/noto/NotoSans-Regular.ttf");
-#else
 			NVG_RENDER2(CreateFont, "sans", "NotoSans-Regular.ttf");
-#endif
 			if (context == nullptr) { Log("NanoVG::Init", "Failed to create NanoVG ctx"); }
 		}
 	}

@@ -58,13 +58,12 @@ namespace player3 { namespace ui
 	struct TextLayout
 	{
 		public:
-			const char* text;
-			int fontSize;
 			Box* position;
-			TextStyle textStyle;
-			SkylightColor background;
-			SkylightColor foreground;
-			TextDrawingMode drawingStyle;
+			const char* text;
+			const char* foreground;
+			TextLayout(const char* str, const char* fg, Box* pos)
+				: text(str), position(pos), foreground(fg)
+			{}
 	};
 	struct TextMeasurement
 	{

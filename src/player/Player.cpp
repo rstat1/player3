@@ -50,7 +50,7 @@ namespace player3 { namespace player
 
 		platformInterface = PlatformManager::Get()->GetPlatformInterface();
 		//this->InitOverlay();
-		EventHandler connectedEvent(false, "Player", [&](void* args) {
+		EventHandler connectedEvent(true, "PlayerApp", [&](void* args) {
 			ChatService::Get()->JoinChannel("rstat1");
 		});
 		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);

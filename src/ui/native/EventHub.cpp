@@ -6,12 +6,12 @@
 */
 
 #include <memory>
-#include <PlayerApp.h>
+#include <App.h>
 #include <ui/native/EventHub.h>
-#include <base/threading/dispatcher/DispatcherTypes.h>
+//#include <base/threading/dispatcher/DispatcherTypes.h>
 
-using namespace base::threading;
-using namespace player3::player;
+using namespace app;
+//using namespace base::threading;
 
 namespace player3 { namespace ui
 {
@@ -32,14 +32,14 @@ namespace player3 { namespace ui
 	{
 		if (this->eventHandlers.find(name) != this->eventHandlers.end())
 		{
+			Log("EventHub", "trigger event %s", name);
 			EventHandlers handlers = this->eventHandlers[name];
 			for (EventHandler eh : handlers)
 			{
-				Log("EventHub", "trigger event %s", name);
 				if (eh.runHandlerAsTask)
 				{
 					ThreadedEventHandlerArgs *teArgs = new ThreadedEventHandlerArgs(eh, std::move(args));
-					NEW_TASK1(EventDispatch, PlayerApp, PlayerApp::Get(), PlayerApp::ChatUIEvent, teArgs);
+					NEW_TASK1(EventDispatch, App, App::Get(), App::ChatUIEvent, teArgs);
 					POST_TASK(EventDispatch, eh.owningThread);
 				}
 				else { eh.handler(args); }

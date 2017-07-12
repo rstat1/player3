@@ -1,37 +1,15 @@
-/*
-* Copyright (c) 2017 The Incredibly Big Red Robot
-*
-* Use of this source code is governed by a "BSD-style" license that can be
-* found in the included LICENSE file.
-*/
-
-#include <client/linux/handler/exception_handler.h>
-#include <iostream>
-#include <base/Utils.h>
+#include <App.h>
 #include <base/common.h>
-#include <PlayerApp.h>
 
-using namespace base::utils;
-using namespace player3::player;
-using namespace google_breakpad;
-
-static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor, void* context, bool succeeded)
-{
-  	printf("Dump path: %s\n", descriptor.path());
- 	return succeeded;
-}
+using namespace app;
 
 int main(int argc, char* argv[])
 {
 	INIT_PROFILER
 
-	writeToLog("Init player3", true);
-	MinidumpDescriptor descriptor(GetAppPath());
-	ExceptionHandler eh(descriptor, NULL, dumpCallback, NULL, true, -1);
-
-	PlayerApp::Get()->Start();
+	writeToLog("INit", true);
+	App* app = new App();
+	app->StartApp();
 
 	UNINIT_PROFILER
-
-	return 0;
 }

@@ -29,6 +29,12 @@
 #define NVG_RENDER6_R6(func, arg1, arg2, arg3, arg4, arg5, arg6) auto r6 = nvg##func(this->context, arg1, arg2, arg3, arg4, arg5, arg6);
 #define NVG_RENDER7_R7(func, arg1, arg2, arg3, arg4, arg5, arg6, arg7) auto r7 = nvg##func(this->context, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
+#if defined(OS_STEAMLINK)
+	#define SDL_FLAGS SDL_WINDOW_FULLSCREEN | SDL_WINDOW_OPENGL
+#elif defined(OS_LINUX) || defined(OS_WIN)
+	#define SDL_FLAGS SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL
+#endif
+
 class NVGcontext;
 
 namespace player3 { namespace ui

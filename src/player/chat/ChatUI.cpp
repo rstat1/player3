@@ -19,7 +19,7 @@ namespace player3 { namespace chat
 			std::string message("Connected to TwitchIRC");
 
 			std::map<std::string, boost::any> bindings;
-			bindings["ChatLocation"] = AnchorPoint::BottomLeft;
+			bindings["ChatLocation"] = AnchorPoint::BottomRight;
 			bindings["ListItems"] = message;
 
 			NativeUIHost::Get()->RenderLayout("ChatUI", bindings);

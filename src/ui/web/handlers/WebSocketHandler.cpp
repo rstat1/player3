@@ -6,12 +6,13 @@
 */
 
 #include <cpr/cpr.h>
-#include <PlayerApp.h>
+#include <App.h>
 #include <base/common.h>
 #include <player/Player.h>
 #include <ui/web/handlers/WebSocketHandler.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
 
+using namespace app;
 using namespace cpr;
 using namespace base::threading;
 using namespace player3::player;
@@ -45,7 +46,7 @@ namespace player3 { namespace ui
 		std::string command = receivedMessage.substr(0, endOfCmd);
 		std::string args = receivedMessage.replace(0, endOfCmd + 1, "");
 
-		NEW_TASK0(stopStream, PlayerApp, PlayerApp::Get(), PlayerApp::StopStream);
+		NEW_TASK0(stopStream, App, App::Get(), App::StopStream);
 
 		switch (messageTypeMappings[command])
 		{

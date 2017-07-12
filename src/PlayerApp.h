@@ -26,9 +26,9 @@ namespace player3 { namespace player
 			PlayerApp();
 			void Start();
 			TaskResult* StopStream();
-			TaskResult* OnInitComplete();
+			void OnInitComplete();
 			void ChatMessageEvent(std::shared_ptr<void> handler);
-			TaskResult* ChatUIEvent(void* handler);
+			void ChatUIEvent(void* handler);
 			static PlayerApp* Get()
 			{
 				if (!PlayerApp::ref) { ref = std::make_shared<PlayerApp>(); }

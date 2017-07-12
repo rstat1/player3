@@ -7,13 +7,13 @@
 
 #include <map>
 #include <typeinfo>
-#include <platform/PlatformManager.h>
+//#include <platform/PlatformManager.h>
 #include <ui/native/elements/LabelElement.h>
 #include <ui/native/rendering/NanoVGRenderer.h>
 #include <ui/native/elements/containers/ListBlockElement.h>
 
 using namespace player3::ui;
-using namespace player3::platform;
+//using namespace player3::platform;
 
 namespace player3 { namespace ui
 {
@@ -27,7 +27,7 @@ namespace player3 { namespace ui
 			if (p.PropertyName == "anchor") { anchorPropertyBinding.assign(p.BindingName); }
 			else if (p.PropertyName == "items") { listItemsPropertyBinding.assign(p.BindingName); }
 		}
-		screenSize = PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
+		screenSize = {1280, 720}; //PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
 		this->SetNeedsRender(true);
 	}
 	void ListBlockElement::BindProperties(std::map<std::string, boost::any> bindingValues)

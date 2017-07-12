@@ -28,19 +28,18 @@ namespace player3 { namespace player
 		this->taskRunner->Init("PlayerApp", initTask);
 		this->taskRunner->Start();
 	}
-	TaskResult* PlayerApp::OnInitComplete()
+	void PlayerApp::OnInitComplete()
 	{
 		Log("PlayerApp", "init complete");
 		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO);
 
 		UIServer* server = new UIServer();
 		PlatformManager::Get()->InitPlatformInterface();
-		Player::Get()->InitPlayer();
 		NativeUIHost::Get()->InitUIHost();
 		ChatService::Get()->InitChatService();
+		Player::Get()->InitPlayer();
 		//TODO: Not hard-coded oauth token and username.
 		ChatService::Get()->ConnectToTwitchIRC("csx62qos1qay8eoxqrhe0cvf05m4yh", "rstat1");
-		return nullptr;
 	}
 	TaskResult* PlayerApp::StopStream()
 	{
@@ -49,11 +48,10 @@ namespace player3 { namespace player
 
 		return nullptr;
 	}
-	TaskResult* PlayerApp::ChatUIEvent(void* args)
+	void PlayerApp::ChatUIEvent(void* args)
 	{
 		ThreadedEventHandlerArgs* eventArgs = (ThreadedEventHandlerArgs*)args;
 		eventArgs->eventHandler.handler(eventArgs->args);
-		return nullptr;
 	}
 	void PlayerApp::ChatMessageEvent(std::shared_ptr<void> handler)
 	{
