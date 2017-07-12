@@ -138,6 +138,10 @@ namespace player3 { namespace ui
 			}
 		}
 	}
+	void ListBlockElement::Clear()
+	{
+		this->Children.clear();
+	}
 	int ListBlockElement::GetChildWidth() { return this->ElementStyle.Width; }
 	int ListBlockElement::GetChildHeight() { return 0; }
 }}

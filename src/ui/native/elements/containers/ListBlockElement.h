@@ -17,6 +17,7 @@ namespace player3 { namespace ui
 	{
 		public:
 			ELEMENT_BASE(ListBlockElement, ElementType::ListBlock);
+			void Clear() override;
 			void Render() override;
 			void Measure() override;
 			int GetChildWidth() override;

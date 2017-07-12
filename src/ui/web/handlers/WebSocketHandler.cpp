@@ -5,15 +5,17 @@
 * found in the included LICENSE file.
 */
 
-#include <cpr/cpr.h>
 #include <App.h>
+#include <cpr/cpr.h>
 #include <base/common.h>
 #include <player/Player.h>
+#include <player/chat/ChatService.h>
 #include <ui/web/handlers/WebSocketHandler.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
 
 using namespace app;
 using namespace cpr;
+using namespace player3::chat;
 using namespace base::threading;
 using namespace player3::player;
 
@@ -32,6 +34,7 @@ namespace player3 { namespace ui
 		messageTypeMappings["USHER"] = MessageType::USHER;
 		messageTypeMappings["ACCESS"] = MessageType::ACCESS;
 		messageTypeMappings["EXIT"] = MessageType::EXIT;
+		messageTypeMappings["JOIN"] = MessageType::JOIN;
 	}
  	void WebSocketHandler::onDisconnect(uWS::WebSocket<SERVER>* connection)
 	{
@@ -45,8 +48,6 @@ namespace player3 { namespace ui
 		int endOfCmd = receivedMessage.find_first_of(":");
 		std::string command = receivedMessage.substr(0, endOfCmd);
 		std::string args = receivedMessage.replace(0, endOfCmd + 1, "");
-
-		NEW_TASK0(stopStream, App, App::Get(), App::StopStream);
 
 		switch (messageTypeMappings[command])
 		{
@@ -73,6 +74,7 @@ namespace player3 { namespace ui
 				this->isPlaying = false;
 				//POST_TASK(stopStream, "PlayerApp");
 				Player::Get()->Stop();
+				ChatService::Get()->LeaveCurrentChannel();
 				this->UpdatePlayerState();
 				break;
 			case MessageType::START:
@@ -80,7 +82,8 @@ namespace player3 { namespace ui
 				Player::Get()->StartStream(std::move(args));
 				this->UpdatePlayerState();
 				break;
-			case MessageType::REMOTEAUDIO:
+			case MessageType::JOIN:
+				ChatService::Get()->JoinChannel(std::move(args.c_str()));
 				break;
 			case MessageType::PLAYERSTATE:
 				break;

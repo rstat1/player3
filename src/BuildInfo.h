@@ -10,7 +10,7 @@
 
 namespace player3
 {
-	const char* BranchName = "experiment/native-ui-take2";
+	const char* BranchName = "master";
 }
 
 #endif

@@ -17,6 +17,7 @@ namespace player3 { namespace ui
 		public:
 			ELEMENT_BASE(BlockElement, ElementType::Block)
 
+			void Clear() override {}
 			void Render() override;
 			void ArrangeChildren() override {}
 			int GetChildWidth() override { return 0; }

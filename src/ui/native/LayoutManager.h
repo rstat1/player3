@@ -23,7 +23,7 @@ namespace player3 { namespace ui
 	{
 		public:
 			void LoadAndCacheLayout(const char* name);
-			void RenderLayout(std::map<std::string, boost::any> bindings, const char* type);
+			void RenderLayout(std::map<std::string, boost::any> bindings, const char* type, bool clearRoot);
 		private:
 			Style ParseStyleBlob(std::string styleBlob);
 			AnchorPoint ConvertAnchorProperty(std::string prop);

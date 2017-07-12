@@ -16,7 +16,7 @@ namespace app
 		public:
 			void StartApp();
 			void OnInitComplete();
-			void StopStream() {}
+			void SwitchChats(void* args);
 			void ChatUIEvent(void* args);
 		private:
 			TaskRunner* taskRunner;

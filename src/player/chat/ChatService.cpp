@@ -22,8 +22,9 @@ namespace player3 { namespace chat
 	void ChatService::InitChatService()
 	{
 		EventHub::Get()->RegisterEvent("Connected");
+		EventHub::Get()->RegisterEvent("ChnagedChannel");
 		EventHub::Get()->RegisterEvent("MessageReceived");
-
+		this->currentChannel = "";
 		this->chatUI = new ChatUI();
 		this->chatUI->InitChatUI();
 	}
@@ -58,28 +59,35 @@ namespace player3 { namespace chat
 	}
 	void ChatService::JoinChannel(const char* channel)
 	{
-		const char* channelName = (const char*)channel;
-		Log("Chat", "Joing channel %s", channelName);
-
+		Log("Chat", "Joing channel %s", channel);
+		if (this->currentChannel != "")
+		{
+			this->LeaveCurrentChannel();
+			EventHub::Get()->TriggerEvent("ChangedChannel", nullptr);
+		}
 		this->currentChannel = "JOIN #";
-		this->currentChannel.append(channelName);
+		this->currentChannel.append(channel);
+		this->currentChannel = str_tolower(this->currentChannel);
 		chatHub.getDefaultGroup<CLIENT>().broadcast(this->currentChannel.c_str(),
 													this->currentChannel.length(), OpCode::TEXT);
 
-		this->currentChannel.assign(channelName);
+
+		this->currentChannel.assign(channel);
+		this->currentChannel.assign(str_tolower(this->currentChannel).c_str());
 	}
 	void ChatService::LeaveCurrentChannel()
 	{
 		std::string partCmd("PART #");
 		partCmd.append(this->currentChannel);
 		chatHub.getDefaultGroup<CLIENT>().broadcast(partCmd.c_str(), partCmd.length(), OpCode::TEXT);
+		this->currentChannel = "";
 	}
 	void ChatService::MessageReceived(uWS::WebSocket<CLIENT>* connection, char* data, int length)
 	{
 		std::string receivedMessage(data);
 		receivedMessage = receivedMessage.substr(0, length);
-
 		std::vector<std::string> msgParts = split(receivedMessage, ';');
+
 		if (msgParts.size() >= 12)
 		{
 			this->ParseChatMessage(msgParts);
@@ -91,6 +99,9 @@ namespace player3 { namespace chat
 				chatHub.getDefaultGroup<CLIENT>().broadcast("PONG :tmi.twitch.tv", 20, OpCode::TEXT);
 			}
 		}
+
+		if (msgParts[0].find("JOIN #") != std::string::npos) { Log("Chat", "%s", receivedMessage.c_str()); }
+		if (msgParts[0].find("PART #") != std::string::npos) { Log("Chat", "%s", receivedMessage.c_str()); }
 	}
 	void ChatService::ParseChatMessage(std::vector<std::string> rawMessage)
 	{

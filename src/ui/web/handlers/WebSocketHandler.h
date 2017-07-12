@@ -26,10 +26,10 @@ namespace player3 { namespace ui
 		MUTE,
 		STOP,
 		EXIT,
+		JOIN,
 		START,
 		USHER,
 		ACCESS,
-		REMOTEAUDIO,
 		PLAYERSTATE
 	};
  	class WebSocketHandler

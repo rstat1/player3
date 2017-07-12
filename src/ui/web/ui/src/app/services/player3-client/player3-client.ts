@@ -28,6 +28,7 @@ export class Player3Client {
 	public StartStream(streamName: string) {
 		if (this.playingStream) { this.StopStream(); }
 		this.twitch.startStream(streamName);
+		this.socket.SendMessage("JOIN", streamName);
 	}
 	public StopStream() {
 		this.socket.SendMessage("STOP", "");
@@ -40,7 +41,7 @@ export class Player3Client {
 		this.socket.SendMessage("EXIT", "");
 	}
 	private SetVolumeState(muted: boolean) {
-		this.isMuted = !this.isMuted;
+		this.isMuted = muted;
 		if (this.isMuted) { this.MuteButtonText = "Unmute"; }
 		else { this.MuteButtonText = "Mute"; }
 	}

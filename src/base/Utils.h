@@ -23,6 +23,7 @@ namespace base { namespace utils
 	BASEAPI std::string GetPlatformPathPrefix();
 	BASEAPI std::string GetAppPath();
 	BASEAPI int GetThreadID();
+	BASEAPI std::string str_tolower(std::string s);
 #if defined(OS_WIN)
 	std::string GetLastErrorStdStr();
 #endif

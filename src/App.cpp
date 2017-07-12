@@ -38,4 +38,9 @@ namespace app
 		ThreadedEventHandlerArgs* eventArgs = (ThreadedEventHandlerArgs*)args;
 		eventArgs->eventHandler.handler(eventArgs->args);
 	}
+	void App::SwitchChats(void* args)
+	{
+		const char* newChat = (const char*)args;
+		ChatService::Get()->JoinChannel(newChat);
+	}
 }

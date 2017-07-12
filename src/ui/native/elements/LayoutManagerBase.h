@@ -76,6 +76,7 @@ namespace player3 { namespace ui
 	class ContainerElementBase : public ElementBase
 	{
 		public:
+			virtual void Clear() = 0;
 			virtual int GetChildWidth() = 0;
 			virtual int GetChildHeight() = 0;
 			virtual void ArrangeChildren() = 0;

@@ -46,12 +46,15 @@ namespace player3 { namespace ui
 			this->cachedLayouts[name] = l;
 		}
 	}
-	void LayoutManager::RenderLayout(std::map<std::string, boost::any> bindings, const char* type)
+	void LayoutManager::RenderLayout(std::map<std::string, boost::any> bindings, const char* type, bool clearRoot = false)
 	{
 		if (this->cachedLayouts.find(type) != this->cachedLayouts.end())
 		{
 			PROFILE_CPU(RenderLayout, RMTSF_Aggregate)
 			Layout toInstance = this->cachedLayouts[type];
+
+			//if (clearRoot) { toInstance.rootElement->Clear(); }
+
 			toInstance.rootElement->BindProperties(bindings);
 			toInstance.rootElement->Measure();
 			toInstance.rootElement->ArrangeChildren();

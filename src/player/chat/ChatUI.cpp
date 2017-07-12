@@ -22,7 +22,7 @@ namespace player3 { namespace chat
 			bindings["ChatLocation"] = AnchorPoint::BottomRight;
 			bindings["ListItems"] = message;
 
-			NativeUIHost::Get()->RenderLayout("ChatUI", bindings);
+			NativeUIHost::Get()->RenderLayout("ChatUI", bindings, false);
 		});
 		EventHandler msgReceivedEvent(true, "PlayerApp", [&](void* args) {
 			ChatMessage* chatMessage = (ChatMessage*)args;
@@ -33,7 +33,12 @@ namespace player3 { namespace chat
 			std::map<std::string, boost::any> bindings;
 			bindings["ListItems"] = received;
 
-			NativeUIHost::Get()->RenderLayout("ChatUI", bindings);
+			NativeUIHost::Get()->RenderLayout("ChatUI", bindings, false);
+		});
+		EventHandler channelChangedEvent(true, "PlayerApp", [&](void* args) {
+			std::map<std::string, boost::any> bindings;
+			bindings["ListItems"] = "";
+			NativeUIHost::Get()->RenderLayout("ChatUI", bindings, true);
 		});
 		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
 		EventHub::Get()->RegisterEventHandler("MessageReceived", msgReceivedEvent);
