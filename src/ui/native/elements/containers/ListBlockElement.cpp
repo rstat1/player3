@@ -77,7 +77,7 @@ namespace player3 { namespace ui
 	}
 	void ListBlockElement::ArrangeChildren()
 	{
-		PROFILE_CPU(Arrange, RMTSF_Aggregate)
+		MICROPROFILE_SCOPEI("CHAT", "ListBoxArrange", MP_WHITE);
 
 		Box* elementBounds;
 		int x, y, width;
@@ -89,13 +89,13 @@ namespace player3 { namespace ui
 			elementBounds = e->GetBoundingBox();
 			e->SetBoundingBox(new Box(x, previousHeight, width, elementBounds->Height));
 			previousHeight += elementBounds->Height + 5;
-			Log("LBE_ARRANGE", "previousHeight %i", previousHeight);
+			//Log("LBE_ARRANGE", "previousHeight %i", previousHeight);
 		}
+		MicroProfileFlip(0);
 	}
 	void ListBlockElement::Render()
 	{
-		PROFILE_GPU(ListBlockRender);
-		PROFILE_CPU(ListBlockRenderCPU, RMTSF_Aggregate);
+		MICROPROFILE_SCOPEI("CHAT", "ListBoxRender", MP_WHITE);
 
 		Box* bounds = this->GetBoundingBox();
 		NanoVGRenderer::Get()->SetViewport(bounds);
@@ -109,6 +109,8 @@ namespace player3 { namespace ui
 		}
 		NanoVGRenderer::Get()->ResetViewport();
 		NanoVGRenderer::Get()->Present();
+
+		MicroProfileFlip(0);
 	}
 	UPTR(LabelElement) ListBlockElement::CreateChildElement(std::string elementValue)
 	{
@@ -117,7 +119,7 @@ namespace player3 { namespace ui
 		Label->SetBoundingBox(new Box(0, 0, this->ElementStyle.Width - 20, 0));
 		Label->Measure();
 		totalRequiredHeight += Label->GetBoundingBox()->Height;
-		Log("ACI", "totalRequiredHeight %i", totalRequiredHeight);
+		//Log("ACI", "totalRequiredHeight %i", totalRequiredHeight);
 		return Label;
 	}
 	void ListBlockElement::AddChildItems(boost::any itemValue)
@@ -129,7 +131,8 @@ namespace player3 { namespace ui
 
 		if (totalRequiredHeight >= maxHeight)
 		{
-			Log("ACI", "totalRequiredHeight %i, maxHeight %i, child count %i", totalRequiredHeight, maxHeight, this->Children.size());
+			MICROPROFILE_COUNTER_SET("LBERequiredHeight", totalRequiredHeight);
+			//Log("ACI", "totalRequiredHeight %i, maxHeight %i, child count %i", totalRequiredHeight, maxHeight, this->Children.size());
 			for (std::unique_ptr<ElementBase> const& e : this->Children)
 			{
 				totalRequiredHeight -= this->Children.front()->GetBoundingBox()->Height;
@@ -137,6 +140,7 @@ namespace player3 { namespace ui
 				if (totalRequiredHeight < maxHeight ) { break; }
 			}
 		}
+		MICROPROFILE_COUNTER_SET("ActiveLabelElements", this->Children.size());
 	}
 	void ListBlockElement::Clear()
 	{

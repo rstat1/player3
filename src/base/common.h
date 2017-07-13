@@ -7,6 +7,7 @@
 
 #ifndef CONFIG
 	#define CONFIG
+	#include <ProfilerDefines.h>
 	#define BASE_DEBUG 1
 	#if defined(WITH_SDL)
 		#define USING_SDL 1

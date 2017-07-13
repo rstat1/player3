@@ -10,11 +10,12 @@
 #include <thread>
 #include <iostream>
 #include <signal.h>
-#include <player/Player.h>
-#include <base/platform/linux/memtrack.h>
 #include <BuildInfo.h>
-#include <platform/PlatformManager.h>
+#include <player/Player.h>
+#include <ProfilerDefines.h>
 #include <player/chat/ChatService.h>
+#include <platform/PlatformManager.h>
+#include <base/platform/linux/memtrack.h>
 
 using namespace std;
 using namespace player3;
@@ -54,6 +55,16 @@ namespace player3 { namespace player
 			ChatService::Get()->JoinChannel("rstat1");
 		});
 		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
+		std::thread overlayUpdate([&] {
+		// 	Overlay* o = this->state->overlay->UpdateOverlay();
+		// 	if (o != nullptr && this->state->status == PlayerStatus::Playing)
+		// 	{
+		// 		platformInterface->CreateOverlay(o->surfaceW, o->surfaceH);
+		// 		platformInterface->ShowOverlay(o->overlay->pixels, o->pitch);
+				SDL_AddTimer(750, Player::RefreshOverlay, this->state);
+		// 	}
+		});
+		overlayUpdate.detach();
 
 #if defined(OS_LINUX) && !defined(OS_STEAMLINK)
 		signal(SIGTERM, Player::SigTermHandler);
@@ -74,15 +85,7 @@ namespace player3 { namespace player
 		this->state->overlay->AddDoubleValue("AVClockDiff", 0);
 		this->state->overlay->AddIntValue("QueuedVideo", 0);
 
-		// std::thread overlayUpdate([&] {
-		// 	Overlay* o = this->state->overlay->UpdateOverlay();
-		// 	if (o != nullptr && this->state->status == PlayerStatus::Playing)
-		// 	{
-		// 		platformInterface->CreateOverlay(o->surfaceW, o->surfaceH);
-		// 		platformInterface->ShowOverlay(o->overlay->pixels, o->pitch);
-		// 		SDL_AddTimer(750, Player::RefreshOverlay, this->state);
-		// 	}
-		// });
+
 		// overlayUpdate.detach();
 
 	}
@@ -135,7 +138,8 @@ namespace player3 { namespace player
 			this->state->videoClock = (av_gettime() / AV_TIME_BASE);
 			this->state->audioState->audioClock = (av_gettime() / AV_TIME_BASE);
 			this->state->lastDelay = 40e-3;
-			this->InitSDLAudio(this->state->audioState->aCtx->sample_rate);
+			this->InitSDLAudio(this->state->audioState->aCtx->sample_rate,
+							   this->state->audioState->aCtx->channels);
 			this->Decode();
 
 		});
@@ -148,13 +152,13 @@ namespace player3 { namespace player
 		});
 		play.detach();
 	}
-	void Player::InitSDLAudio(int sampleRate)
+	void Player::InitSDLAudio(int sampleRate, int channels)
 	{
 		SDL_AudioSpec want, have;
 		SDL_memset(&want, 0, sizeof(want));
 		want.freq = sampleRate;
 		want.format = AUDIO_S16SYS;
-		want.channels =	2;
+		want.channels =	channels;
 		want.samples = platformInterface->GetAudioSampleCount();
 		want.silence = 0;
 		want.callback = Player::SDLAudioCallback;
@@ -175,6 +179,8 @@ namespace player3 { namespace player
 
 		while(this->CheckPlayerState())
 		{
+			MICROPROFILE_SCOPEI("VIDEO", "Decode", MP_GREY);
+
 			if (avFormat == nullptr) { break; }
 
 			if (this->state->video.size() > 5 && this->state->audio.size() > 5)
@@ -197,18 +203,24 @@ namespace player3 { namespace player
 				}
 				else { av_free_packet(&pkt); }
 			}
+			MicroProfileFlip(0);
 		}
 		this->ResetPlayer();
 	}
 	int Player::ProcessAudio(AVPacket* pkt)
 	{
+		MICROPROFILE_SCOPEI("VIDEO", "ProcessAudio", MP_PURPLE);
+
 		uint8_t* out = NULL;
 		AVFrame* f = av_frame_alloc();
 		int samples = 0, bufferSize = 0, lineSize = 0;
 		AVCodecContext* fmt = this->state->audioState->aCtx;
+		int64_t channels;
+		if (fmt->channels == 2) { channels = AV_CH_LAYOUT_STEREO; }
+		else if (fmt->channels == 1) { channels = AV_CH_LAYOUT_MONO; }
 
-		SwrContext* convertCtx = swr_alloc_set_opts(nullptr, AV_CH_LAYOUT_STEREO, av_get_sample_fmt("s16"), fmt->sample_rate,
-										AV_CH_LAYOUT_STEREO, fmt->sample_fmt, fmt->sample_rate, 0, NULL);
+		SwrContext* convertCtx = swr_alloc_set_opts(nullptr, channels, av_get_sample_fmt("s16"), fmt->sample_rate,
+													channels, fmt->sample_fmt, fmt->sample_rate, 0, NULL);
 		swr_init(convertCtx);
 
 		if(!avcodec_send_packet(fmt, pkt))
@@ -228,10 +240,13 @@ namespace player3 { namespace player
 				av_free(&out[0]);
 			}
 		}
+		MicroProfileFlip(0);
 		return 0;
 	}
 	void Player::Play()
 	{
+		MICROPROFILE_SCOPEI("VIDEO", "PresentVideo", MP_CORAL);
+
 		Data video, audio;
 		video = this->state->video.front();
 
@@ -240,6 +255,8 @@ namespace player3 { namespace player
 
 		video.DeleteData();
 		this->state->video.pop();
+
+		//MicroProfileFlip(0);
 	}
 	void Player::Stop()
 	{
@@ -262,6 +279,8 @@ namespace player3 { namespace player
 	}
 	uint32_t Player::RefreshStream(uint32_t interval, void* opaque)
 	{
+		MICROPROFILE_SCOPEI("VIDEO", "RefreshStream", MP_TAN);
+
 		Data video;
 		Player* playerRef = Player::Get();
 		InternalPlayerState* state = Player::Get()->GetPlayerState();
@@ -280,35 +299,41 @@ namespace player3 { namespace player
 			avDiff = state->videoClock - state->audioState->audioClock;
 			actualDelay = state->videoClock - (av_gettime() / AV_TIME_BASE);
 
-			state->overlay->UpdateDoubleValue("AVClockDiff", avDiff);
-			state->overlay->UpdateDoubleValue("AVDelayDiff", actualDelay - avDiff);
-			state->overlay->UpdateDoubleValue("FrameTimer", state->videoClock);
-			state->overlay->UpdateDoubleValue("VideoActualDelay", actualDelay + avDiff);
-
+			//state->overlay->UpdateDoubleValue("AVClockDiff", avDiff);
+			MICROPROFILE_COUNTER_SET("AVClockDiff", avDiff);
+			//state->overlay->UpdateDoubleValue("AVDelayDiff", actualDelay - avDiff);
+			MICROPROFILE_COUNTER_SET("AVDelayDiff", actualDelay - avDiff);
+			//state->overlay->UpdateDoubleValue("FrameTimer", state->videoClock);
+			MICROPROFILE_COUNTER_SET("FrameTimer", state->videoClock);
+			//state->overlay->UpdateDoubleValue("VideoActualDelay", actualDelay + avDiff);
+			MICROPROFILE_COUNTER_SET("VideoActualDelay", actualDelay + avDiff);
 			Player::Get()->Play();
 			Player::SetRefreshTimer(actualDelay + avDiff, playerRef);
 		}
-
+		MicroProfileFlip(0);
 		return 0;
 	}
 	uint32_t Player::RefreshOverlay(uint32_t interval, void* opaque)
 	{
-		InternalPlayerState* playerState = (InternalPlayerState*)opaque;
-		double currentUse = MemTrack::GetCurrentMemoryUse();
-		if (currentUse != lastMemoryUse)
-		{
-			playerState->overlay->UpdateDoubleValue("MemPeak (in MB)", MemTrack::GetPeakMemoryUse());
-			playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
-			lastMemoryUse = currentUse;
-		}
-		playerState->overlay->UpdateStringValue("BuildBranch", BranchName);
+		MICROPROFILE_COUNTER_SET("memory", MemTrack::GetCurrentMemoryUse());
+		// InternalPlayerState* playerState = (InternalPlayerState*)opaque;
+		// double currentUse = MemTrack::GetCurrentMemoryUse();
+		// if (currentUse != lastMemoryUse)
+		// {
+		// 	playerState->overlay->UpdateDoubleValue("MemPeak (in MB)", MemTrack::GetPeakMemoryUse());
+		// 	playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
+		// 	lastMemoryUse = currentUse;
+		// }
+		// playerState->overlay->UpdateStringValue("BuildBranch", BranchName);
 
-		Overlay* overlay = playerState->overlay->UpdateOverlay();
-		PlatformManager::Get()->GetPlatformInterface()->ShowOverlay(overlay->overlay->pixels, overlay->pitch);
+		// Overlay* overlay = playerState->overlay->UpdateOverlay();
+		// PlatformManager::Get()->GetPlatformInterface()->ShowOverlay(overlay->overlay->pixels, overlay->pitch);
 		return interval;
 	}
 	void Player::SDLAudioCallback(void* userdata, uint8_t* stream, int len)
 	{
+		MICROPROFILE_SCOPEI("VIDEO", "PresentAudio", MP_PALEGREEN);
+
 		Data audio;
 		double delay = 0, actualDelay = 0;
 		InternalPlayerState* state = (InternalPlayerState*)userdata;
@@ -328,11 +353,15 @@ namespace player3 { namespace player
 
 			if (state->audioState->silence == false) { memcpy(stream, audio.data, len); }
 
-			state->overlay->UpdateDoubleValue("AudioDelay", actualDelay);
-			state->overlay->UpdateDoubleValue("AudioClock", audioState->audioClock);
+			//state->overlay->UpdateDoubleValue("AudioDelay", actualDelay);
+			MICROPROFILE_COUNTER_SET("AudioDelay", actualDelay);
+			//state->overlay->UpdateDoubleValue("AudioClock", audioState->audioClock);
+			MICROPROFILE_COUNTER_SET("AudioClock", audioState->audioClock);
 			audio.DeleteData();
 			state->audio.pop();
 		}
+
+		MicroProfileFlip(0);
 	}
 	bool Player::CheckPlayerState()
 	{

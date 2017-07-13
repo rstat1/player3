@@ -14,7 +14,7 @@
 			}],
 			['with_profiler==1', {
 				'defines': [
-					'ENABLE_REMOTERY'
+					'ENABLE_PROFILER'
 				]
 			}],
 			['skylight_arch=="x86_64"', {

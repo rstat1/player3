@@ -41,7 +41,8 @@
 				['skylight_arch=="x86_64"', {
 					'defines': [
 						'NANOVG_GLEW',
-						'RMT_USE_OPENGL=1',
+						# 'MICROPROFILE_GPU_TIMERS',
+						# 'MICROPROFILE_GPU_TIMERS_GL'
 					],
 					'link_settings': {
 						'libraries': [
@@ -86,15 +87,6 @@
 						'../src/platform/steamlink/SteamLinkPlatform.cpp',
 						'../src/platform/steamlink/SteamLinkPlatform.h',
 					]
-				}],
-				['with_profiler==1', {
-				    'cflags_c': [
-				        '-std=gnu11'
-				    ],
-					'sources':[
-						'../external/remotery/Remotery.c',
-						'../external/remotery/Remotery.h',
-					],
 				}],
 			],
 			'sources': [
@@ -227,6 +219,9 @@
 				'../external/cpr/cpr/ssl_options.cpp',
 				'../external/cpr/cpr/timeout.cpp',
 				'../external/cpr/cpr/util.cpp',
+				'../external/microprofile/microprofile.cpp',
+				'../external/microprofile/microprofile.h',
+				'../external/microprofile/microprofile_html.h',
 			]
 		}
 	]

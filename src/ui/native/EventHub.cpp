@@ -32,7 +32,6 @@ namespace player3 { namespace ui
 	{
 		if (this->eventHandlers.find(name) != this->eventHandlers.end())
 		{
-			Log("EventHub", "trigger event %s", name);
 			EventHandlers handlers = this->eventHandlers[name];
 			for (EventHandler eh : handlers)
 			{

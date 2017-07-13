@@ -33,4 +33,8 @@ Chat UI discussions:
 		the later function would cause the layout to be rendered, the former, might cause a render.
 
 	How does the PropertyBinding system work?
-		
+		Maps. Maps everywhere.
+	Emotes, sender color, badges:
+		Idea 1:	I'm thinking emotes/badges and sender name color could be appended to the start of a message in an easy to parse way, that would make it easy for me to do all that without having to pass ChatMessage* pointers around.
+			Something like this:
+				[sendercolor=#00754C,badges=broadcaster;prime;sub-1,emotes=98569:0-6]rstat1: Hello world!

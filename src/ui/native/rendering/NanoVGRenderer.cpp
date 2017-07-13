@@ -132,7 +132,6 @@ namespace player3 { namespace ui
 	}
 	void NanoVGRenderer::SetViewport(Box* newViewport)
 	{
-		Log("NanoVG", "Setting viewport: (%i, %i, %i, %i)", newViewport->X, newViewport->Y, newViewport->Width, newViewport->Height);
 		currentViewport = newViewport;
 		// //NVG_RENDER3(BeginFrame, newViewport->Width, newViewport->Height, 1)
 		// NVG_RENDER4(Scissor, (float)newViewport->X, (float)newViewport->Y, (float)newViewport->Width, (float)newViewport->Height);

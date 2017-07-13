@@ -41,8 +41,8 @@ namespace player3 { namespace player
 			bool CheckPlayerState();
 			void StartDecodeThread();
 			void StartPlaybackThread();
-			void InitSDLAudio(int sampleRate);
 			int ProcessAudio(AVPacket* pkt);
+			void InitSDLAudio(int sampleRate, int channels);
 
 			static void SigTermHandler(int signum);
 			static void SetRefreshTimer(int delay, Player* state);
@@ -55,7 +55,7 @@ namespace player3 { namespace player
 			InternalPlayerState* state;
 			static double lastMemoryUse;
 			static PlatformInterface* platformInterface;
-			
+
 		SINGLETON(Player)
 	};
 }}

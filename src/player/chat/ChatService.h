@@ -44,14 +44,14 @@ namespace player3 { namespace chat
 			void JoinChannel(const char* channel);
 			void ConnectToTwitchIRC(const char* token, const char* user);
 		private:
-			void ParseChatMessage(std::vector<std::string> rawMessage);
+			void ParseChatMessage(std::string rawMessage);
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
 
 			Hub chatHub;
 			ChatUI* chatUI;
 			std::string currentChannel;
 			WebSocket<CLIENT>* twitchChat;
-			
+
 		SINGLETON(ChatService)
 	};
 }}

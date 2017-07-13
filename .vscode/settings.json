@@ -90,6 +90,11 @@
 		"nwlib.c": "cpp",
 		"http2-upload.c": "cpp",
 		"web_server.c": "cpp",
-		"remotery.c": "cpp"
+		"remotery.c": "cpp",
+		"ftp.c": "cpp",
+		"imap.c": "cpp",
+		"pop3.c": "cpp",
+		"smtp.c": "cpp",
+		"ssh.c": "cpp"
 	}
 }

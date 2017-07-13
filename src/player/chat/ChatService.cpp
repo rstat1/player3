@@ -48,8 +48,9 @@ namespace player3 { namespace chat
 			Log("Chat", "Disconnected %s", message);
 		});
 		chatHub.onMessage([&](WebSocket<CLIENT>* ws, char* msg, size_t len, OpCode code) {
-			PROFILE_CPU(ChatServiceMsgRecv, RMTSF_Aggregate)
+			MICROPROFILE_SCOPEI("CHAT", "MessageRecv", MP_PINK);
 			this->MessageReceived(ws, msg, len);
+			MicroProfileFlip(0);
 		});
 		std::thread chatHubRunner([&]{
 			chatHub.connect("wss://irc-ws.chat.twitch.tv", nullptr, {}, 1000);
@@ -90,7 +91,7 @@ namespace player3 { namespace chat
 
 		if (msgParts.size() >= 12)
 		{
-			this->ParseChatMessage(msgParts);
+			this->ParseChatMessage(receivedMessage);
 		}
 		else
 		{
@@ -103,27 +104,34 @@ namespace player3 { namespace chat
 		if (msgParts[0].find("JOIN #") != std::string::npos) { Log("Chat", "%s", receivedMessage.c_str()); }
 		if (msgParts[0].find("PART #") != std::string::npos) { Log("Chat", "%s", receivedMessage.c_str()); }
 	}
-	void ChatService::ParseChatMessage(std::vector<std::string> rawMessage)
+	void ChatService::ParseChatMessage(std::string rawMessage)
 	{
-		ChatMessage* msg = new ChatMessage();
+		MICROPROFILE_SCOPEI("CHAT", "ParseChatMessage", MP_ORANGE);
+
 		bool emoteOnly = false;
-		std::vector<std::string> actualMessage = split(rawMessage[rawMessage.size() -1], ':');
-		std::string sender(rawMessage[2].c_str());
-
-		sender.replace(0, 13, "");
-		if (rawMessage[3] == "emote-only=1")
+		std::string sender, color;
+		ChatMessage* msg = new ChatMessage();
+		std::vector<std::string> rawParts = split(rawMessage, ';');
+		std::vector<std::string> actualMessage = split(rawParts[rawParts.size() -1], ':');
+		for (std::string part : rawParts)
 		{
-			emoteOnly = true;
-			msg->emotes = rawMessage[4].c_str();
+			if (part.find("display-name=") != std::string::npos) { sender.assign(part.c_str()); }
+			else if (part.find("color=") != std::string::npos) { color.assign(part.c_str()); }
+			else if (part.find("emotes=") != std::string::npos) {}
+			else if (part.find("emote-only=1") != std::string::npos) { emoteOnly = true; }
 		}
-		else { msg->emotes = rawMessage[3].c_str(); }
-
-		boost::trim(actualMessage[actualMessage.size() -1]);
-
+		if (color != "") { color.replace(0, 7, ""); }
+		if (sender != "") { sender.replace(0, 13, ""); }
+		else
+		{
+			std::vector<std::string> senderBits = split(rawParts[rawParts.size() - 1], '!');
+			sender.assign(senderBits[0].replace(0, 12, "").c_str());
+		}
+		boost::trim(actualMessage[actualMessage.size() - 1]);
 		msg->emotesOnly = emoteOnly;
 		msg->sender.assign(sender);
-		msg->message.assign(actualMessage[actualMessage.size() -1]);
-
+		msg->senderColor = color;
+		msg->message.assign(actualMessage[actualMessage.size() - 1]);
 		EventHub::Get()->TriggerEvent("MessageReceived", msg);
 	}
 }}
