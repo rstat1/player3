@@ -8,6 +8,7 @@
 #include <vector>
 #include <base/Utils.h>
 #include <base/common.h>
+#include <ui/native/EventHub.h>
 #include <ui/native/NativeUIHost.h>
 #include <platform/PlatformManager.h>
 
@@ -23,10 +24,12 @@ namespace player3 { namespace ui
 		screenSize = PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
 		layoutManager = new LayoutManager();
 		layoutManager->LoadAndCacheLayout("ChatUI");
+		layoutManager->LoadAndCacheLayout("DebugOverlay");
 		layoutManager->LoadAndCacheLayout("StreamIsLive");
+
 		SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 5);
 		win = SDL_CreateWindow("Player3", SDL_WINDOWPOS_UNDEFINED,
-									  	  SDL_WINDOWPOS_UNDEFINED, screenSize[0], screenSize[1],
+									  	  SDL_WINDOWPOS_UNDEFINED, 1280, 720,
 									  	  SDL_FLAGS);
 		Log("SteamLinkPlatform", "%s", SDL_GetError());
 		if (win != nullptr)
@@ -40,8 +43,10 @@ namespace player3 { namespace ui
 		SDL_ShowWindow(win);
 		INIT_GPU_PROFILE
 	}
-	void NativeUIHost::RenderLayout(const char* name, std::map<std::string, boost::any> propertyBindings, bool clearRoot = false)
+	void NativeUIHost::RenderScreen(const char* name, std::map<std::string, boost::any> propertyBindings, bool clearRoot = false)
 	{
+		NanoVGRenderer::Get()->Clear();
 		layoutManager->RenderLayout(propertyBindings, name, clearRoot);
+		NanoVGRenderer::Get()->Present();
 	}
 }}

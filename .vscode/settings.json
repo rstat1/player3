@@ -95,6 +95,10 @@
 		"imap.c": "cpp",
 		"pop3.c": "cpp",
 		"smtp.c": "cpp",
-		"ssh.c": "cpp"
+		"ssh.c": "cpp",
+		"os400sys.c": "cpp",
+		"sockfilt.c": "cpp",
+		"memdebug.c": "cpp",
+		"unit1602.c": "cpp"
 	}
 }

@@ -43,6 +43,7 @@ namespace player3 { namespace player
 			void StartPlaybackThread();
 			int ProcessAudio(AVPacket* pkt);
 			void InitSDLAudio(int sampleRate, int channels);
+			void UpdateInfoOverlay(InternalPlayerState* state);
 
 			static void SigTermHandler(int signum);
 			static void SetRefreshTimer(int delay, Player* state);

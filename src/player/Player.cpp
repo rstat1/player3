@@ -16,9 +16,11 @@
 #include <player/chat/ChatService.h>
 #include <platform/PlatformManager.h>
 #include <base/platform/linux/memtrack.h>
+#include <ui/native/rendering/NanoVGRenderer.h>
 
 using namespace std;
 using namespace player3;
+using namespace player3::ui;
 using namespace player3::chat;
 using namespace base::platform;
 using namespace player3::platform;
@@ -50,21 +52,18 @@ namespace player3 { namespace player
 		this->state->bufferSignal = new ConditionVariable();
 
 		platformInterface = PlatformManager::Get()->GetPlatformInterface();
-		//this->InitOverlay();
+		this->InitOverlay();
+
 		EventHandler connectedEvent(true, "PlayerApp", [&](void* args) {
-			ChatService::Get()->JoinChannel("rstat1");
+			ChatService::Get()->JoinChannel("drdisrespectlive");
 		});
-		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
 		std::thread overlayUpdate([&] {
-		// 	Overlay* o = this->state->overlay->UpdateOverlay();
-		// 	if (o != nullptr && this->state->status == PlayerStatus::Playing)
-		// 	{
-		// 		platformInterface->CreateOverlay(o->surfaceW, o->surfaceH);
-		// 		platformInterface->ShowOverlay(o->overlay->pixels, o->pitch);
-				SDL_AddTimer(750, Player::RefreshOverlay, this->state);
-		// 	}
+			EventHub::Get()->TriggerEvent("UpdateOverlay", this->state);
+			SDL_AddTimer(750, Player::RefreshOverlay, this->state);
 		});
 		overlayUpdate.detach();
+
+		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
 
 #if defined(OS_LINUX) && !defined(OS_STEAMLINK)
 		signal(SIGTERM, Player::SigTermHandler);
@@ -72,10 +71,8 @@ namespace player3 { namespace player
 	}
 	void Player::InitOverlay()
 	{
-		this->state->overlay = new InfoOverlay();
-		this->state->overlay->InitOverlay();
-
-		this->state->overlay->AddStringValue("BuildBranch", BranchName);
+		this->state->overlay = new InfoOverlayNUI();
+		this->state->overlay->AddStringValue("GitBranch", BranchName);
 		this->state->overlay->AddDoubleValue("AVDelayDiff", 0);
 		this->state->overlay->AddDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
 		this->state->overlay->AddDoubleValue("FrameTimer", 0);
@@ -85,17 +82,25 @@ namespace player3 { namespace player
 		this->state->overlay->AddDoubleValue("AVClockDiff", 0);
 		this->state->overlay->AddIntValue("QueuedVideo", 0);
 
-
-		// overlayUpdate.detach();
+		EventHandler overlayUpdateEvent(true, "PlayerApp", [&](void* args) {
+			InternalPlayerState* playerState = (InternalPlayerState*)args;
+			double currentUse = MemTrack::GetCurrentMemoryUse();
+			if (currentUse != lastMemoryUse)
+			{
+				playerState->overlay->UpdateDoubleValue("MemPeak (in MB)", MemTrack::GetPeakMemoryUse());
+				playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
+				lastMemoryUse = currentUse;
+			}
+			playerState->overlay->UpdateStringValue("GitBranch", BranchName);
+			playerState->overlay->UpdateOverlay();
+		});
+		EventHub::Get()->RegisterEvent("UpdateOverlay");
+		EventHub::Get()->RegisterEventHandler("UpdateOverlay", overlayUpdateEvent);
 
 	}
 	void Player::StartStream(std::string url)
 	{
 		Log("Player", "playing url %s", url.c_str());
-
-		//TOOD: Not hard-codedd channel name.
-//		ChatService::Get()->JoinChannel("rstat1");
-
 		if (url != "" && this->state->status == PlayerStatus::Stopped)
 		{
 			this->state->status = PlayerStatus::Playing;
@@ -281,13 +286,14 @@ namespace player3 { namespace player
 	{
 		MICROPROFILE_SCOPEI("VIDEO", "RefreshStream", MP_TAN);
 
-		Data video;
+		Data video, audio;
 		Player* playerRef = Player::Get();
 		InternalPlayerState* state = Player::Get()->GetPlayerState();
 		double delay = 0, actualDelay = 0, avDiff;
 		if (state->video.empty() == true) { Player::SetRefreshTimer(1, playerRef); }
 		else
 		{
+			audio = state->audio.front();
 			video = state->video.front();
 			delay = video.pts - state->lastVideoPts;
 			if (delay <= 0 || delay >= 1.0) { delay = state->lastDelay; }
@@ -298,14 +304,13 @@ namespace player3 { namespace player
 			state->videoClock += delay;
 			avDiff = state->videoClock - state->audioState->audioClock;
 			actualDelay = state->videoClock - (av_gettime() / AV_TIME_BASE);
-
-			//state->overlay->UpdateDoubleValue("AVClockDiff", avDiff);
+			state->overlay->UpdateDoubleValue("AVClockDiff", avDiff);
 			MICROPROFILE_COUNTER_SET("AVClockDiff", avDiff);
-			//state->overlay->UpdateDoubleValue("AVDelayDiff", actualDelay - avDiff);
+			state->overlay->UpdateDoubleValue("AVDelayDiff", actualDelay - avDiff);
 			MICROPROFILE_COUNTER_SET("AVDelayDiff", actualDelay - avDiff);
-			//state->overlay->UpdateDoubleValue("FrameTimer", state->videoClock);
+			state->overlay->UpdateDoubleValue("FrameTimer", state->videoClock);
 			MICROPROFILE_COUNTER_SET("FrameTimer", state->videoClock);
-			//state->overlay->UpdateDoubleValue("VideoActualDelay", actualDelay + avDiff);
+			state->overlay->UpdateDoubleValue("VideoActualDelay", actualDelay + avDiff);
 			MICROPROFILE_COUNTER_SET("VideoActualDelay", actualDelay + avDiff);
 			Player::Get()->Play();
 			Player::SetRefreshTimer(actualDelay + avDiff, playerRef);
@@ -315,19 +320,7 @@ namespace player3 { namespace player
 	}
 	uint32_t Player::RefreshOverlay(uint32_t interval, void* opaque)
 	{
-		MICROPROFILE_COUNTER_SET("memory", MemTrack::GetCurrentMemoryUse());
-		// InternalPlayerState* playerState = (InternalPlayerState*)opaque;
-		// double currentUse = MemTrack::GetCurrentMemoryUse();
-		// if (currentUse != lastMemoryUse)
-		// {
-		// 	playerState->overlay->UpdateDoubleValue("MemPeak (in MB)", MemTrack::GetPeakMemoryUse());
-		// 	playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
-		// 	lastMemoryUse = currentUse;
-		// }
-		// playerState->overlay->UpdateStringValue("BuildBranch", BranchName);
-
-		// Overlay* overlay = playerState->overlay->UpdateOverlay();
-		// PlatformManager::Get()->GetPlatformInterface()->ShowOverlay(overlay->overlay->pixels, overlay->pitch);
+		EventHub::Get()->TriggerEvent("UpdateOverlay", opaque);
 		return interval;
 	}
 	void Player::SDLAudioCallback(void* userdata, uint8_t* stream, int len)

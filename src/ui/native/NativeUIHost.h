@@ -20,7 +20,7 @@ namespace player3 { namespace ui
 		public:
 			NativeUIHost();
 			void InitUIHost();
-			void RenderLayout(const char* name, std::map<std::string, boost::any> propertyBindings, bool clearRoot);
+			void RenderScreen(const char* name, std::map<std::string, boost::any> propertyBindings, bool clearRoot);
 		private:
 			SDL_Window* win;
 			std::vector<int> screenSize;

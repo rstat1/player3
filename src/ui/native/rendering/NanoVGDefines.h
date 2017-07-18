@@ -21,6 +21,7 @@
 #endif
 #include <nanovg/nanovg.h>
 #include <nanovg/nanovg_gl.h>
+#include <nanovg/nanovg_gl_utils.h>
 //#include <ui/graphics/rendering/nanovg/NanoVGPerfGraph.h>
 
 #endif

@@ -61,13 +61,11 @@ namespace player3 { namespace ui
 		{
 			NVGpaint rectPaint;
 
-			NVG_RENDER3(BeginFrame, this->winW, this->winH, 1)
-
+			NVG_RENDER3(BeginFrame, currentViewport->Width, currentViewport->Height, 1)
 			NVG_RENDER0(BeginPath)
 			NVG_RENDER4(Rect, x, y, w, h)
 			NVG_RENDER1(FillColor, nvgRGBA(actualColor->r, actualColor->g, actualColor->b, actualColor->a))
 			NVG_RENDER0(Fill)
-
 			NVG_RENDER0(EndFrame)
 		}
 	}
@@ -125,6 +123,23 @@ namespace player3 { namespace ui
 		NVG_RENDER0(EndFrame)
 
 		NVG_RENDER1(DeleteImage, r2)
+	}
+	void NanoVGRenderer::DrawSDLSurface(void* pixels, int w, int h)
+	{
+		NVG_RENDER3(BeginFrame, this->winW, this->winH, 1);
+		if (overlayID == 0)
+		{
+			NVG_RENDER3_R4(CreateImageRGBA, w, h, 0, static_cast<uint8_t*>(pixels));
+			overlayID = r4;
+		}
+		else { NVG_RENDER2(UpdateImage, overlayID, static_cast<uint8_t*>(pixels)); }
+
+		NVG_RENDER7_R7(ImagePattern, 0, 0, w, h, 0, overlayID, 1.0f);
+		NVG_RENDER0(BeginPath)
+		NVG_RENDER4(Rect, 100, 100, w, h);
+		NVG_RENDER1(FillPaint, r7);
+		NVG_RENDER0(Fill);
+		NVG_RENDER0(EndFrame);
 	}
 	Box* NanoVGRenderer::GetViewport()
 	{

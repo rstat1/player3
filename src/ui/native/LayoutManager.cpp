@@ -53,12 +53,28 @@ namespace player3 { namespace ui
 			PROFILE_CPU(RenderLayout, RMTSF_Aggregate)
 			Layout toInstance = this->cachedLayouts[type];
 
-			//if (clearRoot) { toInstance.rootElement->Clear(); }
+			if (clearRoot) { toInstance.rootElement->Clear(); }
 
 			toInstance.rootElement->BindProperties(bindings);
 			toInstance.rootElement->Measure();
 			toInstance.rootElement->ArrangeChildren();
 			toInstance.rootElement->Render();
+
+			toInstance.currentBindings = bindings;
+			this->layoutInstances[type] = toInstance;
+		}
+		if (layoutInstances.size() > 0)
+		{
+			for (auto& l : layoutInstances)
+			{
+				if (strncmp(l.first, type, 1) != 0)
+				{
+					//l.second.rootElement->BindProperties(l.second.currentBindings);
+					l.second.rootElement->Measure();
+					l.second.rootElement->ArrangeChildren();
+					l.second.rootElement->Render();
+				}
+			}
 		}
 	}
 	Style LayoutManager::ParseStyleBlob(std::string styleBlob)
@@ -74,15 +90,10 @@ namespace player3 { namespace ui
 				if (elementDetails[0] == "width") { elementStyle.Width = stoi(elementDetails[1]); }
 				else if (elementDetails[0] == "height") { elementStyle.Height = stoi(elementDetails[1]); }
 				else if (elementDetails[0] == "font-size") { elementStyle.FontSize = stoi(elementDetails[1]); }
-				else if (elementDetails[0].find("padding") != std::string::npos)
-				{
-					//TODO: Implement padding. Maybe.
-					//elementStyle.width = stoi(elementDetails[1]);
-				}
-				else if (elementDetails[0].find("margin") != std::string::npos)
-				{
-					//TODO: Implement margin. Maybe.
-				}
+				//TODO: Implement padding. Maybe.
+				else if (elementDetails[0].find("padding") != std::string::npos) {}
+				//TODO: Implement margin. Maybe.
+				else if (elementDetails[0].find("margin") != std::string::npos) {}
 				else if (elementDetails[0].find("bgcolor") != std::string::npos)
 				{
 					elementStyle.BGColor.assign(elementDetails[1]);

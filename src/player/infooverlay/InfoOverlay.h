@@ -27,13 +27,8 @@ namespace player3 { namespace overlay
 			std::string itemInfo;
 			OverlayItem() {}
 			OverlayItem(std::string itemText, int h, int w) :
-				//itemInfo(std::move(itemText)),
-				height(h),
-				width(w)
-				//pixels(std::move(surfaceContent))
-			{
-				//itemInfo.copy
-			}
+				height(h),width(w)
+			{}
 			void SetPixels(SDL_Surface* surface) { pixels = std::move(surface); }
 	};
 	struct Overlay
@@ -67,7 +62,6 @@ namespace player3 { namespace overlay
 			void AddIntValue(const char* label, int value);
 			void AddDoubleValue(const char* label, double value);
 			void AddStringValue(const char* label, const char* value);
-			
 			void UpdateIntValue(const char* label, int newValue);
 			void UpdateDoubleValue(const char* label, double newValue);
 			void UpdateStringValue(const char* label, const char* newValue);

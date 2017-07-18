@@ -26,6 +26,7 @@
 
 #define NVG_RENDER1_R1(func, arg1) auto r1 = nvg##func(this->context, arg1);
 #define NVG_RENDER2_R2(func, arg1, arg2) auto r2 = nvg##func(this->context, arg1, arg2);
+#define NVG_RENDER3_R4(func, arg1, arg2, arg3, arg4) auto r4 = nvg##func(this->context, arg1, arg2, arg3, arg4);
 #define NVG_RENDER6_R6(func, arg1, arg2, arg3, arg4, arg5, arg6) auto r6 = nvg##func(this->context, arg1, arg2, arg3, arg4, arg5, arg6);
 #define NVG_RENDER7_R7(func, arg1, arg2, arg3, arg4, arg5, arg6, arg7) auto r7 = nvg##func(this->context, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
@@ -54,6 +55,8 @@ namespace player3 { namespace ui
 			void SetWindowBackgroundColor(SkylightColor* color);
 			const char* GetRendererType() { return "NanoVG Renderer"; }
 			void DrawImage(std::string imagePath, Box* dst);
+			void DrawSDLSurface(void* pixels, int w, int h);
+			void ClearViewport();
 		private:
 	  		double PointsToPixels(int points);
 			SkylightColor* ConvertStringToSkColor(std::string str);
@@ -61,7 +64,7 @@ namespace player3 { namespace ui
 			SDL_Window* win;
 			NVGcontext* context;
 			SDL_GLContext glContext;
-			int winW = 0, winH = 0;
+			int winW = 0, winH = 0, overlayID = 0;
 			Box* currentViewport, *defaultViewport;
 
 			SINGLETON(NanoVGRenderer)

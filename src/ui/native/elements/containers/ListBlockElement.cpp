@@ -7,13 +7,14 @@
 
 #include <map>
 #include <typeinfo>
-//#include <platform/PlatformManager.h>
+#include <base/common.h>
+#include <platform/PlatformManager.h>
 #include <ui/native/elements/LabelElement.h>
 #include <ui/native/rendering/NanoVGRenderer.h>
 #include <ui/native/elements/containers/ListBlockElement.h>
 
 using namespace player3::ui;
-//using namespace player3::platform;
+using namespace player3::platform;
 
 namespace player3 { namespace ui
 {
@@ -27,7 +28,11 @@ namespace player3 { namespace ui
 			if (p.PropertyName == "anchor") { anchorPropertyBinding.assign(p.BindingName); }
 			else if (p.PropertyName == "items") { listItemsPropertyBinding.assign(p.BindingName); }
 		}
-		screenSize = {1280, 720}; //PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
+#if defined(OS_STEAMLINK)
+		screenSize = {1280, 720};
+#else
+		screenSize = PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
+#endif
 		this->SetNeedsRender(true);
 	}
 	void ListBlockElement::BindProperties(std::map<std::string, boost::any> bindingValues)
@@ -42,9 +47,19 @@ namespace player3 { namespace ui
 		}
 		if (bindingValues.find(listItemsPropertyBinding.c_str()) != bindingValues.end())
 		{
-			if (bindingValues[listItemsPropertyBinding.c_str()].type() == typeid(std::string))
+			boost::any listItems = bindingValues[listItemsPropertyBinding.c_str()];
+			if (listItems.type() == typeid(std::string))
 			{
-				this->AddChildItems(bindingValues[listItemsPropertyBinding.c_str()]);
+				std::string item = boost::any_cast<std::string>(listItems);
+				this->AddChildItems(item);
+			}
+			else if (listItems.type() == typeid(std::vector<ListBlockItem>))
+			{
+				std::vector<ListBlockItem> items = boost::any_cast<std::vector<ListBlockItem>>(listItems);
+				for (ListBlockItem item : items)
+				{
+					this->AddChildItems(item.content);
+				}
 			}
 		}
 	}
@@ -81,15 +96,18 @@ namespace player3 { namespace ui
 
 		Box* elementBounds;
 		int x, y, width;
-		previousHeight = this->GetBoundingBox()->Y + 25;
-		for (std::unique_ptr<ElementBase> const& e : this->Children)
+		if (this->Children.size() > 0)
 		{
-			x = this->GetBoundingBox()->X + 20;
-			width = this->ElementStyle.Width - 20;
-			elementBounds = e->GetBoundingBox();
-			e->SetBoundingBox(new Box(x, previousHeight, width, elementBounds->Height));
-			previousHeight += elementBounds->Height + 5;
-			//Log("LBE_ARRANGE", "previousHeight %i", previousHeight);
+			previousHeight = this->GetBoundingBox()->Y + 25;
+			for (std::unique_ptr<ElementBase> const& e : this->Children)
+			{
+				x = this->GetBoundingBox()->X + 20;
+				width = this->ElementStyle.Width - 20;
+				elementBounds = e->GetBoundingBox();
+				e->SetBoundingBox(new Box(x, previousHeight, width, elementBounds->Height));
+				previousHeight += elementBounds->Height + 5;
+				//Log("LBE_ARRANGE", "previousHeight %i", previousHeight);
+			}
 		}
 		MicroProfileFlip(0);
 	}
@@ -98,18 +116,19 @@ namespace player3 { namespace ui
 		MICROPROFILE_SCOPEI("CHAT", "ListBoxRender", MP_WHITE);
 
 		Box* bounds = this->GetBoundingBox();
-		NanoVGRenderer::Get()->SetViewport(bounds);
-		NanoVGRenderer::Get()->Clear();
-		NanoVGRenderer::Get()->ResetViewport();
+		// NanoVGRenderer::Get()->SetViewport(bounds);
+		// NanoVGRenderer::Get()->Clear();
+		// NanoVGRenderer::Get()->ResetViewport();
 
 		NanoVGRenderer::Get()->DrawRectangle(bounds->X, bounds->Y, bounds->Width, bounds->Height, this->ElementStyle.BGColor.c_str());
-		for (std::unique_ptr<ElementBase> const& e : this->Children)
+		if (this->Children.size() > 0)
 		{
-			e->Render();
+			for (std::unique_ptr<ElementBase> const& e : this->Children)
+			{
+				e->Render();
+			}
 		}
-		NanoVGRenderer::Get()->ResetViewport();
-		NanoVGRenderer::Get()->Present();
-
+		//NanoVGRenderer::Get()->Present();
 		MicroProfileFlip(0);
 	}
 	UPTR(LabelElement) ListBlockElement::CreateChildElement(std::string elementValue)
@@ -122,12 +141,10 @@ namespace player3 { namespace ui
 		//Log("ACI", "totalRequiredHeight %i", totalRequiredHeight);
 		return Label;
 	}
-	void ListBlockElement::AddChildItems(boost::any itemValue)
+	void ListBlockElement::AddChildItems(std::string itemValue)
 	{
-		PROFILE_CPU(AddChild, RMTSF_Aggregate)
 		int maxHeight = this->ElementStyle.Height - 80;
-		std::string item = boost::any_cast<std::string>(itemValue);
-		this->Children.push_back(this->CreateChildElement(item));
+		this->Children.push_back(this->CreateChildElement(itemValue));
 
 		if (totalRequiredHeight >= maxHeight)
 		{
@@ -145,6 +162,7 @@ namespace player3 { namespace ui
 	void ListBlockElement::Clear()
 	{
 		this->Children.clear();
+		totalRequiredHeight = 0;
 	}
 	int ListBlockElement::GetChildWidth() { return this->ElementStyle.Width; }
 	int ListBlockElement::GetChildHeight() { return 0; }

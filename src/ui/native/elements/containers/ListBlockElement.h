@@ -12,6 +12,14 @@
 
 namespace player3 { namespace ui
 {
+	struct ListBlockItem
+	{
+		public:
+			std::string content;
+			ListBlockItem(std::string itemContent)
+				: content(std::move(itemContent))
+			{}
+	};
 	typedef std::unique_ptr<ElementBase> ElementBasePtr;
 	class ListBlockElement : public ContainerElementBase
 	{
@@ -27,7 +35,7 @@ namespace player3 { namespace ui
 			bool AllowChildrenToSetHeight() override { return false; }
 			void BindProperties(std::map<std::string, boost::any> bindingValues) override;
 		private:
-			void AddChildItems(boost::any itemValue);
+			void AddChildItems(std::string itemValue);
 			std::unique_ptr<LabelElement> CreateChildElement(std::string elementValue);
 
 			bool containerDrawn = false;

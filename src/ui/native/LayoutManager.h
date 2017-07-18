@@ -34,6 +34,7 @@ namespace player3 { namespace ui
 			std::unique_ptr<LabelElement> CreateLabelElement(ptree::value_type const& details);
 
 			std::map<const char*, Layout> cachedLayouts;
+			std::map<const char*, Layout> layoutInstances;
 	};
 }}
 

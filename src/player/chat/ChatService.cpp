@@ -120,12 +120,31 @@ namespace player3 { namespace chat
 			else if (part.find("emotes=") != std::string::npos) {}
 			else if (part.find("emote-only=1") != std::string::npos) { emoteOnly = true; }
 		}
+
+		boost::trim(sender);
+		boost::trim(color);
+
 		if (color != "") { color.replace(0, 7, ""); }
 		if (sender != "") { sender.replace(0, 13, ""); }
-		else
+		// else
+		// {
+		// 	std::vector<std::string> senderBits = split(rawParts[rawParts.size() - 1], '!');
+		// 	for (auto part : senderBits)
+		// 	{
+		// 		Log("ChatService", "%s", part.c_str());
+		// 	}
+		// 	sender.assign(senderBits[0].replace(0, 12, "").c_str());
+		// }
+
+		if (sender == "")
 		{
 			std::vector<std::string> senderBits = split(rawParts[rawParts.size() - 1], '!');
 			sender.assign(senderBits[0].replace(0, 12, "").c_str());
+			for (auto s : rawParts)
+			{
+				Log("ChatService", "%s", s.c_str());
+			}
+			Log("ChatService", "Message has no sender %s", rawParts[rawParts.size() - 1].c_str());
 		}
 		boost::trim(actualMessage[actualMessage.size() - 1]);
 		msg->emotesOnly = emoteOnly;

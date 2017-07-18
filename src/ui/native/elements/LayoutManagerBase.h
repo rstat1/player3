@@ -84,7 +84,6 @@ namespace player3 { namespace ui
 			virtual bool AllowChildrenToSetWidth() = 0;
 			virtual bool AllowChildrenToSetHeight() = 0;
 
-			//AnchorPoint anchor;
 			Style ElementStyle;
 			std::deque<std::unique_ptr<ElementBase>> Children;
 
@@ -96,6 +95,7 @@ namespace player3 { namespace ui
 		public:
 			const char* name;
 			ContainerElementBase* rootElement;
+			std::map<std::string, boost::any> currentBindings;
 	};
 }}
 

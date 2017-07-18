@@ -12,7 +12,7 @@ namespace base { namespace platform
 	{
 		struct rusage use;
 		getrusage(RUSAGE_SELF, &use);
-		return use.ru_maxrss; /// 1024;
+		return use.ru_maxrss / 1024;
 	}
 	double MemTrack::GetCurrentMemoryUse()
 	{
@@ -24,6 +24,6 @@ namespace base { namespace platform
 		long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
     	double rss = resident * page_size_kb;
 		double shared_mem = share * page_size_kb;
-		return (rss - shared_mem) * 1024;
+		return (rss - shared_mem) / 1024;
 	}
 }}
