@@ -48,9 +48,7 @@ namespace player3 { namespace chat
 			Log("Chat", "Disconnected %s", message);
 		});
 		chatHub.onMessage([&](WebSocket<CLIENT>* ws, char* msg, size_t len, OpCode code) {
-			MICROPROFILE_SCOPEI("CHAT", "MessageRecv", MP_PINK);
 			this->MessageReceived(ws, msg, len);
-			MicroProfileFlip(0);
 		});
 		std::thread chatHubRunner([&]{
 			chatHub.connect("wss://irc-ws.chat.twitch.tv", nullptr, {}, 1000);
@@ -106,8 +104,6 @@ namespace player3 { namespace chat
 	}
 	void ChatService::ParseChatMessage(std::string rawMessage)
 	{
-		MICROPROFILE_SCOPEI("CHAT", "ParseChatMessage", MP_ORANGE);
-
 		bool emoteOnly = false;
 		std::string sender, color;
 		ChatMessage* msg = new ChatMessage();
@@ -126,16 +122,6 @@ namespace player3 { namespace chat
 
 		if (color != "") { color.replace(0, 7, ""); }
 		if (sender != "") { sender.replace(0, 13, ""); }
-		// else
-		// {
-		// 	std::vector<std::string> senderBits = split(rawParts[rawParts.size() - 1], '!');
-		// 	for (auto part : senderBits)
-		// 	{
-		// 		Log("ChatService", "%s", part.c_str());
-		// 	}
-		// 	sender.assign(senderBits[0].replace(0, 12, "").c_str());
-		// }
-
 		if (sender == "")
 		{
 			std::vector<std::string> senderBits = split(rawParts[rawParts.size() - 1], '!');

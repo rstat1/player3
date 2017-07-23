@@ -1,2 +1,2 @@
 cd Debug_x64/
-valgrind --log-file=$HOME/leaks.log --smc-check=all --leak-check=full --suppressions=../build/tools/mono.supp ./player3
+valgrind --log-file=$HOME/leaks.log --smc-check=all --leak-check=full ./player3

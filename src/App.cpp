@@ -1,3 +1,6 @@
+#define EGL_API_FB
+#include <SDL_egl.h>
+
 #include <App.h>
 #include <player/Player.h>
 #include <ui/native/EventHub.h>
@@ -24,9 +27,11 @@ namespace app
 	}
 	void App::OnInitComplete()
 	{
+		//SDL_SetHint("SDL_PE_GFX_RESOLUTION", "1920x1080");
+
 		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO);
-		UIServer* uiserve = new UIServer();
 		PlatformManager::Get()->InitPlatformInterface();
+		UIServer* uiserve = new UIServer();
 		NativeUIHost::Get()->InitUIHost();
 		ChatService::Get()->InitChatService();
 		Player::Get()->InitPlayer();

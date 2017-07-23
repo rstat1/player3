@@ -30,6 +30,7 @@ namespace player3 { namespace ui
 		START,
 		USHER,
 		ACCESS,
+		STREAMINFO,
 		PLAYERSTATE
 	};
  	class WebSocketHandler

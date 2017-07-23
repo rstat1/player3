@@ -70,13 +70,26 @@ export class TwitchAPI {
 		})
 
 		this.ws.SubscribeToMessage("USHER", false, message => {
-			this.ws.SendMessage("START", this.parseURLList(message));
+			let streamInfo: string[] = this.getStreamInfo(message);
+			this.ws.SendMessage("START", streamInfo[0]);
+			this.ws.SendMessage("STREAMINFO", streamInfo[1] + ";" + streamInfo[2]);
 		});
 		this.ws.SendMessage("ACCESS", accessTokenMessage);
 	}
-	private parseURLList(urllist: string) : string {
+	private getStreamInfo(urllist: string) : string[] {
+		//TODO: Quality settings UI?
+		let listPos: number = 7;
+		let info: string[] = [];
 		let urls: string[] = urllist.split('\n');
-		return urls[4];
+		let fps: string[] = urls[listPos - 2].split(',');
+		let bitrate: string[] = urls[listPos - 1].split(',');
+
+		info[0] = urls[listPos];
+		info[1] = (parseInt(bitrate[1].replace("BANDWIDTH=", "")) / 1000).toString();
+		if (fps[2].lastIndexOf("p60") != -1) { info[2] = "60"; }
+		else { info[2] = "30"; }
+
+		return info;
 	}
 	private getStreams(data: Response) {
 		let followed = new Array<FollowedStream>();

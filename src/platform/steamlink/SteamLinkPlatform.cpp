@@ -5,7 +5,6 @@
 * found in the included LICENSE file.
 */
 
-#include <SDL.h>
 #include <string.h>
 #include <base/logging.h>
 #include <ui/native/rendering/NanoVGRenderer.h>
@@ -18,7 +17,14 @@ namespace player3 { namespace platform
 	SteamLinkPlatform::SteamLinkPlatform()
 	{
 		InitVideoDecoder();
-		SLVideo_GetDisplayResolution(slVideoContext, &screenW, &screenH);
+		std::string resolution;
+		resolution.append(std::to_string(screenW));
+		resolution.append("x");
+		resolution.append(std::to_string(screenH));
+
+		Log("SteamLinkPlatform", "screen resolution: %s", resolution.c_str());
+
+		SDL_SetHint("SDL_PE_GFX_RESOLUTION", resolution.c_str());
 	}
 	std::vector<int> SteamLinkPlatform::GetScreenSize()
 	{
@@ -30,7 +36,6 @@ namespace player3 { namespace platform
 		if (videoStream != nullptr) { SLVideo_FreeStream(videoStream); }
 		SLVideo_FreeContext(slVideoContext);
 		InitVideoDecoder();
-		//videoStream = SLVideo_CreateStream(slVideoContext, k_ESLVideoFormatH264, false);
 	}
 	void SteamLinkPlatform::DecoderShutdown()
 	{
@@ -94,13 +99,22 @@ namespace player3 { namespace platform
 			SLVideo_ShowOverlay(infoOverlay);
 		}
 	}
-	int SteamLinkPlatform::GetAudioSampleCount() { return 1024; }
-	int SteamLinkPlatform::GetQueuedVideo() { return SLVideo_GetQueuedVideoMS(videoStream); }
 	void SteamLinkPlatform::InitVideoDecoder()
 	{
 		slVideoContext = SLVideo_CreateContext();
 		SLVideo_SetLogLevel(k_ESLVideoLogDebug);
 		SLVideo_SetLogFunction(VideoLogFunc, nullptr);
+		SLVideo_GetDisplayResolution(slVideoContext, &screenW, &screenH);
 		videoStream = SLVideo_CreateStream(slVideoContext, k_ESLVideoFormatH264, false);
 	}
+	void SteamLinkPlatform::SetVideoBitrate(int bitrate)
+	{
+		SLVideo_SetStreamTargetBitrate(videoStream, bitrate);
+	}
+	void SteamLinkPlatform::SetVideoFPS(int fps)
+	{
+		SLVideo_SetStreamTargetFramerate(videoStream, fps, 0);
+	}
+	int SteamLinkPlatform::GetAudioSampleCount() { return 1024; }
+	int SteamLinkPlatform::GetQueuedVideo() { return SLVideo_GetQueuedVideoMS(videoStream); }
 }}

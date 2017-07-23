@@ -18,9 +18,11 @@ namespace player3 { namespace platform
 			virtual void DecoderReset() = 0;
 			virtual int GetQueuedVideo() = 0;
 			virtual void DecoderShutdown() = 0;
+			virtual void SetVideoFPS(int fps) = 0;
 			virtual int GetAudioSampleCount() = 0;
 			virtual std::vector<int> GetScreenSize() = 0;
 			virtual void CreateOverlay(int w, int h) = 0;
+			virtual void SetVideoBitrate(int bitrate) = 0;
 			virtual void ShowOverlay(void* pixels, int pitch) = 0;
 			virtual bool DecodeVideoFrame(uint8_t* frameData, int size) = 0;
 	};

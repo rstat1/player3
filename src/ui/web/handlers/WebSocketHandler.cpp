@@ -7,17 +7,21 @@
 
 #include <App.h>
 #include <cpr/cpr.h>
+#include <base/Utils.h>
 #include <base/common.h>
 #include <player/Player.h>
 #include <player/chat/ChatService.h>
+#include <platform/PlatformManager.h>
 #include <ui/web/handlers/WebSocketHandler.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
 
 using namespace app;
 using namespace cpr;
+using namespace base::utils;
 using namespace player3::chat;
 using namespace base::threading;
 using namespace player3::player;
+using namespace player3::platform;
 
 namespace player3 { namespace ui
 {
@@ -35,6 +39,7 @@ namespace player3 { namespace ui
 		messageTypeMappings["ACCESS"] = MessageType::ACCESS;
 		messageTypeMappings["EXIT"] = MessageType::EXIT;
 		messageTypeMappings["JOIN"] = MessageType::JOIN;
+		messageTypeMappings["STREAMINFO"] = MessageType::STREAMINFO;
 	}
  	void WebSocketHandler::onDisconnect(uWS::WebSocket<SERVER>* connection)
 	{
@@ -88,7 +93,13 @@ namespace player3 { namespace ui
 			case MessageType::PLAYERSTATE:
 				break;
 			case MessageType::EXIT:
+				PlatformManager::Get()->GetPlatformInterface()->DecoderShutdown();
 				exit(0);
+				break;
+			case MessageType::STREAMINFO:
+				std::vector<std::string> infoBits = split(args, ';');
+				Player::Get()->SetBitrate(atoi(infoBits[0].c_str()));
+				Player::Get()->SetFPS(atoi(infoBits[1].c_str()));
 				break;
  		}
  	}

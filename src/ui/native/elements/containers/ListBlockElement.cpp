@@ -28,11 +28,7 @@ namespace player3 { namespace ui
 			if (p.PropertyName == "anchor") { anchorPropertyBinding.assign(p.BindingName); }
 			else if (p.PropertyName == "items") { listItemsPropertyBinding.assign(p.BindingName); }
 		}
-#if defined(OS_STEAMLINK)
-		screenSize = {1280, 720};
-#else
-		screenSize = PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
-#endif
+		screenSize = { 1280, 720 }; //PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
 		this->SetNeedsRender(true);
 	}
 	void ListBlockElement::BindProperties(std::map<std::string, boost::any> bindingValues)
@@ -95,7 +91,7 @@ namespace player3 { namespace ui
 		MICROPROFILE_SCOPEI("CHAT", "ListBoxArrange", MP_WHITE);
 
 		Box* elementBounds;
-		int x, y, width;
+		int x, y, width, elementHeight;
 		if (this->Children.size() > 0)
 		{
 			previousHeight = this->GetBoundingBox()->Y + 25;
@@ -104,9 +100,13 @@ namespace player3 { namespace ui
 				x = this->GetBoundingBox()->X + 20;
 				width = this->ElementStyle.Width - 20;
 				elementBounds = e->GetBoundingBox();
-				e->SetBoundingBox(new Box(x, previousHeight, width, elementBounds->Height));
+				elementHeight = elementBounds->Height;
+				elementBounds->X = x;
+				elementBounds->Y = previousHeight;
+				elementBounds->Width = width;
+				elementBounds->Height = elementHeight;
+				e->SetBoundingBox(elementBounds);
 				previousHeight += elementBounds->Height + 5;
-				//Log("LBE_ARRANGE", "previousHeight %i", previousHeight);
 			}
 		}
 		MicroProfileFlip(0);
@@ -116,10 +116,6 @@ namespace player3 { namespace ui
 		MICROPROFILE_SCOPEI("CHAT", "ListBoxRender", MP_WHITE);
 
 		Box* bounds = this->GetBoundingBox();
-		// NanoVGRenderer::Get()->SetViewport(bounds);
-		// NanoVGRenderer::Get()->Clear();
-		// NanoVGRenderer::Get()->ResetViewport();
-
 		NanoVGRenderer::Get()->DrawRectangle(bounds->X, bounds->Y, bounds->Width, bounds->Height, this->ElementStyle.BGColor.c_str());
 		if (this->Children.size() > 0)
 		{
@@ -128,7 +124,6 @@ namespace player3 { namespace ui
 				e->Render();
 			}
 		}
-		//NanoVGRenderer::Get()->Present();
 		MicroProfileFlip(0);
 	}
 	UPTR(LabelElement) ListBlockElement::CreateChildElement(std::string elementValue)
@@ -138,7 +133,6 @@ namespace player3 { namespace ui
 		Label->SetBoundingBox(new Box(0, 0, this->ElementStyle.Width - 20, 0));
 		Label->Measure();
 		totalRequiredHeight += Label->GetBoundingBox()->Height;
-		//Log("ACI", "totalRequiredHeight %i", totalRequiredHeight);
 		return Label;
 	}
 	void ListBlockElement::AddChildItems(std::string itemValue)
@@ -149,7 +143,6 @@ namespace player3 { namespace ui
 		if (totalRequiredHeight >= maxHeight)
 		{
 			MICROPROFILE_COUNTER_SET("LBERequiredHeight", totalRequiredHeight);
-			//Log("ACI", "totalRequiredHeight %i, maxHeight %i, child count %i", totalRequiredHeight, maxHeight, this->Children.size());
 			for (std::unique_ptr<ElementBase> const& e : this->Children)
 			{
 				totalRequiredHeight -= this->Children.front()->GetBoundingBox()->Height;

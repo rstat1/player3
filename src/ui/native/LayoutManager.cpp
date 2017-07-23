@@ -140,7 +140,7 @@ namespace player3 { namespace ui
 	{
 		Style s;
 		AnchorPoint anchor;
-		bool anchorIsBound;
+		bool anchorIsBound = false;
 		ContainerElementBase* root;
 		std::vector<PropertyBinding> bindings;
 

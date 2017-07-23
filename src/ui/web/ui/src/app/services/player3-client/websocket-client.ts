@@ -19,7 +19,7 @@ export class WebSocketClient {
 	private isConnected: Subject<boolean>;
 	private socket: WebSocket;
 	private ValidMessageTypes: Array<string> = [ "ACCESS", "USHER", "START", "STOP", "MUTE",
-												 "ID", "PLAYERSTATE", "EXIT", "JOIN" ];
+												 "ID", "PLAYERSTATE", "EXIT", "JOIN", "STREAMINFO" ];
 	private messageSubscriptions: Map<string, Subscription>;
 
 	constructor() {

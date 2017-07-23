@@ -12,7 +12,7 @@ namespace player3 { namespace ui
 {
 	ELEMENT_CTOR(LabelElement)
 	{
-		this->SetBoundingBox(new Box(100, 100, 100, 100));
+		//this->SetBoundingBox(new Box(100, 100, 100, 100));
 		this->SetElementStyle(style);
 		this->SetNeedsRender(true);
 	}

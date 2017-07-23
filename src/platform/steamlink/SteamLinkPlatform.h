@@ -21,8 +21,10 @@ namespace player3 { namespace platform
 			int GetQueuedVideo() override;
 			void DecoderShutdown() override;
 			int GetAudioSampleCount() override;
+			void SetVideoFPS(int fps) override;
 			void CreateOverlay(int w, int h) override;
 			std::vector<int> GetScreenSize() override;
+			void SetVideoBitrate(int bitrate) override;
 			void ShowOverlay(void* pixels, int pitch) override;
 			bool DecodeVideoFrame(uint8_t* data, int size) override;
 		private:

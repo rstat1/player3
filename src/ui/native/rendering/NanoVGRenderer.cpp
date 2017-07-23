@@ -84,8 +84,9 @@ namespace player3 { namespace ui
 		NVG_RENDER1(FillColor, nvgRGBA(actualColor->r, actualColor->g, actualColor->b, actualColor->a));
 		NVG_RENDER1(TextAlign, NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE)
 		NVG_RENDER5(TextBox, x, y, boxWidth, text, NULL)
-
 		NVG_RENDER0(EndFrame)
+		
+		delete actualColor;
 	}
 	void NanoVGRenderer::DrawImage(std::string imagePath, Box* dst)
 	{
