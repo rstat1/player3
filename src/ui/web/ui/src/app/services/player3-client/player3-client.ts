@@ -39,6 +39,7 @@ export class Player3Client {
 	}
 	public Exit() {
 		this.socket.SendMessage("EXIT", "");
+		this.SetPlayingState(false);
 	}
 	private SetVolumeState(muted: boolean) {
 		this.isMuted = muted;

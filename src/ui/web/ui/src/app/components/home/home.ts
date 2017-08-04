@@ -33,9 +33,6 @@ export class Home implements OnInit {
 		else { this.avatar_url = "/assets/user-default.png"; }
 		this.username = localStorage.getItem("twitch_username");
 		this.sanitizer = sanitized
-		this.ws.SubscribeToMessage("PLAYERSTATE", true, message => {
-			
-		});
 	}
 	ngOnInit(): void {
 		this.twitch.getFollows(true).subscribe(follows => {
