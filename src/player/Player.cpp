@@ -274,6 +274,14 @@ namespace player3 { namespace player
 	{
 		SDL_AddTimer(delay, Player::RefreshStream, (void*)state);
 	}
+	void Player::SetBitrate(int bitrate)
+	{
+		PlatformManager::Get()->GetPlatformInterface()->SetVideoBitrate(bitrate);
+	}
+	void Player::SetFPS(int fps)
+	{
+		PlatformManager::Get()->GetPlatformInterface()->SetVideoFPS(fps);
+	}
 	uint32_t Player::RefreshStream(uint32_t interval, void* opaque)
 	{
 		Data video, audio;

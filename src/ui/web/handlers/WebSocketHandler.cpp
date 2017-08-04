@@ -93,7 +93,7 @@ namespace player3 { namespace ui
 			case MessageType::PLAYERSTATE:
 				break;
 			case MessageType::EXIT:
-				PlatformManager::Get()->GetPlatformInterface()->DecoderShutdown();
+				//PlatformManager::Get()->GetPlatformInterface()->DecoderShutdown();
 				exit(0);
 				break;
 			case MessageType::STREAMINFO:
