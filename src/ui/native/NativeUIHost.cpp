@@ -41,7 +41,6 @@ namespace player3 { namespace ui
 		}
 		else { Log("SteamLinkPlatform", "%s", SDL_GetError()); }
 		SDL_ShowWindow(win);
-		INIT_GPU_PROFILE
 	}
 	void NativeUIHost::RenderScreen(const char* name, std::map<std::string, boost::any> propertyBindings, bool clearRoot = false)
 	{

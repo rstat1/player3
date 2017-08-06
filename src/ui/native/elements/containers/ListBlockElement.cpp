@@ -28,12 +28,11 @@ namespace player3 { namespace ui
 			if (p.PropertyName == "anchor") { anchorPropertyBinding.assign(p.BindingName); }
 			else if (p.PropertyName == "items") { listItemsPropertyBinding.assign(p.BindingName); }
 		}
-		screenSize = { 1280, 720 }; //PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
+		screenSize = { 1280, 720 };
 		this->SetNeedsRender(true);
 	}
 	void ListBlockElement::BindProperties(std::map<std::string, boost::any> bindingValues)
 	{
-		PROFILE_CPU(BindProps, RMTSF_Aggregate);
 		if (bindingValues.find(anchorPropertyBinding.c_str()) != bindingValues.end())
 		{
 			if (bindingValues[anchorPropertyBinding.c_str()].type() == typeid(AnchorPoint))
@@ -79,7 +78,7 @@ namespace player3 { namespace ui
 				bounds->X = screenSize[0] - this->ElementStyle.Width;
 				bounds->Y = 0;
 				break;
-			case AnchorPoint::None:
+			case AnchorPoint::Not:
 				break;
 		}
 		bounds->Height = this->ElementStyle.Height;
@@ -88,8 +87,6 @@ namespace player3 { namespace ui
 	}
 	void ListBlockElement::ArrangeChildren()
 	{
-		MICROPROFILE_SCOPEI("CHAT", "ListBoxArrange", MP_WHITE);
-
 		Box* elementBounds;
 		int x, y, width, elementHeight;
 		if (this->Children.size() > 0)
@@ -109,12 +106,9 @@ namespace player3 { namespace ui
 				previousHeight += elementBounds->Height + 5;
 			}
 		}
-		MicroProfileFlip(0);
 	}
 	void ListBlockElement::Render()
 	{
-		MICROPROFILE_SCOPEI("CHAT", "ListBoxRender", MP_WHITE);
-
 		Box* bounds = this->GetBoundingBox();
 		NanoVGRenderer::Get()->DrawRectangle(bounds->X, bounds->Y, bounds->Width, bounds->Height, this->ElementStyle.BGColor.c_str());
 		if (this->Children.size() > 0)
@@ -124,11 +118,10 @@ namespace player3 { namespace ui
 				e->Render();
 			}
 		}
-		MicroProfileFlip(0);
 	}
 	UPTR(LabelElement) ListBlockElement::CreateChildElement(std::string elementValue)
 	{
-		UPTRVAR(Label, LabelElement) = boost::make_unique<LabelElement>(defaultLabelStyle, std::vector<PropertyBinding>());
+		NEWUPTR(Label, LabelElement, defaultLabelStyle,std::vector<PropertyBinding>());
 		Label->SetText(elementValue);
 		Label->SetBoundingBox(new Box(0, 0, this->ElementStyle.Width - 20, 0));
 		Label->Measure();
@@ -142,7 +135,6 @@ namespace player3 { namespace ui
 
 		if (totalRequiredHeight >= maxHeight)
 		{
-			MICROPROFILE_COUNTER_SET("LBERequiredHeight", totalRequiredHeight);
 			for (std::unique_ptr<ElementBase> const& e : this->Children)
 			{
 				totalRequiredHeight -= this->Children.front()->GetBoundingBox()->Height;
@@ -150,7 +142,6 @@ namespace player3 { namespace ui
 				if (totalRequiredHeight < maxHeight ) { break; }
 			}
 		}
-		MICROPROFILE_COUNTER_SET("ActiveLabelElements", this->Children.size());
 	}
 	void ListBlockElement::Clear()
 	{

@@ -12,7 +12,6 @@ namespace player3 { namespace ui
 {
 	ELEMENT_CTOR(LabelElement)
 	{
-		//this->SetBoundingBox(new Box(100, 100, 100, 100));
 		this->SetElementStyle(style);
 		this->SetNeedsRender(true);
 	}
@@ -29,6 +28,5 @@ namespace player3 { namespace ui
 		Style style = this->GetElementStyle();
 		NanoVGRenderer::Get()->DrawString(this->GetText().c_str(), this->GetElementStyle().FGColor.c_str(), bounds->X,
 										  bounds->Y, 12, bounds->Width);
-		//this->SetNeedsRender(false);
 	}
 }}

@@ -221,9 +221,6 @@
 				'../external/cpr/cpr/ssl_options.cpp',
 				'../external/cpr/cpr/timeout.cpp',
 				'../external/cpr/cpr/util.cpp',
-				'../external/microprofile/microprofile.cpp',
-				'../external/microprofile/microprofile.h',
-				'../external/microprofile/microprofile_html.h',
 			]
 		}
 	]

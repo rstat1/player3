@@ -20,7 +20,7 @@
 namespace player3 { namespace ui
 {
 	#define UPTR(type) std::unique_ptr<type>
-	#define UPTRVAR(name, type) std::unique_ptr<type> name
+	#define NEWUPTR(name, type, arg1, arg2) std::unique_ptr<type> name = MAKEUPTR(type, arg1, arg2);
 	#define MAKEUPTR(type, arg1, arg2) boost::make_unique<type>(arg1, arg2);
 	#define ELEMENT_CTOR(name) name::name(Style style, std::vector<PropertyBinding> bindings)
 	#define ELEMENT_BASE(name, type) name(Style style, std::vector<PropertyBinding> bindings); \
@@ -37,7 +37,7 @@ namespace player3 { namespace ui
 	};
 	enum AnchorPoint
 	{
-		None,
+		Not,
 		TopLeft,
 		TopRight,
 		BottomLeft,

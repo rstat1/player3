@@ -28,7 +28,7 @@ namespace player3 { namespace ui
 #if !defined(OS_STEAMLINK)
 		std::string layoutsFile("/home/rstat1/Apps/streamlink/player/src/");
 #else
-		std::string layoutsFile("/home/apps/streamlink/");
+		std::string layoutsFile("");
 #endif
 		layoutsFile.append(name);
 		layoutsFile.append(".uism");
@@ -192,7 +192,7 @@ namespace player3 { namespace ui
 		else if (property == "bottom-right") { return AnchorPoint::BottomRight; }
 		else if (property == "top-left") { return AnchorPoint::TopLeft; }
 		else if (property == "top-right") { return AnchorPoint::TopRight; }
-		else { return AnchorPoint::None; }
+		else { return AnchorPoint::Not; }
 	}
 	ElementType LayoutManager::ConvertItemTypeProperty(std::string property)
 	{

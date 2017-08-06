@@ -48,8 +48,13 @@ namespace player3 { namespace ui
 			defaultViewport = new Box(0, 0, this->winW, this->winH);
 			currentViewport = defaultViewport;
 			NANOVG_INIT
-			NVG_RENDER2(CreateFont, "sans", "NotoSans-Regular.ttf");
-			if (context == nullptr) { Log("NanoVG::Init", "Failed to create NanoVG ctx"); }
+			if (context == nullptr)
+			{
+				Log("NanoVG::Init", "Failed to create NanoVG ctx");
+				return;
+			}
+			NVG_RENDER2_R2(CreateFont, "sans", "NotoSans-Regular.ttf");
+			if (r2 == -1) { Log("NanoVG::Init", "Failed to create font."); }
 		}
 	}
 	void NanoVGRenderer::DrawRectangle(int x, int y, int w, int h, const char* color)
@@ -85,7 +90,7 @@ namespace player3 { namespace ui
 		NVG_RENDER1(TextAlign, NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE)
 		NVG_RENDER5(TextBox, x, y, boxWidth, text, NULL)
 		NVG_RENDER0(EndFrame)
-		
+
 		delete actualColor;
 	}
 	void NanoVGRenderer::DrawImage(std::string imagePath, Box* dst)
@@ -170,6 +175,8 @@ namespace player3 { namespace ui
 	}
 	std::vector<int> NanoVGRenderer::MeasureText(std::string text, int width, int textSize, int boxWidth)
 	{
+		Log("MeasureText", "%s", text.c_str());
+
 		std::vector<int> textMeasure;
 		float bounds[4] = {0};
 		float ascend, descend, lh;
@@ -183,9 +190,6 @@ namespace player3 { namespace ui
 		{
 			textMeasure.push_back(bounds[2] - bounds[0]); //width
 			textMeasure.push_back(bounds[3] - bounds[1]); //height
-
-//			Log("NanoVG::MeasureText", "%f, %f, %f, %f, boxwidth = %i", bounds[0], bounds[1], bounds[2], bounds[3], boxWidth);
-
 			return textMeasure;
 		}
 		return {};

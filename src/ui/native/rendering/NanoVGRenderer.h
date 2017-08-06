@@ -32,7 +32,7 @@
 
 #if defined(OS_STEAMLINK)
 	#define SDL_FLAGS SDL_WINDOW_FULLSCREEN | SDL_WINDOW_OPENGL
-#elif defined(OS_LINUX) || defined(OS_WIN)
+#elif (defined(OS_LINUX) && !defined(OS_STEAMLINK)) || defined(OS_WIN)
 	#define SDL_FLAGS SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL
 #endif
 
