@@ -12,6 +12,7 @@
 #include <boost/any.hpp>
 #include <base/threading/dispatcher/Dispatcher.h>
 
+#define THREAD_CHECK(name) assert(Dispatcher::Get()->IsCorrectThread(name) == true);
 #define POST_TASK(task, threadName) Dispatcher::Get()->PostTask(threadName, task)
 #define NEW_TASK0(Name, TaskType, TaskTypeRef, Function) DispatcherTask* Name = DispatcherTask::CreateTask<TaskType, &TaskType::Function>(TaskTypeRef)
 #define NEW_TASK1(Name, TaskType, TaskTypeRef, Function, Args) DispatcherTask* Name = DispatcherTask::CreateTask<TaskType, &TaskType::Function>(TaskTypeRef, Args)

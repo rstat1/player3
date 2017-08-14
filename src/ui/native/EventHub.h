@@ -11,6 +11,7 @@
 #include <map>
 #include <vector>
 #include <functional>
+#include <base/Utils.h>
 #include <base/common.h>
 
 namespace player3 { namespace ui
@@ -42,7 +43,7 @@ namespace player3 { namespace ui
 			void RegisterEventHandler(const char* name, EventHandler handler);
 			void TriggerEvent(const char* name, void* args);
 		private:
-			std::map<const char*, EventHandlers> eventHandlers;
+			std::map<const char*, EventHandlers, base::utils::CStringComparator> eventHandlers;
 
 		SINGLETON(EventHub)
 	};

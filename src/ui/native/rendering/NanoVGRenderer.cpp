@@ -53,7 +53,7 @@ namespace player3 { namespace ui
 				Log("NanoVG::Init", "Failed to create NanoVG ctx");
 				return;
 			}
-			NVG_RENDER2_R2(CreateFont, "sans", "NotoSans-Regular.ttf");
+			NVG_RENDER2_R2(CreateFont, "sans", "SourceSansPro-Regular.otf");
 			if (r2 == -1) { Log("NanoVG::Init", "Failed to create font."); }
 		}
 	}

@@ -26,15 +26,15 @@ namespace base { namespace threading
 				public:
 					virtual void Start(const char* name) = 0;
 					virtual void ThreadMain() = 0;
-					int Id;
+					ThreadID Id;
 					void* extra;
 				protected:
-					virtual ~Delegate() {}					
+					virtual ~Delegate() {}
 			};
 			PlatformThread() { }
 			~PlatformThread() {}
 			PlatformThread(LPVOID param);
-			static bool Create(Delegate* delegate, const char* name);
+			static ThreadID Create(Delegate* delegate, const char* name);
 			static void SetThreadName(const char* name);
 			static ThreadID threadHandle;
 

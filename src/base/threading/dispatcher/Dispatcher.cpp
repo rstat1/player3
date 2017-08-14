@@ -8,13 +8,14 @@
 #define INCLUDE_DEFINTIONS 1
 
 #include <assert.h>
-#include <base/Utils.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
 #if defined(OS_WIN)
 #include <windows.h>
 #else
 #include <sys/syscall.h>
 #endif
+
+using namespace base::utils;
 
 namespace base { namespace threading
 {
@@ -28,6 +29,7 @@ namespace base { namespace threading
 	}
 	void Dispatcher::AddMessagePump(const char* name, DispatcherMessagePump* dmp, int parentThreadID)
 	{
+		Log("Dispatcher", "AddMessagePump %s, with ID %i", name, parentThreadID);
 		if (this->knownDMPs.find(name) == knownDMPs.end())
 		{
 			this->knownDMPs[name] = dmp;
@@ -37,6 +39,7 @@ namespace base { namespace threading
 	}
 	void Dispatcher::AddTaskRunner(const char* name, TaskRunner* dmpRef)
 	{
+		Log("Dispatcher", "AddTaskRunner %s, with ID %i", name, dmpRef->Id);
 		if (this->namedDMPs.find(name) == namedDMPs.end())
 		{
 			 this->namedDMPs[name] = dmpRef;
@@ -46,6 +49,7 @@ namespace base { namespace threading
 	}
 	void Dispatcher::AddNamedThread(const char* name, Thread* threadRef)
 	{
+		Log("Dispatcher", "AddNamedThread %s, with ID %i", name, threadRef->Id);
 		if (this->namedThreads.find(name) == namedThreads.end())
 		{
 			 this->namedThreads[name] = threadRef;
@@ -73,7 +77,8 @@ namespace base { namespace threading
 
 		if (runner != nullptr) { runner->RunTask(task); }
 		else if (ref != nullptr) { ref->PostTask(task); }
-		else { messagePump->PostMessageToThread(receiver, task, false); }
+		else if (messagePump != nullptr) { messagePump->PostMessageToThread(receiver, task, false); }
+		else { Log("Dispatcher", "unknown thread/message pump/task runner %s", receiver); }
 	}
 	TaskRunner* Dispatcher::GetTaskRunner(const char* name)
 	{
@@ -93,13 +98,18 @@ namespace base { namespace threading
 		if (mapIter != knownDMPs.end()) { return mapIter->second; }
 		else { return nullptr; }
 	}
-	int Dispatcher::GetThreadId(const char* name)
+	ThreadID Dispatcher::GetThreadId(const char* name)
 	{
-		return this->GetThread(name)->Id;
+		Thread* thread = GetThread(name);
+		TaskRunner* taskRunner = GetTaskRunner(name);
+
+		if (taskRunner != nullptr) { return taskRunner->Id; }
+		else if (thread != nullptr) { return thread->Id; }
+		else { Log("Dispatcher", "unknown thread/task runner, or name belongs to a raw DMP. %s", name); }
 	}
 	int Dispatcher::GetCurrentThreadId()
 	{
-		return base::utils::GetThreadID();
+		return GetThreadID();
 	}
 	const char* Dispatcher::GetThreadNameFromId(int id)
 	{
@@ -107,12 +117,16 @@ namespace base { namespace threading
 		if (mapIter != threadIDs.end()) { return mapIter->second; }
 		else { return ""; }
 	}
-	void Dispatcher::IsCorrectThread(const char* correctThread)
+	bool Dispatcher::IsCorrectThread(const char* correctThread)
 	{
-		const char* currentThreadName = this->GetThreadNameFromId(this->GetCurrentThreadId());
-
-		Log("Dispatcher", "thread check -- correctThread %s, currentthread: %s", correctThread, currentThreadName);
-
-		assert(strcmp(currentThreadName, correctThread) == 0);
+#if !defined(OS_WIN)
+		const char* currentThreadName = this->GetThreadNameFromId(GetPthreadID());
+		Log("Dispatcher", "thread check -- correctThread %s, currentthread: %s",
+			correctThread, currentThreadName);
+		return pthread_equal(this->GetThreadId(correctThread), GetPthreadID()) != 0;
+#else
+		//TODO: Not-POSIX thread checking...
+		//return strcmp(currentThreadName, correctThread) == 0;
+#endif
 	}
 }}

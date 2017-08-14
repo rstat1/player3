@@ -6,9 +6,8 @@
 */
 
 #include <base/Utils.h>
-#include <base/threading/common/Thread.h>
-#include <base/threading/common/PlatformThread.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
+#include <base/threading/common/Thread.h>
 #if defined(OS_LINUX) || defined(OS_STEAMLINK)
 #include <base/platform/linux/dispatcher/SharedThreadState.h>
 #endif
@@ -19,7 +18,6 @@ namespace base { namespace threading
 {
 	void Thread::Start(const char* name)
 	{
-		this->Id = GetThreadID();
 #if defined(OS_WIN)
 		std::string threadWinName;
 		threadWinName = "ThreadDispatchWin-";
@@ -33,7 +31,9 @@ namespace base { namespace threading
 #endif
 		Dispatcher::Get()->AddNamedThread(this->dispatchWinName, this);
 
-		if (!PlatformThread::Create(this, this->dispatchWinName)) { writeToLog("Thread creation failed."); }
+		ThreadID id = PlatformThread::Create(this, this->dispatchWinName);
+		if (id == NULL) { writeToLog("Thread creation failed."); }
+		else { this->Id = id; }
 	}
 	void Thread::ThreadMain()
 	{

@@ -7,6 +7,7 @@
 
 #ifndef SHRDTHRDST
 #define SHRDTHRDST
+
 #include <base/common.h>
 
 #if defined(OS_LINUX) || defined(OS_STEAMLINK)

@@ -20,7 +20,7 @@ namespace base { namespace threading
 			void RunTask(DispatcherTask* task);
 			void Init(const char* taskRunnerName, DispatcherTask* TaskRunnerInitMethod);
 			void* extra;
-			int Id;
+			ThreadID Id;
 			DispatcherMessagePump* dmp;
 		private:
 			const char* runnerName;

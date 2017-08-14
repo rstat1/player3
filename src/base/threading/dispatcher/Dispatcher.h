@@ -11,6 +11,7 @@
 #include <map>
 #include <memory>
 #include <functional>
+#include <base/Utils.h>
 #include <base/base_exports.h>
 #include <base/threading/common/Thread.h>
 #include <base/threading/common/TaskRunner.h>
@@ -35,16 +36,15 @@ namespace base { namespace threading
 			Thread* GetThread(const char* name);
 			TaskRunner* GetTaskRunner(const char* name);
 			DispatcherMessagePump* GetMessagePump(const char* name);
-			int GetThreadId(const char* threadName);
 			int GetCurrentThreadId();
-			void IsCorrectThread(const char* correctThread);
-			
+			ThreadID GetThreadId(const char* name);
+			bool IsCorrectThread(const char* correctThread);
 		private:
 			static std::shared_ptr<Dispatcher> ref;
-			std::map<const char*, DispatcherMessagePump*> knownDMPs;
-			std::map<const char*, Thread*> namedThreads;
-			std::map<const char*, TaskRunner*> namedDMPs;
-			std::map<int, const char*> threadIDs;
+			std::map<const char*, DispatcherMessagePump*, base::utils::CStringComparator> knownDMPs;
+			std::map<const char*, Thread*, base::utils::CStringComparator> namedThreads;
+			std::map<const char*, TaskRunner*, base::utils::CStringComparator> namedDMPs;
+			std::map<ThreadID, const char*> threadIDs;
     };
 }}
 

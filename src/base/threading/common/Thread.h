@@ -31,16 +31,15 @@ namespace base { namespace threading
 		public:
 			Thread() {}
 			Thread(const char* threadName) { this->dispatchWinName = threadName; }
-			void Start(const char* name) OVERRIDE;
+			void Start(const char* name) override;
 			void PostTask(DispatcherTask* task);
-			void ThreadMain() OVERRIDE;
+			void ThreadMain() override;
 			const char* GetThreadName();
 			DispatcherMessagePump* dmp;
 		protected:
 			virtual void Init() = 0;
 			const char* dispatchWinName;
 		private:
-
 	};
 
 }}

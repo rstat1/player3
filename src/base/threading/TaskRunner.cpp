@@ -19,7 +19,11 @@ namespace base { namespace threading
 	TaskRunner::TaskRunner() {}
 	void TaskRunner::Init(const char* taskRunnerName, DispatcherTask* TaskRunnerInitMethod)
 	{
+#if !defined(OS_WIN)
+		this->Id = base::utils::GetPthreadID();
+#else
 		this->Id = base::utils::GetThreadID();
+#endif
 		this->runnerName = taskRunnerName;
 		this->initTask = TaskRunnerInitMethod;
 

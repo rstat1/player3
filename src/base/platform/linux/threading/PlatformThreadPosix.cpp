@@ -5,10 +5,10 @@
 * found in the included LICENSE file.
 */
 
-#include <sys/syscall.h>
 #include <assert.h>
-#include <base/threading/common/PlatformThread.h>
+#include <sys/syscall.h>
 #include <base/threading/dispatcher/Dispatcher.h>
+#include <base/threading/common/PlatformThread.h>
 
 namespace base { namespace threading
 {
@@ -19,22 +19,24 @@ namespace base { namespace threading
 		ThreadStartInfo* tsi = static_cast<ThreadStartInfo*>(param);
 		Dispatcher* disp = tsi->DispatcherRef;
 		PlatformThread::Delegate* del = tsi->ThreadDelegate;
-		PlatformThread::SetThreadName(tsi->threadName);	
+		PlatformThread::SetThreadName(tsi->threadName);
 		del->ThreadMain();
 		return 0;
 	}
-	bool CreateThreadInternal(ThreadStartInfo* tsi)
+	ThreadID CreateThreadInternal(ThreadStartInfo* tsi)
 	{
-		pthread_t threadRef;
 		writeToLog("CreateThreadInternal()");
-		if (pthread_create(&PlatformThread::threadHandle, 0, ThreadStartFunction, tsi) == 0) { return true; }
+		if (pthread_create(&PlatformThread::threadHandle, 0, ThreadStartFunction, tsi) == 0)
+		{
+			return PlatformThread::threadHandle;
+		}
 		else
 		{
 			writeToLog("pthread_create failed!");
-			return false;
+			return NULL;
 		}
 	}
-	bool PlatformThread::Create(Delegate *delegate, const char *name)
+	ThreadID PlatformThread::Create(Delegate *delegate, const char *name)
 	{
 		ThreadStartInfo* tsi = new ThreadStartInfo;
 		tsi->ThreadDelegate = delegate;

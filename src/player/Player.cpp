@@ -61,7 +61,7 @@ namespace player3 { namespace player
 		});
 		std::thread overlayUpdate([&] {
 			EventHub::Get()->TriggerEvent("UpdateOverlay", this->state);
-			//SDL_AddTimer(750, Player::RefreshOverlay, this->state);
+			SDL_AddTimer(750, Player::RefreshOverlay, this->state);
 		});
 		overlayUpdate.detach();
 

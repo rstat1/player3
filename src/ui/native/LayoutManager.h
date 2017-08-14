@@ -9,6 +9,7 @@
 #define LAYOUT
 
 #include <map>
+#include <base/Utils.h>
 #include <base/common.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -33,8 +34,8 @@ namespace player3 { namespace ui
 			ContainerElementBase* CreateRootElement(ptree::value_type const& details, const char* type);
 			std::unique_ptr<LabelElement> CreateLabelElement(ptree::value_type const& details);
 
-			std::map<const char*, Layout> cachedLayouts;
-			std::map<const char*, Layout> layoutInstances;
+			std::map<const char*, Layout, base::utils::CStringComparator> cachedLayouts;
+			std::map<const char*, Layout, base::utils::CStringComparator> layoutInstances;
 	};
 }}
 

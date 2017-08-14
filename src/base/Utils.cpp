@@ -57,6 +57,12 @@ namespace base { namespace utils
 		return (int)syscall(__NR_gettid);
 #endif
 	}
+#if defined(OS_LINUX) || defined(OS_ANDROID)
+	pthread_t GetPthreadID()
+	{
+		return pthread_self();
+	}
+#endif
 	//https://stackoverflow.com/questions/20446201/how-to-check-if-string-ends-with-txt
 	bool EndsWith(const std::string &str, const std::string &suffix)
 	{
@@ -91,4 +97,24 @@ namespace base { namespace utils
 		});
     	return s;
 	}
+#if defined(OS_LINUX) || defined(OS_STEAMLINK)
+	void OutputBacktrace()
+	{
+		int j, nptrs;
+        void *buffer[100];
+        char **strings;
+
+        nptrs = backtrace(buffer, 100);
+		strings = backtrace_symbols(buffer, nptrs);
+        if (strings == NULL)
+		{
+			writeToLog("Failed to get backtrace");
+			return;
+        }
+
+        for (j = 0; j < nptrs; j++) { Log("BTPRINT", "%s\n", strings[j]); }
+
+        free(strings);
+	}
+#endif
 }}
