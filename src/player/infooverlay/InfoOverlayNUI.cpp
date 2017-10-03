@@ -10,7 +10,10 @@
 #include <player/infooverlay/InfoOverlayNUI.h>
 #include <ui/native/elements/containers/ListBlockElement.h>
 
+#include <base/metrics/InfluxDBClient.h>
+
 using namespace player3::ui;
+using namespace base::metrics;
 
 namespace player3 { namespace overlay
 {
@@ -28,10 +31,13 @@ namespace player3 { namespace overlay
 	}
 	void InfoOverlayNUI::UpdateDoubleValue(const char* label, double newValue)
 	{
+		//InfluxDBClient::Get()->UpdateDoubleMetric(std::string(label), newValue);
+
 		this->UpdateOverlayItem(label, to_string(newValue).c_str());
 	}
 	void InfoOverlayNUI::UpdateIntValue(const char* label, int newValue)
 	{
+		//InfluxDBClient::Get()->UpdateIntMetric(std::string(label), newValue);
 		this->UpdateOverlayItem(label, to_string(newValue).c_str());
 	}
 	void InfoOverlayNUI::UpdateStringValue(const char* label, const char* newValue)
@@ -45,6 +51,7 @@ namespace player3 { namespace overlay
 		item.append(": ");
 		item.append(value);
 		overlayItems.emplace(std::make_pair(label, item));
+
 	}
 	void InfoOverlayNUI::UpdateOverlayItem(const char* label, const char* newValue)
 	{

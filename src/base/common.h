@@ -34,7 +34,7 @@
 	#if defined(WINDOWS)
 		#include <direct.h>
 		#include <Windows.h>
-		#define _Platform "Windows";
+		#define _Platform "Windows"
 		#define OS_WIN 1
 		#define Instance HINSTANCE
 		#define WindowHandle HWND
@@ -48,7 +48,7 @@
 			#define INIT_GPU_PROFILE
 			#define PROFILE_GPU(name)
 		#else
-			#define _Platform "Linux";
+			#define _Platform "Linux"
 			#define OS_LINUX 1
 			#if defined(ENABLE_REMOTERY)
 				#define INIT_GPU_PROFILE rmt_BindOpenGL();

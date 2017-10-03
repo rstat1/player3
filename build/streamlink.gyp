@@ -172,6 +172,8 @@
 				'../src/base/platform/linux/dispatcher/MessagePumpEPoll.h',
 				'../src/base/platform/linux/dispatcher/DispatcherTypesLinux.h',
 				'../src/base/platform/linux/memtrack.h',
+				# '../src/base/metrics/InfluxDBClient.h',
+				# '../src/base/metrics/InfluxDBClient.cpp',
 				'../src/App.h',
 				'../src/App.cpp',
 				'../src/player/Player.cpp',

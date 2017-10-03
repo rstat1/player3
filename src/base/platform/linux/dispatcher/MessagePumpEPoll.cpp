@@ -110,6 +110,7 @@ namespace base { namespace threading
 				{
 					if (task->HasCallback()) { task->InvokeWithCallback(!task->HasArguments()); }
 					else { task->Invoke(!task->HasArguments()); }
+					delete task;
 				}
 			}
 		}

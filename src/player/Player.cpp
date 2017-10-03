@@ -57,13 +57,13 @@ namespace player3 { namespace player
 		this->InitOverlay();
 
 		EventHandler connectedEvent(true, "PlayerApp", [&](void* args) {
-			ChatService::Get()->JoinChannel("drdisrespectlive");
+			//ChatService::Get()->JoinChannel("rstat1");
 		});
-		std::thread overlayUpdate([&] {
-			EventHub::Get()->TriggerEvent("UpdateOverlay", this->state);
-			SDL_AddTimer(750, Player::RefreshOverlay, this->state);
-		});
-		overlayUpdate.detach();
+		// std::thread overlayUpdate([&] {
+		// 	EventHub::Get()->TriggerEvent("UpdateOverlay", this->state);
+		// 	SDL_AddTimer(750, Player::RefreshOverlay, this->state);
+		// });
+		// overlayUpdate.detach();
 
 		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
 
@@ -76,7 +76,7 @@ namespace player3 { namespace player
 		this->state->overlay = new InfoOverlayNUI();
 		this->state->overlay->AddStringValue("GitBranch", BranchName);
 		this->state->overlay->AddDoubleValue("AVDelayDiff", 0);
-		this->state->overlay->AddDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
+		this->state->overlay->AddDoubleValue("MemCurrent(in MB)", MemTrack::GetCurrentMemoryUse());
 		this->state->overlay->AddDoubleValue("FrameTimer", 0);
 		this->state->overlay->AddDoubleValue("AudioDelay", 0.0);
 		this->state->overlay->AddDoubleValue("AudioClock", 0);
@@ -84,20 +84,20 @@ namespace player3 { namespace player
 		this->state->overlay->AddDoubleValue("AVClockDiff", 0);
 		this->state->overlay->AddIntValue("QueuedVideo", 0);
 
-		EventHandler overlayUpdateEvent(true, "PlayerApp", [&](void* args) {
-			InternalPlayerState* playerState = (InternalPlayerState*)args;
-			double currentUse = MemTrack::GetCurrentMemoryUse();
-			if (currentUse != lastMemoryUse)
-			{
-				playerState->overlay->UpdateDoubleValue("MemPeak (in MB)", MemTrack::GetPeakMemoryUse());
-				playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
-				lastMemoryUse = currentUse;
-			}
-			playerState->overlay->UpdateStringValue("GitBranch", BranchName);
-			playerState->overlay->UpdateOverlay();
-		});
-		EventHub::Get()->RegisterEvent("UpdateOverlay");
-		EventHub::Get()->RegisterEventHandler("UpdateOverlay", overlayUpdateEvent);
+		// EventHandler overlayUpdateEvent(true, "PlayerApp", [&](void* args) {
+		// 	InternalPlayerState* playerState = (InternalPlayerState*)args;
+		// 	double currentUse = MemTrack::GetCurrentMemoryUse();
+		// 	if (currentUse != lastMemoryUse)
+		// 	{
+		// 		playerState->overlay->UpdateDoubleValue("MemPeak (in MB)", MemTrack::GetPeakMemoryUse());
+		// 		playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
+		// 		lastMemoryUse = currentUse;
+		// 	}
+		// 	playerState->overlay->UpdateStringValue("GitBranch", BranchName);
+		// 	playerState->overlay->UpdateOverlay();
+		// });
+		// EventHub::Get()->RegisterEvent("UpdateOverlay");
+		// EventHub::Get()->RegisterEventHandler("UpdateOverlay", overlayUpdateEvent);
 	}
 	void Player::StartStream(std::string url)
 	{

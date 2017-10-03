@@ -9,10 +9,14 @@
 #include <platform/PlatformManager.h>
 #include <ui/web/UIServer.h>
 
+#include <base/metrics/InfluxDBClient.h>
+
 using namespace player3::ui;
 using namespace player3::chat;
 using namespace player3::player;
 using namespace player3::platform;
+
+using namespace base::metrics;
 
 namespace app
 {
@@ -28,15 +32,16 @@ namespace app
 	void App::OnInitComplete()
 	{
 		//SDL_SetHint("SDL_PE_GFX_RESOLUTION", "1920x1080");
-
 		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO);
+
+		//InfluxDBClient::Get()->InitIFDBConnection("http://192.168.1.15:8086", "player3_metrics", "Player3");
+
 		PlatformManager::Get()->InitPlatformInterface();
 		UIServer* uiserve = new UIServer();
 		NativeUIHost::Get()->InitUIHost();
 		ChatService::Get()->InitChatService();
 		Player::Get()->InitPlayer();
 		ChatService::Get()->ConnectToTwitchIRC("jqokdnx4u23c80xslwyfflnkcidy5i", "rstat1");
-		//csx62qos1qay8eoxqrhe0cvf05m4yh
 	}
 	void App::ChatUIEvent(void* args)
 	{
