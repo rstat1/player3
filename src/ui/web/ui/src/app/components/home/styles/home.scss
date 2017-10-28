@@ -36,6 +36,9 @@
         height: $channel-block-height;
         color: rgba(202, 202, 202, 0.42);
     }
+    .main {
+        height: 100%;
+    }
 }
 @include media-breakpoint-down(sm) {
     .stream {

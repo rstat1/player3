@@ -1,6 +1,6 @@
 <div ngbDropdown class="sidebar">
 	<img style="margin-top:3px;opacity:1" src="/assets/google-controller.png"
-		 width="64" height="64" />
+		 width="64" height="64" (click)="controls.action('exit')" alt="Close Player3" />
 	<i ngbDropdownToggle *ngIf="controls.isPlaying" style="display: block; width: 100%;" class="fa fa-chevron-down quick-drop"></i>
 	<div class="dropdown-menu" style="margin-top:0px">
 		<button (click)="controls.action(c.controlName)" class="dropdown-item" *ngFor="let c of controlsList">

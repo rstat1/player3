@@ -72,7 +72,8 @@ namespace player3 { namespace ui
 				bounds->Y = screenSize[1] - this->ElementStyle.Height;
 				break;
 			case AnchorPoint::TopLeft:
-				bounds->Y = screenSize[1] - this->ElementStyle.Height;
+				bounds->X = 0;
+				bounds->Y = 0;
 				break;
 			case AnchorPoint::TopRight:
 				bounds->X = screenSize[0] - this->ElementStyle.Width;
@@ -121,7 +122,7 @@ namespace player3 { namespace ui
 	}
 	UPTR(LabelElement) ListBlockElement::CreateChildElement(std::string elementValue)
 	{
-		NEWUPTR(Label, LabelElement, defaultLabelStyle,std::vector<PropertyBinding>());
+		NEWUPTR(Label, LabelElement, defaultLabelStyle, std::vector<PropertyBinding>());
 		Label->SetText(elementValue);
 		Label->SetBoundingBox(new Box(0, 0, this->ElementStyle.Width - 20, 0));
 		Label->Measure();

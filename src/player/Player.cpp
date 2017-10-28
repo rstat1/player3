@@ -59,11 +59,11 @@ namespace player3 { namespace player
 		EventHandler connectedEvent(true, "PlayerApp", [&](void* args) {
 			//ChatService::Get()->JoinChannel("rstat1");
 		});
-		// std::thread overlayUpdate([&] {
-		// 	EventHub::Get()->TriggerEvent("UpdateOverlay", this->state);
-		// 	SDL_AddTimer(750, Player::RefreshOverlay, this->state);
-		// });
-		// overlayUpdate.detach();
+		std::thread overlayUpdate([&] {
+			// EventHub::Get()->TriggerEvent("UpdateOverlay", this->state);
+			// SDL_AddTimer(750, Player::RefreshOverlay, this->state);
+		});
+		overlayUpdate.detach();
 
 		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
 
@@ -83,21 +83,23 @@ namespace player3 { namespace player
 		this->state->overlay->AddDoubleValue("VideoActualDelay", 0);
 		this->state->overlay->AddDoubleValue("AVClockDiff", 0);
 		this->state->overlay->AddIntValue("QueuedVideo", 0);
+		this->state->overlay->AddIntValue("NextRefresh", 0);
 
-		// EventHandler overlayUpdateEvent(true, "PlayerApp", [&](void* args) {
-		// 	InternalPlayerState* playerState = (InternalPlayerState*)args;
-		// 	double currentUse = MemTrack::GetCurrentMemoryUse();
-		// 	if (currentUse != lastMemoryUse)
-		// 	{
-		// 		playerState->overlay->UpdateDoubleValue("MemPeak (in MB)", MemTrack::GetPeakMemoryUse());
-		// 		playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
-		// 		lastMemoryUse = currentUse;
-		// 	}
-		// 	playerState->overlay->UpdateStringValue("GitBranch", BranchName);
-		// 	playerState->overlay->UpdateOverlay();
-		// });
-		// EventHub::Get()->RegisterEvent("UpdateOverlay");
-		// EventHub::Get()->RegisterEventHandler("UpdateOverlay", overlayUpdateEvent);
+		EventHandler overlayUpdateEvent(true, "PlayerApp", [&](void* args) {
+			InternalPlayerState* playerState = (InternalPlayerState*)args;
+			double currentUse = MemTrack::GetCurrentMemoryUse();
+			if (currentUse != lastMemoryUse)
+			{
+				playerState->overlay->UpdateDoubleValue("MemPeak (in MB)", MemTrack::GetPeakMemoryUse());
+				playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
+				lastMemoryUse = currentUse;
+			}
+			playerState->overlay->UpdateStringValue("GitBranch", BranchName);
+			playerState->overlay->UpdateOverlay();
+		});
+		EventHub::Get()->RegisterEvent("UpdateOverlay");
+		EventHub::Get()->RegisterEvent("StreamStarting");
+		EventHub::Get()->RegisterEventHandler("UpdateOverlay", overlayUpdateEvent);
 	}
 	void Player::StartStream(std::string url)
 	{
@@ -108,6 +110,8 @@ namespace player3 { namespace player
 			this->state->currentURL = url;
 			this->StartPlaybackThread();
 			this->StartDecodeThread();
+
+			EventHub::Get()->TriggerEvent("StreamStarted", nullptr);
 		}
 	}
 	void Player::StartDecodeThread()
@@ -250,10 +254,8 @@ namespace player3 { namespace player
 
 		this->state->overlay->UpdateIntValue("QueuedVideo", this->platformInterface->GetQueuedVideo());
 		PlatformManager::Get()->GetPlatformInterface()->DecodeVideoFrame(video.data, video.size);
-
 		video.DeleteData();
 		this->state->video.pop();
-
 	}
 	void Player::Stop()
 	{
@@ -287,7 +289,9 @@ namespace player3 { namespace player
 		Data video, audio;
 		Player* playerRef = Player::Get();
 		InternalPlayerState* state = Player::Get()->GetPlayerState();
-		double delay = 0, actualDelay = 0, avDiff;
+		double delay = 0, actualDelay = 0, avDiff, refreshTime = 0;
+		// if (state->video.empty() == false) { Player::Get()->Play(); }
+		// Player::SetRefreshTimer(1, playerRef);
 		if (state->video.empty() == true) { Player::SetRefreshTimer(1, playerRef); }
 		else
 		{
@@ -301,14 +305,18 @@ namespace player3 { namespace player
 			//TODO: get audio timing some how
 			state->videoClock += delay;
 			avDiff = state->videoClock - state->audioState->audioClock;
+
+			refreshTime = ((state->audioState->audioClock - state->videoClock) / AV_TIME_BASE) / 1000.0;
+
 			actualDelay = state->videoClock - (av_gettime() / AV_TIME_BASE);
 			state->overlay->UpdateDoubleValue("AVClockDiff", avDiff);
 			state->overlay->UpdateDoubleValue("AVDelayDiff", actualDelay - avDiff);
 			state->overlay->UpdateDoubleValue("FrameTimer", state->videoClock);
 			state->overlay->UpdateDoubleValue("VideoActualDelay", actualDelay + avDiff);
-			Player::Get()->Play();
-			Player::SetRefreshTimer(actualDelay + avDiff, playerRef);
+			Player::Get()->Play();//actualDelay + avDiff
+			Player::SetRefreshTimer(refreshTime, playerRef);
 		}
+
 		return 0;
 	}
 	uint32_t Player::RefreshOverlay(uint32_t interval, void* opaque)
@@ -329,7 +337,7 @@ namespace player3 { namespace player
 			audio = state->audio.front();
 
 			delay = audio.pts - state->lastAudioPts;
-			if (delay <= 0 || delay >= 1.0) { delay = audioState->lastDelay; }
+			//if (delay <= 0 || delay >= 1.0) { delay = audioState->lastDelay; }
 			state->lastAudioPts = audio.pts;
 			audioState->lastDelay = delay;
 			audioState->audioClock += delay;

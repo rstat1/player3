@@ -78,12 +78,12 @@ export class TwitchAPI {
 	}
 	private getStreamInfo(urllist: string) : string[] {
 		//TODO: Quality settings UI?
-		let listPos: number = 7;
+		let listPos: number = 4;
 		let info: string[] = [];
 		let urls: string[] = urllist.split('\n');
 		let fps: string[] = urls[listPos - 2].split(',');
 		let bitrate: string[] = urls[listPos - 1].split(',');
-
+		
 		info[0] = urls[listPos];
 		info[1] = (parseInt(bitrate[1].replace("BANDWIDTH=", "")) / 1000).toString();
 		if (fps[2].lastIndexOf("p60") != -1) { info[2] = "60"; }

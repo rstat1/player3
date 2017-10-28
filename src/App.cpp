@@ -34,7 +34,7 @@ namespace app
 		//SDL_SetHint("SDL_PE_GFX_RESOLUTION", "1920x1080");
 		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO);
 
-		//InfluxDBClient::Get()->InitIFDBConnection("http://192.168.1.15:8086", "player3_metrics", "Player3");
+		//InfluxDBClient::Get()->InitIFDBConnection("http://ingest.telemetry.m/", "player3_metrics", "Player3");
 
 		PlatformManager::Get()->InitPlatformInterface();
 		UIServer* uiserve = new UIServer();

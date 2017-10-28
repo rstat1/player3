@@ -74,7 +74,7 @@ namespace player3 { namespace overlay
 			items.emplace_back(pair.second);
 		}
 		bindings["Items"] = items;
-		bindings["AnchorPoint"] = AnchorPoint::TopLeft;
-		NativeUIHost::Get()->RenderScreen("DebugOverlay", bindings, true);
+		bindings["AnchorPoint"] = AnchorPoint::BottomLeft;
+		//NativeUIHost::Get()->RenderScreen("DebugOverlay", bindings, true);
 	}
 }}
