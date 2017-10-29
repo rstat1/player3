@@ -29,6 +29,8 @@ namespace player3 { namespace ui
 			Style ParseStyleBlob(std::string styleBlob);
 			AnchorPoint ConvertAnchorProperty(std::string prop);
 			ElementType ConvertItemTypeProperty(std::string prop);
+			std::string VerifyVerticalAlignment(std::string prop);
+			std::string VerifyHorizontalAlignment(std::string prop);
 			PropertyBinding ParsePropertyBinding(std::string binding, const char* propertyName);
 
 			ContainerElementBase* CreateRootElement(ptree::value_type const& details, const char* type);

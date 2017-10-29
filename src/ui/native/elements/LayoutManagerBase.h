@@ -53,6 +53,8 @@ namespace player3 { namespace ui
 			int FontSize;
 			std::string BGColor;
 			std::string FGColor;
+			std::string VerticalAlignment;
+			std::string HorizontalAlignment;
 	};
 	struct PropertyBinding
 	{

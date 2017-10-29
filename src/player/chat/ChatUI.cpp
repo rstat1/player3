@@ -15,7 +15,7 @@ namespace player3 { namespace chat
 {
 	void ChatUI::InitChatUI()
 	{
-		EventHandler connectedEvent(true, "PlayerApp", [&](void* args) {
+		EventHandler connectedEvent(true, "UI", [&](void* args) {
 			std::string message("Connected to TwitchIRC");
 
 			std::map<std::string, boost::any> bindings;
@@ -24,7 +24,7 @@ namespace player3 { namespace chat
 
 			NativeUIHost::Get()->RenderScreen("ChatUI", bindings, false);
 		});
-		EventHandler msgReceivedEvent(true, "PlayerApp", [&](void* args) {
+		EventHandler msgReceivedEvent(true, "UI", [&](void* args) {
 			ChatMessage* chatMessage = (ChatMessage*)args;
 
 			std::string received(chatMessage->sender);
@@ -35,7 +35,7 @@ namespace player3 { namespace chat
 
 			NativeUIHost::Get()->RenderScreen("ChatUI", bindings, false);
 		});
-		EventHandler channelChangedEvent(true, "PlayerApp", [&](void* args) {
+		EventHandler channelChangedEvent(true, "UI", [&](void* args) {
 			std::map<std::string, boost::any> bindings;
 			bindings["ListItems"] = "";
 			NativeUIHost::Get()->RenderScreen("ChatUI", bindings, true);

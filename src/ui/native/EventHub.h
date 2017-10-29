@@ -23,7 +23,7 @@ namespace player3 { namespace ui
 			const char* owningThread = "PlayerApp";
 			std::function<void(void*)> handler;
 			EventHandler(bool runAsTask, const char* onThread, std::function<void(void*)> handlerFunc) :
-				runHandlerAsTask(runAsTask), owningThread("PlayerApp"), handler(handlerFunc)
+				runHandlerAsTask(runAsTask), owningThread(onThread), handler(handlerFunc)
 			{}
 	};
 	typedef std::vector<EventHandler> EventHandlers;

@@ -20,7 +20,7 @@
 			'cflags_cc': [
 				'-frtti',
 				'-std=c++11',
-				'-g3', '-g'
+				'-g3', '-g', '-Wno-deprecated-declarations'
 			],
 			'defines': [
 				'LINUX',
@@ -126,8 +126,11 @@
 				'../src/ui/native/rendering/NanoVGDefines.h',
 				'../src/ui/native/rendering/NanoVGRenderer.h',
 				'../src/ui/native/rendering/RendererTypes.h',
+				'../src/ui/native/threading/MessagePumpSDL.h',
+				'../src/ui/native/threading/MessagePumpSDL.cpp',
+				'../src/ui/native/threading/UIWorkerHost.h',
+				'../src/ui/native/threading/UIWorkerHost.cpp',
 				'../src/ui/web/packaging/File.h',
-				#'../src/BuildInfo.h',
 				'../src/ui/native/NativeUIHost.h',
 				'../src/platform/PlatformManager.h',
 				'../src/ui/native/LayoutManager.h',
@@ -165,6 +168,9 @@
 				'../src/base/threading/dispatcher/DispatcherTypes.h',
 				'../src/base/threading/common/PlatformThread.h',
 				'../src/base/threading/common/TaskRunner.h',
+				'../src/base/threading/common/IOTasks.h',
+				'../src/base/threading/common/IOWorkerThread.h',
+				'../src/base/threading/IOWorkerThread.cpp',
 				'../src/base/platform/linux/memtrack.cpp',
 				'../src/base/platform/linux/threading/PlatformThreadPosix.cpp',
 				'../src/base/platform/linux/threading/ConditionVariablePosix.cpp',

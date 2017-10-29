@@ -56,7 +56,7 @@ namespace player3 { namespace player
 		platformInterface = PlatformManager::Get()->GetPlatformInterface();
 		this->InitOverlay();
 
-		EventHandler connectedEvent(true, "PlayerApp", [&](void* args) {
+		EventHandler connectedEvent(true, "UI", [&](void* args) {
 			//ChatService::Get()->JoinChannel("rstat1");
 		});
 		std::thread overlayUpdate([&] {

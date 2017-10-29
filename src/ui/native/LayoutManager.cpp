@@ -98,14 +98,20 @@ namespace player3 { namespace ui
 				{
 					elementStyle.BGColor.assign(elementDetails[1]);
 				}
-
 				else if (elementDetails[0].find("fgcolor") != std::string::npos)
 				{
 					elementStyle.FGColor.assign(elementDetails[1]);
 				}
+				else if (elementDetails[0] == "halign")
+				{
+					elementStyle.HorizontalAlignment.assign(this->VerifyHorizontalAlignment(elementDetails[1]));
+				}
+				else if (elementDetails[0] == "valign")
+				{
+					elementStyle.VerticalAlignment.assign(this->VerifyVerticalAlignment(elementDetails[1]));
+				}
 			}
 		}
-
 		return elementStyle;
 	}
 	PropertyBinding LayoutManager::ParsePropertyBinding(std::string binding, const char* property)
@@ -143,18 +149,19 @@ namespace player3 { namespace ui
 		bool anchorIsBound = false;
 		ContainerElementBase* root;
 		std::vector<PropertyBinding> bindings;
+		std::string anchorProperty = details.second.get<std::string>("<xmlattr>.anchor");
 
 		if (strncmp(type, "block", 5) == 0)
 		{
 			s = ParseStyleBlob(details.second.get("<xmlattr>.style", ""));
 			root = new BlockElement(s, std::vector<PropertyBinding>());
-			root->SetAnchor(ConvertAnchorProperty(details.second.get("block.<xmlattr>.anchor", "bottom-left")));
+			
+			if (anchorProperty != "") { root->SetAnchor(ConvertAnchorProperty(anchorProperty)); }
 		}
 		else if (strncmp(type, "listblock", 9) == 0)
 		{
 			s = ParseStyleBlob(details.second.get("<xmlattr>.style", ""));
 			std::string itemsProperty = details.second.get<std::string>("<xmlattr>.items");
-			std::string anchorProperty = details.second.get<std::string>("<xmlattr>.anchor");
 			std::string itemTypeProperty = details.second.get<std::string>("<xmlattr>.itemType");
 
 			if (itemsProperty.find("{Binding:") != std::string::npos)
@@ -200,5 +207,15 @@ namespace player3 { namespace ui
 		else if (property == "imglabel") { return ElementType::ImageLabel; }
 		else if (property == "img") { return ElementType::Image; }
 		else { return ElementType::Invalid; }
+	}
+	std::string LayoutManager::VerifyVerticalAlignment(std::string prop)
+	{
+		if (prop == "Fill" || prop == "Top" || prop == "Bottom" || prop == "Center") { return prop; }
+		else { return ""; }
+	}
+	std::string LayoutManager::VerifyHorizontalAlignment(std::string prop)
+	{
+		if (prop == "Fill" || prop == "Left" || prop == "Right" || prop == "Center") { return prop; }
+		else { return ""; }
 	}
 }}

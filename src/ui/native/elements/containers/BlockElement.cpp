@@ -11,10 +11,28 @@ namespace player3 { namespace ui
 {
 	ELEMENT_CTOR(BlockElement)
 	{
-		this->SetBoundingBox(new Box(0, 0, 0, 0));
+		ElementStyle = style;
+		//TODO: Don't hard code this here
+		screenSize = {1280, 720};
 	}
 	void BlockElement::Render()
 	{
 
+	}
+	void BlockElement::Measure()
+	{
+		Box* bounds = this->GetBoundingBox();
+		std::string vAlign = this->GetVerticalAlignment();
+		std::string hAlign = this->GetHorizontalAlignment();
+
+		if (hAlign == "Fill") { bounds->Width = screenSize[0]; }
+		else if (hAlign == "Top") {}
+		else if (hAlign == "Bottom") {}
+		else if (hAlign == "Center") { bounds->X = (screenSize[0] - this->ElementStyle.Width) / 2; }
+
+		if (vAlign == "Fill") { bounds->Height = screenSize[1]; }
+		else if (vAlign == "Left") {}
+		else if (vAlign == "Right") {}
+		else if (vAlign == "Center") { bounds->Y = (screenSize[1] - this->ElementStyle.Height) / 2; }
 	}
 }}

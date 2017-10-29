@@ -4,19 +4,17 @@
 #include <App.h>
 #include <player/Player.h>
 #include <ui/native/EventHub.h>
-#include <ui/native/NativeUIHost.h>
 #include <player/chat/ChatService.h>
 #include <platform/PlatformManager.h>
 #include <ui/web/UIServer.h>
+#include <ui/native/threading/UIWorkerHost.h>
 
-#include <base/metrics/InfluxDBClient.h>
+#include <ui/native/NativeUIHost.h>
 
 using namespace player3::ui;
 using namespace player3::chat;
 using namespace player3::player;
 using namespace player3::platform;
-
-using namespace base::metrics;
 
 namespace app
 {
@@ -38,7 +36,7 @@ namespace app
 
 		PlatformManager::Get()->InitPlatformInterface();
 		UIServer* uiserve = new UIServer();
-		NativeUIHost::Get()->InitUIHost();
+		UIWorkerHost::Get()->Init();
 		ChatService::Get()->InitChatService();
 		Player::Get()->InitPlayer();
 		ChatService::Get()->ConnectToTwitchIRC("jqokdnx4u23c80xslwyfflnkcidy5i", "rstat1");

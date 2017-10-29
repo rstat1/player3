@@ -8,6 +8,7 @@
 #ifndef BLKELEM
 #define BLKELEM
 
+#include <vector>
 #include <ui/native/elements/LayoutManagerBase.h>
 
 namespace player3 { namespace ui
@@ -16,14 +17,16 @@ namespace player3 { namespace ui
 	{
 		public:
 			ELEMENT_BASE(BlockElement, ElementType::Block)
-
 			void Clear() override {}
 			void Render() override;
+			void Measure() override;
 			void ArrangeChildren() override {}
 			int GetChildWidth() override { return 0; }
 			int GetChildHeight() override { return 0; }
 			bool AllowChildrenToSetWidth() override { return true; }
 			bool AllowChildrenToSetHeight() override { return true; }
+		private:
+			std::vector<int> screenSize;
 	};
 }}
 

@@ -28,6 +28,7 @@ namespace player3 { namespace ui
 			if (p.PropertyName == "anchor") { anchorPropertyBinding.assign(p.BindingName); }
 			else if (p.PropertyName == "items") { listItemsPropertyBinding.assign(p.BindingName); }
 		}
+		//TODO: Don't hard code this here.
 		screenSize = { 1280, 720 };
 		this->SetNeedsRender(true);
 	}
