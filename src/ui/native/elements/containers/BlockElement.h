@@ -20,13 +20,13 @@ namespace player3 { namespace ui
 			void Clear() override {}
 			void Render() override;
 			void Measure() override;
-			void ArrangeChildren() override {}
+			void ArrangeChildren() override;
 			int GetChildWidth() override { return 0; }
 			int GetChildHeight() override { return 0; }
 			bool AllowChildrenToSetWidth() override { return true; }
 			bool AllowChildrenToSetHeight() override { return true; }
 		private:
-			std::vector<int> screenSize;
+			Box* GetElementBox(std::string halign, std::string valign, int width);
 	};
 }}
 

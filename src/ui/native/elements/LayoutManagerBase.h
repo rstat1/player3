@@ -1,5 +1,4 @@
-/*
-* Copyright (c) 2017 The Incredibly Big Red Robot
+/* Copyright (c) 2017 The Incredibly Big Red Robot
 *
 * Use of this source code is governed by a "BSD-style" license that can be
 * found in the included LICENSE file.
@@ -33,6 +32,7 @@ namespace player3 { namespace ui
 		Block,
 		ListBlock,
 		ImageLabel,
+		TextBlock,
 		Invalid
 	};
 	enum AnchorPoint
@@ -43,16 +43,38 @@ namespace player3 { namespace ui
 		BottomLeft,
 		BottomRight,
 	};
+	struct ElementMargin
+	{
+		public:
+			int Top;
+			int Bottom;
+			int Left;
+			int Right;
+			ElementMargin()
+			{
+				Top = 0;
+				Bottom = 0;
+				Left = 0;
+				Right = 0;
+			}
+			ElementMargin(int top, int bottom, int left, int right)
+			{
+				Top = top;
+				Bottom = bottom;
+				Left = left;
+				Right = right;
+			}
+	};
 	struct Style
 	{
 		public:
 			int Width;
 			int Height;
-			Box Margin;
-			Box Padding;
 			int FontSize;
 			std::string BGColor;
 			std::string FGColor;
+			ElementMargin Margin;
+			ElementMargin Padding;
 			std::string VerticalAlignment;
 			std::string HorizontalAlignment;
 	};
@@ -71,9 +93,15 @@ namespace player3 { namespace ui
 			virtual void UpdatePropertyBinding(const char* name, boost::any newValue) {};
 			virtual void BindProperties(std::map<std::string, boost::any> bindingValues) {};
 
+			int GetScreenHeight() { return 720; }
+			int GetScreenWidth() { return 1280; }
+
 			PROPERTY(BoundingBox, Box*)
 			PROPERTY(NeedsRender, bool);
 			PROPERTY(ElementStyle, Style)
+			PROPERTY_PTR(ParentBounds, Box)
+			PROPERTY(VerticalAlignment, std::string)
+			PROPERTY(HorizontalAlignment, std::string)
 	};
 	class ContainerElementBase : public ElementBase
 	{

@@ -36,11 +36,11 @@ namespace player3 { namespace ui
 			void BindProperties(std::map<std::string, boost::any> bindingValues) override;
 		private:
 			void AddChildItems(std::string itemValue);
-			std::unique_ptr<LabelElement> CreateChildElement(std::string elementValue);
+			UPTR(TextBlockElement) CreateChildElement(std::string elementValue);
 
 			bool containerDrawn = false;
 			Style defaultLabelStyle;
-			std::vector<int> screenSize;
+//			std::vector<int> screenSize;
 			std::string anchorPropertyBinding;
 			std::string listItemsPropertyBinding;
 			std::vector<PropertyBinding> propertyBindings;

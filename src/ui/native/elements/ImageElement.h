@@ -1,27 +1,26 @@
 /*
-* Copyright (c) 2017 The Incredibly Big Red Robot
+* Copyright (c) 2018 The Incredibly Big Red Robot
 *
 * Use of this source code is governed by a "BSD-style" license that can be
 * found in the included LICENSE file.
 */
 
-#ifndef LABELELM
-#define LABELELM
+#ifndef IMGELEM
+#define IMGELEM
 
 #include <ui/native/elements/LayoutManagerBase.h>
 
 namespace player3 { namespace ui
-{
-	class LabelElement : public ElementBase
+  {
+	class ImageElement : public ElementBase
 	{
 		public:
-			ELEMENT_BASE(LabelElement, ElementType::Label);
-			void Measure() override;
+			ELEMENT_BASE(ImageElement, ElementType::Image);
 			void Render() override;
+			void Measure() override;
 
-			PROPERTY(Text, std::string)
-
+			PROPERTY(Source, std::string)
 	};
-}}
+  }}
 
 #endif

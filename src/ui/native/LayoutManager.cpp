@@ -11,12 +11,14 @@
 #include <boost/foreach.hpp>
 #include <ui/native/LayoutManager.h>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/smart_ptr/make_unique.hpp>
 
 #include <ui/native/elements/containers/BlockElement.h>
 #include <ui/native/elements/containers/ListBlockElement.h>
 
 using namespace base::utils;
+using namespace boost::algorithm;
 
 namespace player3 { namespace ui
 {
@@ -82,9 +84,9 @@ namespace player3 { namespace ui
 		Style elementStyle;
 		std::vector<std::string> elementDetails;
 		std::vector<std::string> styleElements = split(styleBlob, ';');
-		if (styleBlob != "")
+		if (styleBlob.empty() == false)
 		{
-			for (const std::string element : styleElements)
+			for (std::string element : styleElements)
 			{
 				elementDetails = split(element, ':');
 				if (elementDetails[0] == "width") { elementStyle.Width = stoi(elementDetails[1]); }
@@ -93,7 +95,10 @@ namespace player3 { namespace ui
 				//TODO: Implement padding. Maybe.
 				else if (elementDetails[0].find("padding") != std::string::npos) {}
 				//TODO: Implement margin. Maybe.
-				else if (elementDetails[0].find("margin") != std::string::npos) {}
+				else if (elementDetails[0].find("margin") != std::string::npos)
+				{
+					elementStyle.Margin = this->ParseMarginBlob(elementDetails[1]);
+				}
 				else if (elementDetails[0].find("bgcolor") != std::string::npos)
 				{
 					elementStyle.BGColor.assign(elementDetails[1]);
@@ -122,25 +127,57 @@ namespace player3 { namespace ui
 		bind.BindingName.assign(parts[1].substr(1, parts[1].size() - 2));
 		return bind;
 	}
-	std::unique_ptr<LabelElement> LayoutManager::CreateLabelElement(ptree::value_type const& details)
+	UPTR(LabelElement) LayoutManager::CreateLabelElement(ptree::value_type const& details)
 	{
-		std::unique_ptr<LabelElement> label;
+		UPTR(LabelElement) label;
 		std::vector<PropertyBinding> bindings;
 
 		std::string textProperty = details.second.get<std::string>("<xmlattr>.text");
-		Style style = ParseStyleBlob(details.second.get<std::string>("<xmlattr>.style").c_str());
+		Style style = ParseStyleBlob(details.second.get<std::string>("<xmlattr>.style"));
 		if (textProperty.find("{Binding:") != std::string::npos)
 		{
 			PropertyBinding binding = ParsePropertyBinding(textProperty, "text");
 			bindings.push_back(binding);
-			label = boost::make_unique<LabelElement>(style, bindings);
+			label = MAKEUPTR(LabelElement, style, bindings);
 		}
 		else
 		{
-			label = boost::make_unique<LabelElement>(style, bindings);
-			label->SetText(textProperty.c_str());
+			label =MAKEUPTR(LabelElement, style, bindings);
+			label->SetText(textProperty);
 		}
 		return label;
+	}
+	UPTR(TextBlockElement) LayoutManager::CreateTextBlockElement(ptree::value_type const &details)
+	{
+	  	UPTR(TextBlockElement) textBlock;
+		std::vector<PropertyBinding> bindings;
+		std::string textProperty = details.second.get<std::string>("<xmlattr>.text");
+		Style style = ParseStyleBlob(details.second.get<std::string>("<xmlattr>.style"));
+		if (textProperty.find("{Binding:") != std::string::npos)
+		{
+			PropertyBinding binding = ParsePropertyBinding(textProperty, "text");
+			bindings.push_back(binding);
+			textBlock = MAKEUPTR(TextBlockElement, style, bindings);
+		}
+		else
+		{
+			textBlock = MAKEUPTR(TextBlockElement, style, bindings);
+			textBlock->SetText(textProperty);
+		}
+		return textBlock;
+	}
+	UPTR(ImageElement) LayoutManager::CreateImageElement(ptree::value_type const &details)
+	{
+		UPTR(ImageElement) image;
+		std::vector<PropertyBinding> bindings;
+		std::string srcProperty = details.second.get<std::string>("<xmlattr>.src");
+		Style style = ParseStyleBlob(details.second.get("<xmlattr>.style", ""));
+
+		image = MAKEUPTR(ImageElement, style, bindings)
+		if (srcProperty.empty() == false) { image->SetSource(srcProperty); }
+		else { image->SetSource(""); }
+
+		return image;
 	}
 	ContainerElementBase* LayoutManager::CreateRootElement(ptree::value_type const& details, const char* type)
 	{
@@ -149,14 +186,14 @@ namespace player3 { namespace ui
 		bool anchorIsBound = false;
 		ContainerElementBase* root;
 		std::vector<PropertyBinding> bindings;
-		std::string anchorProperty = details.second.get<std::string>("<xmlattr>.anchor");
+		std::string anchorProperty = details.second.get("<xmlattr>.anchor", "");
 
 		if (strncmp(type, "block", 5) == 0)
 		{
 			s = ParseStyleBlob(details.second.get("<xmlattr>.style", ""));
 			root = new BlockElement(s, std::vector<PropertyBinding>());
-			
-			if (anchorProperty != "") { root->SetAnchor(ConvertAnchorProperty(anchorProperty)); }
+
+			if (anchorProperty.empty() == false) { root->SetAnchor(ConvertAnchorProperty(anchorProperty)); }
 		}
 		else if (strncmp(type, "listblock", 9) == 0)
 		{
@@ -184,7 +221,8 @@ namespace player3 { namespace ui
 		for (ptree::value_type const& w: details.second)
 		{
 			if (w.first == "label") { root->Children.push_back(CreateLabelElement(w)); }
-			else if (w.first == "img") {  }
+			else if (w.first == "textblock") { root->Children.push_back(CreateTextBlockElement(w)); }
+			else if (w.first == "img") { root->Children.push_back(CreateImageElement(w)); }
 			else if (w.first == "imglabel") { }
 		}
 		return root;
@@ -217,5 +255,41 @@ namespace player3 { namespace ui
 	{
 		if (prop == "Fill" || prop == "Left" || prop == "Right" || prop == "Center") { return prop; }
 		else { return ""; }
+	}
+	ElementMargin LayoutManager::ParseMarginBlob(std::string marginBlob)
+	{
+		std::string value;
+		ElementMargin margin;
+		std::vector<std::string> marginParts = split(marginBlob, ',');
+
+		switch (marginParts.size())
+		{
+			case 1:
+				ireplace_last(marginParts[0], "px", "");
+				margin = ElementMargin(stoi(marginParts[0]), 0, 0, 0);
+				break;
+			case 2:
+				ireplace_last(marginParts[0], "px", "");
+				ireplace_last(marginParts[1], "px", "");
+				margin = ElementMargin(stoi(marginParts[0]), stoi(marginParts[1]), 0, 0);
+				break;
+			case 3:
+				ireplace_last(marginParts[0], "px", "");
+				ireplace_last(marginParts[1], "px", "");
+				ireplace_last(marginParts[2], "px", "");
+				margin = ElementMargin(stoi(marginParts[0]), stoi(marginParts[1]), stoi(marginParts[2]), 0);
+				break;
+			case 4:
+				ireplace_last(marginParts[0], "px", "");
+				ireplace_last(marginParts[1], "px", "");
+				ireplace_last(marginParts[2], "px", "");
+				ireplace_last(marginParts[3], "px", "");
+				margin = ElementMargin(stoi(marginParts[0]), stoi(marginParts[1]), stoi(marginParts[2]), stoi(marginParts[3]));
+				break;
+		}
+
+		Log("ParseMarginBlob", "%i", margin.Top);
+
+		return margin;
 	}
 }}

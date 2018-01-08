@@ -22,17 +22,24 @@ namespace base { namespace threading
 		// this->SDLEventID = SDL_RegisterEvents(1);
 		// if (this->SDLEventID == ((uint32_t)-1)) {Log("MessagePumpSDL", "Didn't get an SDL event ID"); }
 
-		this->StartMessageLoop(false);
+		this->StartMessageLoop(isTaskRunner);
 	}
 	void MessagePumpSDL::MakeMessagePump(DispatcherTask* InitTask)
 	{
 		NOTIMPLEMENTED("MessagePumpSDL::MakeMessagePump(DispatcherTask)");
+		this->initTask = InitTask;
+		this->MakeMessagePump(true);
 	}
 	void MessagePumpSDL::StartMessageLoop(bool isTaskRunner)
 	{
 		DispatcherTask* task;
 		bool exitLoop = false;
 		SDL_Event event;
+		if (this->initTask != nullptr)
+		{
+			this->initTask->Invoke(false);
+			this->initTask = nullptr;
+		}
 		while(!exitLoop && SDL_WaitEvent(&event))
 		{
 			switch(event.type)

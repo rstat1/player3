@@ -13,7 +13,7 @@ namespace player3 { namespace platform
 	DesktopPlatform::DesktopPlatform() {}
 	std::vector<int> DesktopPlatform::GetScreenSize()
 	{
-		std::vector<int> size { 1024, 768 };
+		std::vector<int> size { 1280, 720 };
 		return size;
 	}
 	void DesktopPlatform::CreateOverlay(int w, int h)

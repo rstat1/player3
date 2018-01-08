@@ -39,7 +39,8 @@ namespace player3 { namespace ui
 			UIWorkerHost();
 			~UIWorkerHost() {}
 			void Init();
-			TaskResult* UIWorkerTaskFunc();
+			void UIWorkerTaskFunc();
+			void UIWorkerInitFunc();
 		private:
 			DispatcherMessagePump* dmp;
 

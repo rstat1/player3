@@ -48,3 +48,8 @@ build/tools/Cake/
 \.directory
 src/ui/ui/ui\.asar
 **/node_modules/**
+CMakeLists\.txt
+
+cmake-build-debug/
+
+\.idea/

@@ -57,11 +57,11 @@ namespace player3 { namespace player
 		this->InitOverlay();
 
 		EventHandler connectedEvent(true, "UI", [&](void* args) {
-			//ChatService::Get()->JoinChannel("rstat1");
+			ChatService::Get()->JoinChannel("rstat1");
 		});
 		std::thread overlayUpdate([&] {
-			// EventHub::Get()->TriggerEvent("UpdateOverlay", this->state);
-			// SDL_AddTimer(750, Player::RefreshOverlay, this->state);
+//			 EventHub::Get()->TriggerEvent("UpdateOverlay", this->state);
+//			 SDL_AddTimer(750, Player::RefreshOverlay, this->state);
 		});
 		overlayUpdate.detach();
 

@@ -26,6 +26,7 @@ namespace base { namespace utils
 	{
 		bool operator()(const char* a, const char* b) const { return strcmp(a, b) < 0; }
 	};
+	BASEAPI std::string GenerateRandomString(size_t len);
     BASEAPI std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 	BASEAPI std::vector<std::string> split(const std::string &s, char delim);
 	BASEAPI bool EndsWith(const std::string &str, const std::string &suffix);

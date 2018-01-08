@@ -6,7 +6,7 @@
 export const environment = {
   production: false,
   Auth0Domain: "rstat1.auth0.com",
-  Auth0Callback: "http://192.168.1.12:8080/login",
+  Auth0Callback: "http://localhost:1999/api/ember/user/oauthcallback",
   Auth0ClientID: "mmjl9gTqEntes22KKGAOfL3fXJch74uz",
   P3ClientEndpoint: "ws://192.168.1.12:8080"
 };

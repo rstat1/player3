@@ -9,7 +9,7 @@
 #include <typeinfo>
 #include <base/common.h>
 #include <platform/PlatformManager.h>
-#include <ui/native/elements/LabelElement.h>
+#include <ui/native/elements/TextBlockElement.h>
 #include <ui/native/rendering/NanoVGRenderer.h>
 #include <ui/native/elements/containers/ListBlockElement.h>
 
@@ -22,6 +22,7 @@ namespace player3 { namespace ui
 	{
 		ElementStyle = style;
 		defaultLabelStyle.FontSize = 12;
+		defaultLabelStyle.Width = this->ElementStyle.Width - 10;
 		defaultLabelStyle.FGColor.assign("rgba(255, 255, 255, 255)");
 		for (const PropertyBinding p : bindings)
 		{
@@ -29,7 +30,6 @@ namespace player3 { namespace ui
 			else if (p.PropertyName == "items") { listItemsPropertyBinding.assign(p.BindingName); }
 		}
 		//TODO: Don't hard code this here.
-		screenSize = { 1280, 720 };
 		this->SetNeedsRender(true);
 	}
 	void ListBlockElement::BindProperties(std::map<std::string, boost::any> bindingValues)
@@ -66,18 +66,18 @@ namespace player3 { namespace ui
 		{
 			case AnchorPoint::BottomLeft:
 				bounds->X = 0;
-				bounds->Y = screenSize[1] - this->ElementStyle.Height;
+				bounds->Y = this->GetScreenHeight() - this->ElementStyle.Height;
 				break;
 			case AnchorPoint::BottomRight:
-				bounds->X = screenSize[0] - this->ElementStyle.Width;
-				bounds->Y = screenSize[1] - this->ElementStyle.Height;
+				bounds->X = this->GetScreenWidth() - this->ElementStyle.Width;
+				bounds->Y = this->GetScreenHeight() - this->ElementStyle.Height;
 				break;
 			case AnchorPoint::TopLeft:
 				bounds->X = 0;
 				bounds->Y = 0;
 				break;
 			case AnchorPoint::TopRight:
-				bounds->X = screenSize[0] - this->ElementStyle.Width;
+				bounds->X = this->GetScreenWidth() - this->ElementStyle.Width;
 				bounds->Y = 0;
 				break;
 			case AnchorPoint::Not:
@@ -99,11 +99,9 @@ namespace player3 { namespace ui
 				x = this->GetBoundingBox()->X + 20;
 				width = this->ElementStyle.Width - 20;
 				elementBounds = e->GetBoundingBox();
-				elementHeight = elementBounds->Height;
 				elementBounds->X = x;
 				elementBounds->Y = previousHeight;
 				elementBounds->Width = width;
-				elementBounds->Height = elementHeight;
 				e->SetBoundingBox(elementBounds);
 				previousHeight += elementBounds->Height + 5;
 			}
@@ -121,9 +119,9 @@ namespace player3 { namespace ui
 			}
 		}
 	}
-	UPTR(LabelElement) ListBlockElement::CreateChildElement(std::string elementValue)
+	UPTR(TextBlockElement) ListBlockElement::CreateChildElement(std::string elementValue)
 	{
-		NEWUPTR(Label, LabelElement, defaultLabelStyle, std::vector<PropertyBinding>());
+		NEWUPTR(Label, TextBlockElement, defaultLabelStyle, std::vector<PropertyBinding>());
 		Label->SetText(elementValue);
 		Label->SetBoundingBox(new Box(0, 0, this->ElementStyle.Width - 20, 0));
 		Label->Measure();

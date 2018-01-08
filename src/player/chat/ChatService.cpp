@@ -51,7 +51,7 @@ namespace player3 { namespace chat
 			this->MessageReceived(ws, msg, len);
 		});
 		std::thread chatHubRunner([&]{
-			chatHub.connect("wss://irc-ws.chat.twitch.tv", nullptr, {}, 1000);
+			chatHub.connect("wss://irc-ws.chat.twitch.tv", nullptr, {{"Sec-WebSocket-Protocol", "irc"}}, 1000);
 			chatHub.run();
 		});
 		chatHubRunner.detach();
@@ -69,7 +69,6 @@ namespace player3 { namespace chat
 		this->currentChannel = str_tolower(this->currentChannel);
 		chatHub.getDefaultGroup<CLIENT>().broadcast(this->currentChannel.c_str(),
 													this->currentChannel.length(), OpCode::TEXT);
-
 
 		this->currentChannel.assign(channel);
 		this->currentChannel.assign(str_tolower(this->currentChannel).c_str());
@@ -96,6 +95,15 @@ namespace player3 { namespace chat
 			if (msgParts[0].find("PING :tmi") != std::string::npos)
 			{
 				chatHub.getDefaultGroup<CLIENT>().broadcast("PONG :tmi.twitch.tv", 20, OpCode::TEXT);
+			}
+			if (msgParts[0].find("NOTICE * :Login") != std::string::npos) {
+				ChatMessage* msg = new ChatMessage();
+				msg->emotesOnly = false;
+				msg->sender.assign("twitchirc");
+				msg->senderColor = "";
+				msg->message.assign("login failed.");
+
+				EventHub::Get()->TriggerEvent("MessageReceived", msg);
 			}
 		}
 

@@ -6,10 +6,11 @@
 */
 
 #include <base/Utils.h>
-#include <base/threading/common/IOWorkerThread.h>
+#include <ui/native/EventHub.h>
+#include <ui/native/NativeUIHost.h>
 #include <ui/native/threading/UIWorkerHost.h>
 #include <ui/native/threading/MessagePumpSDL.h>
-#include <ui/native/NativeUIHost.h>
+#include <base/threading/common/IOWorkerThread.h>
 
 using namespace base::threading;
 using namespace base::threading::IO;
@@ -22,22 +23,27 @@ namespace player3 { namespace ui
 	}
 	void UIWorkerHost::Init()
 	{
+		EventHub::Get()->RegisterEvent("UIWorkerThreadStarted");
+
 		NEW_TASK0(UIWorker, UIWorkerHost, this, UIWorkerTaskFunc);
 		UIWorkerTask* uiTask = new UIWorkerTask(UIWorker);
 
 		IOWorkerThread* UIWorkerThread = new IOWorkerThread(uiTask);
 		UIWorkerThread->Start("UIWorker");
 	}
-	TaskResult* UIWorkerHost::UIWorkerTaskFunc()
+	void UIWorkerHost::UIWorkerTaskFunc()
 	{
 		Log("UIWorkerHost", "Init UI Worker task.");
 
-		NativeUIHost::Get()->InitUIHost();
+		NEW_TASK0(UIWorkerInit, UIWorkerHost, this, UIWorkerInitFunc);
 
 		dmp = new MessagePumpSDL("UI");
 		Dispatcher::Get()->AddMessagePump("UI", dmp, base::utils::GetThreadID());
-		dmp->MakeMessagePump(false);
-
-		return nullptr;
+		dmp->MakeMessagePump(UIWorkerInit);
+    }
+	void UIWorkerHost::UIWorkerInitFunc()
+	{
+		NativeUIHost::Get()->InitUIHost();
+        EventHub::Get()->TriggerEvent("UIWorkerThreadStarted", nullptr);
 	}
 }}

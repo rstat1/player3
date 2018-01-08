@@ -6,7 +6,6 @@
 */
 
 #include <thread>
-#include <memory>
 #include <uWS/src/uWS.h>
 #include <ui/web/UIServer.h>
 #include <base/logging.h>
@@ -18,7 +17,8 @@ using namespace uWS;
 
 namespace player3 { namespace ui
 {
-	UIServer::UIServer()
+	std::shared_ptr<UIServer> UIServer::ref;
+	void UIServer::Init()
 	{
 		std::thread ui([&] {
 			int port;

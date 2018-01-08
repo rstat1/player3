@@ -17,16 +17,26 @@ namespace player3 { namespace ui
 	}
 	void LabelElement::Measure()
 	{
+		int fontSize = 12;
+		if (this->GetElementStyle().FontSize != 0) { fontSize = this->GetElementStyle().FontSize; }
 		Box* bounds = this->GetBoundingBox();
-		std::vector<int> measure = NanoVGRenderer::Get()->MeasureText(std::string(this->GetText()), bounds->Y, 12, bounds->Width);
+		std::vector<int> measure = NanoVGRenderer::Get()->MeasureText(std::string(this->GetText()), fontSize);
+
+        if (bounds->Width == NULL) { bounds->Width = measure[0]; }
 		bounds->Height = measure[1];
-		this->SetBoundingBox(bounds);
+        Log("labe", "%i", bounds->Height);
+        this->SetBoundingBox(bounds);
   	}
 	void LabelElement::Render()
 	{
 		Box* bounds = this->GetBoundingBox();
 		Style style = this->GetElementStyle();
-		NanoVGRenderer::Get()->DrawString(this->GetText().c_str(), this->GetElementStyle().FGColor.c_str(), bounds->X,
-										  bounds->Y, 12, bounds->Width);
+		ElementMargin margin = style.Margin;
+
+		int fontSize = 12;
+		if (style.FontSize != 0) { fontSize = style.FontSize; }
+
+		NanoVGRenderer::Get()->DrawString(this->GetText().c_str(), this->GetElementStyle().FGColor.c_str(), bounds->X + margin.Left,
+										  bounds->Y + bounds->Height + margin.Top, fontSize);//, bounds->Width);
 	}
 }}

@@ -9,13 +9,18 @@
 #define UISERVE
 
 #include <map>
+#include <memory>
+#include <base/common.h>
 
 namespace player3 { namespace ui
 {
 	class UIServer
 	{
 		public:
-			UIServer();
+			UIServer() {}
+			void Init();
+
+		SINGLETON(UIServer)
 	};
 }}
 

@@ -11,7 +11,7 @@
 #define PROPERTY_PTR(name, type) private: \
 								 type* value##name;\
 								 public: \
-								 void Set##name(type propertyType) { value##name = propertyType; } \
+								 void Set##name(type* propertyType) { value##name = propertyType; } \
 								 type* Get##name() { return value##name; }
 #define PROPERTY(name, type) private: \
 						 	 type value##name;\

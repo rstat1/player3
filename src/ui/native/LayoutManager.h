@@ -15,6 +15,8 @@
 #include <boost/property_tree/xml_parser.hpp>
 
 #include <ui/native/elements/LabelElement.h>
+#include <ui/native/elements/ImageElement.h>
+#include <ui/native/elements/TextBlockElement.h>
 
 using namespace boost::property_tree;
 
@@ -28,13 +30,16 @@ namespace player3 { namespace ui
 		private:
 			Style ParseStyleBlob(std::string styleBlob);
 			AnchorPoint ConvertAnchorProperty(std::string prop);
+			ElementMargin ParseMarginBlob(std::string marginBlob);
 			ElementType ConvertItemTypeProperty(std::string prop);
 			std::string VerifyVerticalAlignment(std::string prop);
 			std::string VerifyHorizontalAlignment(std::string prop);
 			PropertyBinding ParsePropertyBinding(std::string binding, const char* propertyName);
 
+			UPTR(LabelElement) CreateLabelElement(ptree::value_type const& details);
+			UPTR(ImageElement) CreateImageElement(ptree::value_type const& details);
+			UPTR(TextBlockElement) CreateTextBlockElement(ptree::value_type const& details);
 			ContainerElementBase* CreateRootElement(ptree::value_type const& details, const char* type);
-			std::unique_ptr<LabelElement> CreateLabelElement(ptree::value_type const& details);
 
 			std::map<const char*, Layout, base::utils::CStringComparator> cachedLayouts;
 			std::map<const char*, Layout, base::utils::CStringComparator> layoutInstances;

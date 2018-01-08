@@ -39,6 +39,28 @@ namespace base { namespace utils
 		path currentPath = initial_path();
 		return currentPath.string();
 	}
+	//modified version of this SO answer https://stackoverflow.com/a/19515939/342763
+	std::string GenerateRandomString(size_t len)
+	{
+		const char alphabet[] =
+				"abcdefghijklmnopqrstuvwxyz"
+						"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+						"0123456789";
+
+		size_t N_STRS = 1;
+		size_t S_LEN = len;
+
+		std::random_device rd;
+		std::default_random_engine rng(rd());
+		std::uniform_int_distribution<> dist(0,sizeof(alphabet)/sizeof(*alphabet)-2);
+
+		std::string str;
+		str.reserve(S_LEN);
+		std::generate_n(std::back_inserter(str), S_LEN, [&] {
+			return alphabet[dist(rng)];
+		});
+		return str;
+	}
 	std::string GetPlatformPathPrefix()
 	{
 #if defined(OS_WIN)
