@@ -16,7 +16,10 @@ namespace player3 { namespace ui
 	}
 	void ImageElement::Measure()
 	{
+		int topMargin = 0;
 		Box* bounds = new Box();
+
+		if (this->GetElementStyle().Margin.Top != 0) { topMargin = this->GetElementStyle().Margin.Top; }
 
 		if (this->GetElementStyle().HorizontalAlignment == "Center")
 		{
@@ -24,7 +27,7 @@ namespace player3 { namespace ui
 		}
 		if (this->GetElementStyle().VerticalAlignment == "Center")
 		{
-			bounds->Y = (this->GetScreenHeight() - this->GetParentBounds()->Height) / 2;
+			bounds->Y = topMargin + (this->GetScreenHeight() - this->GetParentBounds()->Height) / 2;
 		}
 
 		bounds->Width = this->GetElementStyle().Width;

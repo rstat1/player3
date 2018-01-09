@@ -13,7 +13,10 @@ namespace player3 { namespace ui
 	ELEMENT_CTOR(LabelElement)
 	{
 		this->SetElementStyle(style);
-		this->SetNeedsRender(true);
+		for (const PropertyBinding p : bindings)
+		{
+			if (p.PropertyName == "text") { textPropertyBinding.assign(p.BindingName); }
+		}
 	}
 	void LabelElement::Measure()
 	{
@@ -38,5 +41,12 @@ namespace player3 { namespace ui
 
 		NanoVGRenderer::Get()->DrawString(this->GetText().c_str(), this->GetElementStyle().FGColor.c_str(), bounds->X + margin.Left,
 										  bounds->Y + bounds->Height + margin.Top, fontSize);//, bounds->Width);
+	}
+	void LabelElement::BindProperties(std::map<std::string, boost::any> bindingValues)
+	{
+		if (bindingValues.find(textPropertyBinding) != bindingValues.end())
+		{
+			this->SetText(boost::any_cast<std::string>(bindingValues[textPropertyBinding]));
+		}
 	}
 }}

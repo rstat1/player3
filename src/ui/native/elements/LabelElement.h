@@ -16,11 +16,13 @@ namespace player3 { namespace ui
 	{
 		public:
 			ELEMENT_BASE(LabelElement, ElementType::Label);
-			void Measure() override;
 			void Render() override;
+			void Measure() override;
+			void BindProperties(std::map<std::string, boost::any> bindingValues) override;
 
 			PROPERTY(Text, std::string)
-
+		private:
+			std::string textPropertyBinding;
 	};
 }}
 

@@ -29,21 +29,19 @@ namespace player3 { namespace ui
 			if (p.PropertyName == "anchor") { anchorPropertyBinding.assign(p.BindingName); }
 			else if (p.PropertyName == "items") { listItemsPropertyBinding.assign(p.BindingName); }
 		}
-		//TODO: Don't hard code this here.
-		this->SetNeedsRender(true);
 	}
 	void ListBlockElement::BindProperties(std::map<std::string, boost::any> bindingValues)
 	{
-		if (bindingValues.find(anchorPropertyBinding.c_str()) != bindingValues.end())
+		if (bindingValues.find(anchorPropertyBinding) != bindingValues.end())
 		{
-			if (bindingValues[anchorPropertyBinding.c_str()].type() == typeid(AnchorPoint))
+			if (bindingValues[anchorPropertyBinding].type() == typeid(AnchorPoint))
 			{
-				this->SetAnchor(boost::any_cast<AnchorPoint>(bindingValues[anchorPropertyBinding.c_str()]));
+				this->SetAnchor(boost::any_cast<AnchorPoint>(bindingValues[anchorPropertyBinding]));
 			}
 		}
-		if (bindingValues.find(listItemsPropertyBinding.c_str()) != bindingValues.end())
+		if (bindingValues.find(listItemsPropertyBinding) != bindingValues.end())
 		{
-			boost::any listItems = bindingValues[listItemsPropertyBinding.c_str()];
+			boost::any listItems = bindingValues[listItemsPropertyBinding];
 			if (listItems.type() == typeid(std::string))
 			{
 				std::string item = boost::any_cast<std::string>(listItems);

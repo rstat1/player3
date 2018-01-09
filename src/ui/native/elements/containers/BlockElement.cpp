@@ -15,7 +15,6 @@ namespace player3 { namespace ui
 	ELEMENT_CTOR(BlockElement)
 	{
 		ElementStyle = style;
-		//TODO: Don't hard code this here
 	}
 	void BlockElement::Render()
 	{
@@ -75,5 +74,17 @@ namespace player3 { namespace ui
 		else if (valign == "Left") {}
 		else if (valign == "Right") {}
 		else if (valign == "Center") { bounds->Y = (this->GetScreenHeight() - this->ElementStyle.Height) / 2; }
+
+		return bounds;
+	}
+	void BlockElement::BindProperties(std::map<std::string, boost::any> bindingValues)
+	{
+		if (this->Children.size() > 0)
+		{
+			for (std::unique_ptr<ElementBase> const &e : this->Children)
+			{
+				e->BindProperties(bindingValues);
+			}
+		}
 	}
 }}

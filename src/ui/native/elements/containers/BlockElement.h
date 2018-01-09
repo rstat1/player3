@@ -25,6 +25,7 @@ namespace player3 { namespace ui
 			int GetChildHeight() override { return 0; }
 			bool AllowChildrenToSetWidth() override { return true; }
 			bool AllowChildrenToSetHeight() override { return true; }
+			void BindProperties(std::map<std::string, boost::any> bindingValues) override;
 		private:
 			Box* GetElementBox(std::string halign, std::string valign, int width);
 	};

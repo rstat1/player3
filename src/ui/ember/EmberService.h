@@ -32,19 +32,19 @@ namespace player3 { namespace ember
 			void Init();
 			void ConnectToEmber();
 
+			PROPERTY(EmberServiceURL, std::string)
 			PROPERTY(EmberDeviceName, std::string)
 			PROPERTY(EmberClientToken, std::string)
+			PROPERTY(EmberWebSocketURL, std::string)
 
 		private:
 			void GetClientToken();
-			std::string GenerateDeviceID();
+			void RegisterEvents();
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
 
 			Hub emberHub;
 			WebSocket<CLIENT>* emberClientSocket;
 			std::string deviceID = "";
-			std::string deviceName = "";
-			std::string emberClientToken = "";
 			std::string emberClientID = "4hfPWeaEoQW17VskOnfVgUhx5snOto4r";
 			std::string emberClientSecret = "5BOQK5GCvebQTdwcGIUQFJXm7GozReVWy0DG31bBc0DgbzlS";
 

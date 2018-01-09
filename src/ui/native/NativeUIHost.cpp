@@ -23,8 +23,8 @@ namespace player3 { namespace ui
 	{
 		screenSize = PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
 		layoutManager = new LayoutManager();
-		layoutManager->LoadAndCacheLayout("Home");
 		layoutManager->LoadAndCacheLayout("ChatUI");
+		layoutManager->LoadAndCacheLayout("Activation");
 		layoutManager->LoadAndCacheLayout("DebugOverlay");
 		layoutManager->LoadAndCacheLayout("StreamIsLive");
 
