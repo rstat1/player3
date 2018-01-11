@@ -17,24 +17,37 @@ using namespace uWS;
 
 namespace player3 { namespace ember
 {
+	enum MessageType
+	{
+		MUTE,
+		STOP,
+		EXIT,
+		START,
+		INIT,
+		STREAMINFO,
+		PLAYERSTATE
+	};
 	struct EmberAuthenticatedEventArgs
 	{
 		public:
 			std::string DeviceName;
-			EmberAuthenticatedEventArgs(std::string devName)
-			{
-				DeviceName.assign(devName);
-			}
+			EmberAuthenticatedEventArgs(std::string devName) { DeviceName.assign(devName); }
+	};
+	struct EmberStreamEventArgs
+	{
+		public:
+			std::string streamName;
+			EmberStreamEventArgs(std::string name) { streamName.assign(name); }
 	};
 	class EmberService
 	{
 		public:
 			void Init();
 			void ConnectToEmber();
-
-			PROPERTY(EmberServiceURL, std::string)
+			PROPERTY(EmberConnectURL, std::string)
 			PROPERTY(EmberDeviceName, std::string)
 			PROPERTY(EmberClientToken, std::string)
+			PROPERTY(EmberTwitchToken, std::string)
 			PROPERTY(EmberWebSocketURL, std::string)
 
 		private:
@@ -45,8 +58,9 @@ namespace player3 { namespace ember
 			Hub emberHub;
 			WebSocket<CLIENT>* emberClientSocket;
 			std::string deviceID = "";
-			std::string emberClientID = "4hfPWeaEoQW17VskOnfVgUhx5snOto4r";
-			std::string emberClientSecret = "5BOQK5GCvebQTdwcGIUQFJXm7GozReVWy0DG31bBc0DgbzlS";
+			std::string emberClientID = "vyUujyJIhAwLkMPbm4MnVOONYaW7wAo2";
+			std::string emberClientSecret = "DePPn78AC7L3jloHXb6mSykU2jVAqzUpHTeAahpU8yLEyk05";
+			std::map<std::string, MessageType> messageTypeMappings;
 
 		SINGLETON(EmberService)
 	};

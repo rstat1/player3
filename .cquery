@@ -1,0 +1,7 @@
+#Includes
+-Isrc/
+-Iexternal/
+-Iexternal/ffmpeg
+-Iexternal/jsoncpp
+-Iexternal/sdl/include
+-Iexternal/cpr/include

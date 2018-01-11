@@ -100,5 +100,8 @@
 		"sockfilt.c": "cpp",
 		"memdebug.c": "cpp",
 		"unit1602.c": "cpp"
-	}
+	},
+	"cquery.launch.workingDirectory": "/home/rstat1/.local/stow/cquery/",
+	"cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/",
+	"cquery.launch.command": "bin/cquery"
 }

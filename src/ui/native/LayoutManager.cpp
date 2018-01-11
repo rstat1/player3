@@ -287,9 +287,6 @@ namespace player3 { namespace ui
 				margin = ElementMargin(stoi(marginParts[0]), stoi(marginParts[1]), stoi(marginParts[2]), stoi(marginParts[3]));
 				break;
 		}
-
-		Log("ParseMarginBlob", "%i", margin.Top);
-
 		return margin;
 	}
 }}

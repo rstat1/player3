@@ -40,7 +40,7 @@ namespace player3 { namespace chat
 			bindings["ListItems"] = "";
 			NativeUIHost::Get()->RenderScreen("ChatUI", bindings, true);
 		});
-		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
+		//EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
 		EventHub::Get()->RegisterEventHandler("MessageReceived", msgReceivedEvent);
 	}
 }}

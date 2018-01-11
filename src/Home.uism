@@ -1,0 +1,5 @@
+<layout name="Home">
+    <block style="bgcolor:rgba(40,40,40,255);valign:Center;halign:Center;height:100px;width:100px;">
+        <img src="google-controller.png" style="width:96px;height:96px;valign:Center;halign:Center;" />
+    </block>
+</layout>

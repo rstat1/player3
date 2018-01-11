@@ -59,6 +59,8 @@ namespace player3 { namespace ui
 		bounds = this->GetElementBox(hAlign, vAlign, this->ElementStyle.Width);
 
         if (bounds->Height == 0) { bounds->Height = this->ElementStyle.Height; }
+		if (bounds->Width == 0) { bounds->Width = this->ElementStyle.Width; }
+
         this->SetBoundingBox(bounds);
 	}
 	Box* BlockElement::GetElementBox(std::string halign, std::string valign, int width)

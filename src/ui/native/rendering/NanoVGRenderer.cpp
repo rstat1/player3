@@ -193,8 +193,6 @@ namespace player3 { namespace ui
 	}
 	std::vector<int> NanoVGRenderer::MeasureText(std::string text, int textSize)
 	{
-		Log("MeasureText", "%s", text.c_str());
-
 		std::vector<int> textMeasure;
 		float bounds[4] = {0};
 		float ascend, descend, lh;
@@ -203,8 +201,6 @@ namespace player3 { namespace ui
 		NVG_RENDER1(FontFace, "sans");
 		NVG_RENDER1(TextAlign, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 		NVG_RENDER5_R5(TextBounds, 0, 0, text.c_str(), nullptr, bounds)
-
-        Log("render", "%f", r5);
 
 		if (bounds != nullptr)
 		{
@@ -229,7 +225,6 @@ namespace player3 { namespace ui
 
 		if (bounds != nullptr)
 		{
-			Log("MeasureTextBox", "%f %f %i %s", bounds[2], bounds[0], boxWidth, "hello");
 			textMeasure.push_back(bounds[2] - bounds[0]); //width
 			textMeasure.push_back(bounds[3] - bounds[1]); //height
 			return textMeasure;

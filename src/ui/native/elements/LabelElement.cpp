@@ -27,7 +27,6 @@ namespace player3 { namespace ui
 
         if (bounds->Width == NULL) { bounds->Width = measure[0]; }
 		bounds->Height = measure[1];
-        Log("labe", "%i", bounds->Height);
         this->SetBoundingBox(bounds);
   	}
 	void LabelElement::Render()

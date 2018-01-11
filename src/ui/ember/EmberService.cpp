@@ -39,13 +39,18 @@ namespace player3 { namespace ember
 			devIDFile.close();
 		}
 		this->RegisterEvents();
+		messageTypeMappings["INIT"] = MessageType::INIT;
+		messageTypeMappings["MUTE"] = MessageType::MUTE;
+		messageTypeMappings["STOP"] = MessageType::STOP;
+		messageTypeMappings["START"] = MessageType::START;
+		messageTypeMappings["EXIT"] = MessageType::EXIT;
+		messageTypeMappings["STREAMINFO"] = MessageType::STREAMINFO;
 		Log("Ember::Init", deviceID.c_str());
 	}
 	void EmberService::RegisterEvents()
 	{
-		EventHub::Get()->RegisterEvent("EmberActivated");
 		EventHub::Get()->RegisterEvent("EmberConnected");
-		EventHub::Get()->RegisterEvent("EmberAuthenticated");
+		EventHub::Get()->RegisterEvent("EmberNeedsActivation");
 
 		EventHub::Get()->RegisterEvent("EmberStopStream");
 		EventHub::Get()->RegisterEvent("EmberMuteStream");
@@ -60,7 +65,7 @@ namespace player3 { namespace ember
 			this->emberClientSocket = ws;
 		});
 		emberHub.onError([&](void* user) {
-			Log("ember", "connect failed");
+			Log("ember", "connect failed (default)");
 		});
 		emberHub.onDisconnection([&](WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
 			Log("ember", "Disconnected %s", message);
@@ -69,7 +74,6 @@ namespace player3 { namespace ember
 			this->MessageReceived(ws, msg, len);
 		});
 		std::thread emberHubRunner([&]{
-			Log("ember", "%s", this->GetEmberClientToken().c_str());
 			emberHub.connect(this->GetEmberWebSocketURL(), nullptr, {
 				{"Authorization", "Bearer " + this->GetEmberClientToken()},
 				{"ember-device-id", this->deviceID},
@@ -87,7 +91,7 @@ namespace player3 { namespace ember
 		root["emberClientID"] = this->emberClientID;
 		root["emberClientSecret"] = this->emberClientSecret;
 
-		cpr::Response resp = cpr::Post(cpr::Url(this->GetEmberServiceURL()), cpr::Header{
+		cpr::Response resp = cpr::Post(cpr::Url(this->GetEmberConnectURL()), cpr::Header{
 				{"ember-device-id", this->deviceID},
 		}, cpr::Body{
 			root.toStyledString()
@@ -100,7 +104,14 @@ namespace player3 { namespace ember
 
 				args->DeviceName.assign(accessResp["emberDeviceName"].asString());
 
-				EventHub::Get()->TriggerEvent("EmberAuthenticated", args);
+				if (accessResp["emberActivated"].asBool() == false)
+				{
+					EventHub::Get()->TriggerEvent("EmberNeedsActivation", args);
+				}
+				else
+				{
+					EventHub::Get()->TriggerEvent("EmberAuthenticated", args);
+				}
 			}
 		} else {
 			Log("EmberService", "GetClientToken failed: %i %s", resp.status_code, resp.text.c_str());
@@ -108,6 +119,35 @@ namespace player3 { namespace ember
 	}
 	void EmberService::MessageReceived(WebSocket<CLIENT> *connection, char *data, int length)
 	{
+		std::string resp("");
+		std::string receivedMessage(data);
+		receivedMessage = receivedMessage.substr(0, length);
+		int endOfCmd = receivedMessage.find_first_of(":");
+		std::string command = receivedMessage.substr(0, endOfCmd);
+		std::string args = receivedMessage.replace(0, endOfCmd + 1, "");
 
+		switch (messageTypeMappings[command])
+		{
+			case MUTE:
+				EventHub::Get()->TriggerEvent("EmberMuteStream", nullptr);
+				break;
+			case START:
+				EventHub::Get()->TriggerEvent("EmberStartStream", new EmberStreamEventArgs(args));
+				break;
+			case STOP:
+				EventHub::Get()->TriggerEvent("EmberStopStream", nullptr);
+				break;
+			case STREAMINFO:
+				break;
+			case EXIT:
+				exit(0);
+				break;
+			case PLAYERSTATE:
+				break;
+			case INIT:
+				this->SetEmberTwitchToken(args);
+				EventHub::Get()->TriggerEvent("EmberConnected", nullptr);
+				break;
+		}
 	}
 }}

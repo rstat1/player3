@@ -20,6 +20,7 @@ namespace app
 			void ChatUIEvent(void* args);
 		private:
 			TaskRunner* taskRunner;
+			void ShowActivateScreenIfNeeded();
 
 		SINGLETON(App);
 	};

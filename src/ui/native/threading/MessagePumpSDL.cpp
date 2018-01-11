@@ -53,6 +53,8 @@ namespace base { namespace threading
 					this->Close();
 					exitLoop = true;
 					break;
+				case SDL_MOUSEMOTION:
+					//TOOD: Hide/show mouse on steamlink based on whether it's moving or not.
 				default:
 					NativeUIHost::Get()->SDLEvent(event);
 					// SDLInterface::Get()->HandleSDLEvent(event);
