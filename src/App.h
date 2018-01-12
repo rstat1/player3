@@ -3,10 +3,12 @@
 
 #include <memory>
 #include <base/common.h>
+#include <ui/ember/EmberService.h>
 #include <ui/native/NativeUIHost.h>
 #include <base/threading/common/TaskRunner.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
 
+using namespace player3::ember;
 using namespace base::threading;
 
 namespace app
@@ -20,7 +22,8 @@ namespace app
 			void ChatUIEvent(void* args);
 		private:
 			TaskRunner* taskRunner;
-			void ShowActivateScreenIfNeeded();
+			void EmberEventHandlers();
+			void ShowActivateScreen(EmberAuthenticatedEventArgs* eventArgs);
 
 		SINGLETON(App);
 	};

@@ -5,7 +5,6 @@
 * found in the included LICENSE file.
 */
 
-#include <type_traits>
 #include <ui/native/rendering/NanoVGRenderer.h>
 #include <ui/native/elements/containers/BlockElement.h>
 #include <ui/native/elements/ImageElement.h>

@@ -18,11 +18,12 @@
 #include <player/chat/ChatService.h>
 #include <platform/PlatformManager.h>
 #include <base/platform/linux/memtrack.h>
-#include <ui/native/rendering/NanoVGRenderer.h>
+
+#include <ui/ember/EmberService.h>
 
 using namespace std;
 using namespace player3;
-using namespace player3::ui;
+using namespace player3::ember;
 using namespace player3::chat;
 using namespace base::platform;
 using namespace player3::platform;
@@ -56,17 +57,16 @@ namespace player3 { namespace player
 		platformInterface = PlatformManager::Get()->GetPlatformInterface();
 		this->InitOverlay();
 
+		EventHandler EmberStartStream(true, "PlayerApp", [&](void* args) {
+			EmberStreamEventArgs *eventArgs = (EmberStreamEventArgs*)args;
+			this->StartStream(eventArgs->streamURL);
+		});
+
 		EventHandler connectedEvent(true, "UI", [&](void* args) {
 			ChatService::Get()->JoinChannel("rstat1");
 		});
-		std::thread overlayUpdate([&] {
-//			 EventHub::Get()->TriggerEvent("UpdateOverlay", this->state);
-//			 SDL_AddTimer(750, Player::RefreshOverlay, this->state);
-		});
-		overlayUpdate.detach();
-
 		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
-
+		EventHub::Get()->RegisterEventHandler("EmberStartStream", EmberStartStream);
 #if defined(OS_LINUX) && !defined(OS_STEAMLINK)
 		signal(SIGTERM, Player::SigTermHandler);
 #endif

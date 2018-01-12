@@ -24,8 +24,9 @@ namespace player3 { namespace ember
 		EXIT,
 		START,
 		INIT,
-		STREAMINFO,
-		PLAYERSTATE
+		DISCONNECT,
+		CHATUISTATE,
+		QUALITYCHANGE,
 	};
 	struct EmberAuthenticatedEventArgs
 	{
@@ -36,8 +37,8 @@ namespace player3 { namespace ember
 	struct EmberStreamEventArgs
 	{
 		public:
-			std::string streamName;
-			EmberStreamEventArgs(std::string name) { streamName.assign(name); }
+			std::string streamURL;
+			EmberStreamEventArgs(std::string URL) { streamURL.assign(URL); }
 	};
 	class EmberService
 	{

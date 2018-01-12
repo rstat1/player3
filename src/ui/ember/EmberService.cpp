@@ -42,14 +42,17 @@ namespace player3 { namespace ember
 		messageTypeMappings["INIT"] = MessageType::INIT;
 		messageTypeMappings["MUTE"] = MessageType::MUTE;
 		messageTypeMappings["STOP"] = MessageType::STOP;
-		messageTypeMappings["START"] = MessageType::START;
 		messageTypeMappings["EXIT"] = MessageType::EXIT;
-		messageTypeMappings["STREAMINFO"] = MessageType::STREAMINFO;
+		messageTypeMappings["START"] = MessageType::START;
+		messageTypeMappings["DISCONNECT"] = MessageType::DISCONNECT;
+		messageTypeMappings["CHATUICHANGE"] = MessageType::CHATUISTATE;
+		messageTypeMappings["QUALITYCHANGE"] = MessageType::QUALITYCHANGE;
 		Log("Ember::Init", deviceID.c_str());
 	}
 	void EmberService::RegisterEvents()
 	{
 		EventHub::Get()->RegisterEvent("EmberConnected");
+		EventHub::Get()->RegisterEvent("EmberDisconnected");
 		EventHub::Get()->RegisterEvent("EmberNeedsActivation");
 
 		EventHub::Get()->RegisterEvent("EmberStopStream");
@@ -126,6 +129,10 @@ namespace player3 { namespace ember
 		std::string command = receivedMessage.substr(0, endOfCmd);
 		std::string args = receivedMessage.replace(0, endOfCmd + 1, "");
 
+		EmberAuthenticatedEventArgs* authEvent = new EmberAuthenticatedEventArgs("");
+
+		Log("ember::msgrecv", "%s", receivedMessage.c_str());
+
 		switch (messageTypeMappings[command])
 		{
 			case MUTE:
@@ -137,17 +144,25 @@ namespace player3 { namespace ember
 			case STOP:
 				EventHub::Get()->TriggerEvent("EmberStopStream", nullptr);
 				break;
-			case STREAMINFO:
-				break;
 			case EXIT:
+
 				exit(0);
 				break;
-			case PLAYERSTATE:
-				break;
 			case INIT:
+				Log("ember::init", "%s", receivedMessage.c_str());
 				this->SetEmberTwitchToken(args);
-				EventHub::Get()->TriggerEvent("EmberConnected", nullptr);
+				EventHub::Get()->TriggerEvent("EmberAuthenticated", nullptr);
 				break;
+			case DISCONNECT:
+				Log("ember::disconnect", "disconnect, %s", args.c_str());
+				authEvent->DeviceName.assign(args);
+				EventHub::Get()->TriggerEvent("EmberDisconnected", authEvent);
+				break;
+			case CHATUISTATE:
+				break;
+			case QUALITYCHANGE:
+				break;
+
 		}
 	}
 }}

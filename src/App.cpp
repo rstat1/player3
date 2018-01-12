@@ -8,13 +8,11 @@
 #include <platform/PlatformManager.h>
 #include <ui/web/UIServer.h>
 #include <ui/native/threading/UIWorkerHost.h>
-#include <ui/ember/EmberService.h>
 
 #include <ui/native/NativeUIHost.h>
 
 using namespace player3::ui;
 using namespace player3::chat;
-using namespace player3::ember;
 using namespace player3::player;
 using namespace player3::platform;
 
@@ -45,7 +43,7 @@ namespace app
 //		ChatService::Get()->ConnectToTwitchIRC("mue8x854f0ehqob9df2uxn4vh205x3", "rstat1");
 
 		EventHandler UIInitComplete(true, "UI", [&](void* args) {
-			this->ShowActivateScreenIfNeeded();
+			this->EmberEventHandlers();
 		});
 		EventHub::Get()->RegisterEventHandler("UIWorkerThreadStarted", UIInitComplete);
 	}
@@ -59,7 +57,7 @@ namespace app
 		const char* newChat = (const char*)args;
 		ChatService::Get()->JoinChannel(newChat);
 	}
-	void App::ShowActivateScreenIfNeeded()
+	void App::EmberEventHandlers()
 	{
 		EventHandler EmberAuthEvent(true, "UI", [&](void* args) {
 			//TODO: Home screen
@@ -68,13 +66,22 @@ namespace app
 		});
 		EventHandler EmberActivationRequired(true, "UI", [&](void* args) {
 			writeToLog("activation needed");
-			EmberAuthenticatedEventArgs* eventArgs = (EmberAuthenticatedEventArgs*)args;
-			std::map<std::string, boost::any> bindings;
-			bindings["DeviceName"] = eventArgs->DeviceName;
-			NativeUIHost::Get()->RenderScreen("Activation", bindings, false);
+			this->ShowActivateScreen((EmberAuthenticatedEventArgs*)args);
 		});
-		EventHub::Get()->RegisterEventHandler("EmberNeedsActivation", EmberActivationRequired);
+		EventHandler EmberDisconnected(true, "UI", [&](void* args) {
+			writeToLog("disconnected");
+			this->ShowActivateScreen((EmberAuthenticatedEventArgs*)args);
+		});
 		EventHub::Get()->RegisterEventHandler("EmberAuthenticated", EmberAuthEvent);
+		EventHub::Get()->RegisterEventHandler("EmberDisconnected", EmberDisconnected);
+		EventHub::Get()->RegisterEventHandler("EmberNeedsActivation", EmberActivationRequired);
 		EmberService::Get()->ConnectToEmber();
 	}
+	void App::ShowActivateScreen(EmberAuthenticatedEventArgs* eventArgs)
+	{
+		std::map<std::string, boost::any> bindings;
+		bindings["DeviceName"] = eventArgs->DeviceName;
+		NativeUIHost::Get()->RenderScreen("Activation", bindings, false);
+	}
+
 }

@@ -124,6 +124,7 @@ namespace player3 { namespace ui
 	{
 		public:
 			const char* name;
+			std::string options;
 			ContainerElementBase* rootElement;
 			std::map<std::string, boost::any> currentBindings;
 	};

@@ -20,6 +20,7 @@ namespace player3 { namespace ui
 		public:
 			NativeUIHost();
 			void InitUIHost();
+			void ClearScreen();
 			void SDLEvent(SDL_Event event);
 			void RenderScreen(const char* name, std::map<std::string, boost::any> propertyBindings, bool clearRoot);
 		private:

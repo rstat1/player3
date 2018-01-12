@@ -24,7 +24,8 @@ namespace player3 { namespace ui
 		if (this->GetElementStyle().HorizontalAlignment == "Center")
 		{
 			//bounds->X = (this->GetParentBounds()->Width - this->GetElementStyle().Width) / 2;
-			bounds->X = (this->GetScreenWidth() - this->GetParentBounds()->Width) / 2;
+			bounds->X = (this->GetScreenWidth() - this->GetElementStyle().Width) / 2;
+			Log("imgelem::measure", "screenwidth = %i, elementwidth = %i", this->GetScreenWidth(), this->GetElementStyle().Width);
 		}
 		if (this->GetElementStyle().VerticalAlignment == "Center")
 		{

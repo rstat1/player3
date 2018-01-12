@@ -21,9 +21,6 @@ namespace player3 { namespace ui
 	NativeUIHost::NativeUIHost() {}
 	void NativeUIHost::InitUIHost()
 	{
-#if defined(OS_STREAMLINK)
-		SDL_ShowCursor(0);
-#endif
 		screenSize = PlatformManager::Get()->GetPlatformInterface()->GetScreenSize();
 		layoutManager = new LayoutManager();
 		layoutManager->LoadAndCacheLayout("Home");
@@ -45,7 +42,9 @@ namespace player3 { namespace ui
 			NanoVGRenderer::Get()->Present();
 		}
 		else { Log("SteamLinkPlatform", "%s", SDL_GetError()); }
-
+#if defined(OS_STEAMLINK)
+		SDL_ShowCursor(0);
+#endif
 		SDL_ShowWindow(win);
 	}
 	void NativeUIHost::RenderScreen(const char* name, std::map<std::string, boost::any> propertyBindings, bool clearRoot = false)
@@ -57,5 +56,10 @@ namespace player3 { namespace ui
 	void NativeUIHost::SDLEvent(SDL_Event event)
 	{
 
+	}
+	void NativeUIHost::ClearScreen()
+	{
+		NanoVGRenderer::Get()->Clear();
+		NanoVGRenderer::Get()->Present();
 	}
 }}

@@ -1,4 +1,4 @@
-<layout name="Activation">
+<layout name="Activation" options="nocache">
     <block style="bgcolor:rgba(40,40,40,255);valign:Center;halign:Fill;height:500px;">
         <img src="google-controller.png" style="width:96px;height:96px;valign:Center;halign:Center;margin:20px,0px,0px,0px" />
         <label text="Welcome, Player3." style="fgcolor:rgba(255,255,255,255);valign:Center;halign:Center;font-size:24;margin:110px,0px,0px,0px"/>

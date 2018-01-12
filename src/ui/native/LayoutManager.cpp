@@ -37,6 +37,7 @@ namespace player3 { namespace ui
 
 		read_xml(layoutsFile, layout);
 		l.name = layout.get<std::string>("layout.<xmlattr>.name").c_str();
+		l.options = layout.get("layout.<xmlattr>.options", "");
 		for (ptree::value_type const& v: layout.get_child("layout"))
 		{
 			if (v.first == "block") { l.rootElement = this->CreateRootElement(v, "block"); }
@@ -63,7 +64,7 @@ namespace player3 { namespace ui
 			toInstance.rootElement->Render();
 
 			toInstance.currentBindings = bindings;
-			this->layoutInstances[type] = toInstance;
+			if (toInstance.options.find("nocache") == std::string::npos) { this->layoutInstances[type] = toInstance; }
 		}
 		if (layoutInstances.size() > 0)
 		{

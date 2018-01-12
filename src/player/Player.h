@@ -14,8 +14,8 @@
 #include <vector>
 #include <base/common.h>
 #include <player/VideoPlayerBase.h>
-#include <base/threading/common/ConditionVariable.h>
 #include <platform/PlatformManager.h>
+#include <base/threading/common/ConditionVariable.h>
 
 using namespace std;
 using namespace base::threading;
