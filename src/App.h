@@ -23,6 +23,7 @@ namespace app
 		private:
 			TaskRunner* taskRunner;
 			void EmberEventHandlers();
+			void EmberConnectingEvent(EmberConnectingEventArgs* event);
 			void ShowActivateScreen(EmberAuthenticatedEventArgs* eventArgs);
 
 		SINGLETON(App);

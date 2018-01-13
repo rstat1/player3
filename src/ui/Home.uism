@@ -1,5 +1,6 @@
 <layout name="Home" options="nocache">
     <block style="bgcolor:rgba(40,40,40,255);valign:Center;halign:Center;height:100px;width:100px;">
         <img src="google-controller.png" style="width:96px;height:96px;valign:Center;halign:Center;" />
+        <label text="Welcome, Player 3." style="fgcolor:rgba(255,255,255,255);valign:Center;halign:Center;font-size:20;margin:100px,0px,0px,0px" />
     </block>
 </layout>

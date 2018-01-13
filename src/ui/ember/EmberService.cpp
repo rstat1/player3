@@ -5,13 +5,13 @@
 * found in the included LICENSE file.
 */
 
+#include <SDL.h>
 #include <thread>
 #include <iterator>
 #include <cpr/cpr.h>
 #include <json/json.h>
 #include <base/Utils.h>
 #include <boost/filesystem.hpp>
-#include <ui/native/EventHub.h>
 #include <ui/ember/EmberService.h>
 #include <ui/native/elements/LayoutManagerBase.h>
 
@@ -44,6 +44,7 @@ namespace player3 { namespace ember
 		messageTypeMappings["STOP"] = MessageType::STOP;
 		messageTypeMappings["EXIT"] = MessageType::EXIT;
 		messageTypeMappings["START"] = MessageType::START;
+		messageTypeMappings["UNMUTE"] = MessageType::MUTE;
 		messageTypeMappings["DISCONNECT"] = MessageType::DISCONNECT;
 		messageTypeMappings["CHATUICHANGE"] = MessageType::CHATUISTATE;
 		messageTypeMappings["QUALITYCHANGE"] = MessageType::QUALITYCHANGE;
@@ -53,6 +54,7 @@ namespace player3 { namespace ember
 	{
 		EventHub::Get()->RegisterEvent("EmberConnected");
 		EventHub::Get()->RegisterEvent("EmberDisconnected");
+		EventHub::Get()->RegisterEvent("EmberAuthenticated");
 		EventHub::Get()->RegisterEvent("EmberNeedsActivation");
 
 		EventHub::Get()->RegisterEvent("EmberStopStream");
@@ -105,17 +107,13 @@ namespace player3 { namespace ember
 				this->SetEmberDeviceName(accessResp["emberDeviceName"].asString());
 				this->SetEmberClientToken(accessResp["emberAccessToken"].asString());
 
-				args->DeviceName.assign(accessResp["emberDeviceName"].asString());
+				args = new EmberAuthenticatedEventArgs(accessResp["emberDeviceName"].asString());
 
-				if (accessResp["emberActivated"].asBool() == false)
-				{
-					EventHub::Get()->TriggerEvent("EmberNeedsActivation", args);
-				}
-				else
-				{
-					EventHub::Get()->TriggerEvent("EmberAuthenticated", args);
-				}
+				if (accessResp["emberActivated"].asBool() == false) { TRIGGER_EVENT(EmberNeedsActivation, args); }
+				else { TRIGGER_EVENT(EmberAuthenticated, args); }
 			}
+			this->SetEmberIsConnected(true);
+			this->SetConnectionAttempts(0);
 		} else {
 			Log("EmberService", "GetClientToken failed: %i %s", resp.status_code, resp.text.c_str());
 		}
@@ -129,40 +127,83 @@ namespace player3 { namespace ember
 		std::string command = receivedMessage.substr(0, endOfCmd);
 		std::string args = receivedMessage.replace(0, endOfCmd + 1, "");
 
-		EmberAuthenticatedEventArgs* authEvent = new EmberAuthenticatedEventArgs("");
+		std::vector<std::string> infoBits;
+		EmberAuthenticatedEventArgs* authEvent;
 
 		Log("ember::msgrecv", "%s", receivedMessage.c_str());
 
 		switch (messageTypeMappings[command])
 		{
 			case MUTE:
-				EventHub::Get()->TriggerEvent("EmberMuteStream", nullptr);
+				TRIGGER_EVENT(EmberMuteStream, nullptr)
 				break;
 			case START:
-				EventHub::Get()->TriggerEvent("EmberStartStream", new EmberStreamEventArgs(args));
+				TRIGGER_EVENT(EmberStartStream, new EmberStreamEventArgs(args))
 				break;
 			case STOP:
-				EventHub::Get()->TriggerEvent("EmberStopStream", nullptr);
+				TRIGGER_EVENT(EmberStopStream, nullptr)
 				break;
 			case EXIT:
-
+				TRIGGER_EVENT(EmberStopStream, nullptr)
+				sleep(2);
 				exit(0);
 				break;
 			case INIT:
 				Log("ember::init", "%s", receivedMessage.c_str());
+				infoBits = split(args, ';');
+				if (infoBits[0] == "muted") { TRIGGER_EVENT(EmberMuteStream, nullptr) }
+				if (infoBits[1] == "playing") { TRIGGER_EVENT(EmberStartStream, nullptr) }
 				this->SetEmberTwitchToken(args);
-				EventHub::Get()->TriggerEvent("EmberAuthenticated", nullptr);
+				TRIGGER_EVENT(EmberAuthenticated, nullptr)
+				break;
+			case UNMUTE:
+				TRIGGER_EVENT(EmberUnmuteStream, nullptr)
 				break;
 			case DISCONNECT:
 				Log("ember::disconnect", "disconnect, %s", args.c_str());
-				authEvent->DeviceName.assign(args);
-				EventHub::Get()->TriggerEvent("EmberDisconnected", authEvent);
+				authEvent = new EmberAuthenticatedEventArgs(args);
+				TRIGGER_EVENT(EmberNeedsActivation, authEvent)
 				break;
 			case CHATUISTATE:
 				break;
 			case QUALITYCHANGE:
 				break;
-
+		}
+	}
+	void EmberService::OnEC3Disconnect()
+	{
+		Log("embersvc::OnEC3Disconnect", "%i", EmberService::Get()->GetConnectionAttempts());
+		if (!this->GetEmberIsConnected())
+		{
+			SDL_AddTimer(5000, EmberService::ReconnectAttempt, nullptr);
+			TRIGGER_EVENT(EmberConnecting, new EmberConnectingEventArgs(0));
+		}
+	}
+	uint32_t EmberService::ReconnectAttempt(uint32_t interval, void* opaque)
+	{
+		int attempts = EmberService::Get()->GetConnectionAttempts();
+		if (attempts < 6)
+		{
+			if (!EmberService::Get()->GetEmberIsConnected())
+			{
+				TRIGGER_EVENT(EmberConnecting, new EmberConnectingEventArgs(attempts));
+				EmberService::Get()->SetConnectionAttempts(attempts += 1);
+				Log("embersvc::reconnect", "%i", EmberService::Get()->GetConnectionAttempts());
+				if (attempts < 4)
+				{
+					EmberService::Get()->ActuallyConnectToEmber();
+				}
+				return interval;
+			}
+			else
+			{
+				TRIGGER_EVENT(EmberConnected, nullptr);
+				return 0;
+			}
+		}
+		else
+		{
+			return 0;
 		}
 	}
 }}

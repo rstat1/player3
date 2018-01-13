@@ -44,6 +44,6 @@ namespace player3 { namespace ui
 	void UIWorkerHost::UIWorkerInitFunc()
 	{
 		NativeUIHost::Get()->InitUIHost();
-        EventHub::Get()->TriggerEvent("UIWorkerThreadStarted", nullptr);
+        TRIGGER_EVENT(UIWorkerThreadStarted, nullptr);
 	}
 }}

@@ -1,4 +1,4 @@
-<layout name="ChatUI">
+<layout name="Debug">
 	<listblock name="debug" items="{Binding: Items}" anchor="{Binding: AnchorPoint}"
 			   style="width:200px;height:250px;bgcolor:rgba(0, 0, 0, 0)"
 			   itemType="label" />

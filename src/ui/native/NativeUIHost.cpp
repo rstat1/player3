@@ -26,8 +26,8 @@ namespace player3 { namespace ui
 		layoutManager->LoadAndCacheLayout("Home");
 		layoutManager->LoadAndCacheLayout("ChatUI");
 		layoutManager->LoadAndCacheLayout("Activation");
+		layoutManager->LoadAndCacheLayout("Connecting");
 		layoutManager->LoadAndCacheLayout("DebugOverlay");
-		// layoutManager->LoadAndCacheLayout("StreamIsLive");
 
 		SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 5);
 		win = SDL_CreateWindow("Player3", SDL_WINDOWPOS_UNDEFINED,

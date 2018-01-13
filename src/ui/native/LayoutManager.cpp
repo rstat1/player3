@@ -28,7 +28,7 @@ namespace player3 { namespace ui
 		Layout l;
 		ptree layout;
 #if !defined(OS_STEAMLINK)
-		std::string layoutsFile("/home/rstat1/Apps/streamlink/player/src/");
+		std::string layoutsFile("/home/rstat1/Apps/streamlink/player/src/ui/");
 #else
 		std::string layoutsFile("");
 #endif

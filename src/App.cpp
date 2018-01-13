@@ -40,12 +40,16 @@ namespace app
 		UIWorkerHost::Get()->Init();
 		ChatService::Get()->InitChatService();
 		Player::Get()->InitPlayer();
-//		ChatService::Get()->ConnectToTwitchIRC("mue8x854f0ehqob9df2uxn4vh205x3", "rstat1");
 
-		EventHandler UIInitComplete(true, "UI", [&](void* args) {
+		EventHub::Get()->RegisterEvent("ShowHomeScreen");
+
+		HANDLE_EVENT(UIWorkerThreadStarted, true, "UI", HANDLER {
 			this->EmberEventHandlers();
 		});
-		EventHub::Get()->RegisterEventHandler("UIWorkerThreadStarted", UIInitComplete);
+
+		HANDLE_EVENT(ShowHomeScreen, true, "UI", HANDLER {
+			NativeUIHost::Get()->RenderScreen("Home", std::map<std::string, boost::any>{}, false);
+		})
 	}
 	void App::ChatUIEvent(void* args)
 	{
@@ -59,29 +63,54 @@ namespace app
 	}
 	void App::EmberEventHandlers()
 	{
-		EventHandler EmberAuthEvent(true, "UI", [&](void* args) {
-			//TODO: Home screen
+		HANDLE_EVENT(EmberAuthenticated, true, "UI", HANDLER {
 			writeToLog("show home");
 			NativeUIHost::Get()->RenderScreen("Home", std::map<std::string, boost::any>{}, false);
-		});
-		EventHandler EmberActivationRequired(true, "UI", [&](void* args) {
-			writeToLog("activation needed");
-			this->ShowActivateScreen((EmberAuthenticatedEventArgs*)args);
-		});
-		EventHandler EmberDisconnected(true, "UI", [&](void* args) {
+		})
+		HANDLE_EVENT(EmberConnecting, true, "UI", HANDLER {
+			this->EmberConnectingEvent((EmberConnectingEventArgs*)args);
+		})
+		HANDLE_EVENT(EmberDisconnected, true, "UI", HANDLER {
 			writeToLog("disconnected");
 			this->ShowActivateScreen((EmberAuthenticatedEventArgs*)args);
-		});
-		EventHub::Get()->RegisterEventHandler("EmberAuthenticated", EmberAuthEvent);
-		EventHub::Get()->RegisterEventHandler("EmberDisconnected", EmberDisconnected);
-		EventHub::Get()->RegisterEventHandler("EmberNeedsActivation", EmberActivationRequired);
+		})
+		HANDLE_EVENT(EmberNeedsActivation, true, "UI", HANDLER {
+			writeToLog("activation needed");
+			this->ShowActivateScreen((EmberAuthenticatedEventArgs*)args);
+		})
+		HANDLE_EVENT(EmberStartStream, true, "UI", HANDLER {
+			Log("app", "start stream");
+			NativeUIHost::Get()->ClearScreen();
+		})
 		EmberService::Get()->ConnectToEmber();
 	}
 	void App::ShowActivateScreen(EmberAuthenticatedEventArgs* eventArgs)
 	{
 		std::map<std::string, boost::any> bindings;
-		bindings["DeviceName"] = eventArgs->DeviceName;
+		bindings["DeviceName"] = eventArgs->GetValue();
 		NativeUIHost::Get()->RenderScreen("Activation", bindings, false);
 	}
-
+	void App::EmberConnectingEvent(EmberConnectingEventArgs* event)
+	{
+		int attempts = event->GetValue();
+		std::map<std::string, boost::any> bindings;
+		Log("app", "connection attempt %i", attempts);
+		if (attempts != 0)
+		{
+			if (attempts < 4)
+			{
+				std::string attemptLabel("");
+				attemptLabel.append("Attempt ");
+				attemptLabel.append(std::to_string(event->GetValue()));
+				attemptLabel.append(" of 3");
+				bindings["Attempt"] = attemptLabel;
+			}
+			else if (attempts == 4)
+			{
+				bindings["Attempt"] = std::string("Failed to connect to ember. Exiting...");
+			}
+			else { exit(0); }
+		}
+		NativeUIHost::Get()->RenderScreen("Connecting", bindings, false);
+	}
 }

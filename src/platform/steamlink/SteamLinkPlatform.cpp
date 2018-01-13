@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include <base/logging.h>
+#include <ui/native/EventHub.h>
 #include <ui/native/rendering/NanoVGRenderer.h>
 #include <platform/steamlink/SteamLinkPlatform.h>
 
@@ -106,6 +107,7 @@ namespace player3 { namespace platform
 		SLVideo_SetLogFunction(VideoLogFunc, nullptr);
 		SLVideo_GetDisplayResolution(slVideoContext, &screenW, &screenH);
 		videoStream = SLVideo_CreateStream(slVideoContext, k_ESLVideoFormatH264, false);
+		TRIGGER_EVENT(ShowHomeScreen, nullptr)
 	}
 	void SteamLinkPlatform::SetVideoBitrate(int bitrate)
 	{

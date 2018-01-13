@@ -55,18 +55,14 @@ namespace player3 { namespace player
 		this->state->bufferSignal = new ConditionVariable();
 
 		platformInterface = PlatformManager::Get()->GetPlatformInterface();
+		//platformInterface->DecoderReset();
 		this->InitOverlay();
+		this->SetEmberEventHandlers();
 
-		EventHandler EmberStartStream(true, "PlayerApp", [&](void* args) {
-			EmberStreamEventArgs *eventArgs = (EmberStreamEventArgs*)args;
-			this->StartStream(eventArgs->streamURL);
-		});
-
-		EventHandler connectedEvent(true, "UI", [&](void* args) {
+		HANDLE_EVENT(Connected, true, "UI", HANDLER {
 			ChatService::Get()->JoinChannel("rstat1");
 		});
-		EventHub::Get()->RegisterEventHandler("Connected", connectedEvent);
-		EventHub::Get()->RegisterEventHandler("EmberStartStream", EmberStartStream);
+
 #if defined(OS_LINUX) && !defined(OS_STEAMLINK)
 		signal(SIGTERM, Player::SigTermHandler);
 #endif
@@ -85,7 +81,10 @@ namespace player3 { namespace player
 		this->state->overlay->AddIntValue("QueuedVideo", 0);
 		this->state->overlay->AddIntValue("NextRefresh", 0);
 
-		EventHandler overlayUpdateEvent(true, "PlayerApp", [&](void* args) {
+		EventHub::Get()->RegisterEvent("UpdateOverlay");
+		EventHub::Get()->RegisterEvent("StreamStarting");
+
+		HANDLE_EVENT(UpdateOverlay, true, "PlayerApp", HANDLER {
 			InternalPlayerState* playerState = (InternalPlayerState*)args;
 			double currentUse = MemTrack::GetCurrentMemoryUse();
 			if (currentUse != lastMemoryUse)
@@ -97,9 +96,6 @@ namespace player3 { namespace player
 			playerState->overlay->UpdateStringValue("GitBranch", BranchName);
 			playerState->overlay->UpdateOverlay();
 		});
-		EventHub::Get()->RegisterEvent("UpdateOverlay");
-		EventHub::Get()->RegisterEvent("StreamStarting");
-		EventHub::Get()->RegisterEventHandler("UpdateOverlay", overlayUpdateEvent);
 	}
 	void Player::StartStream(std::string url)
 	{
@@ -111,7 +107,7 @@ namespace player3 { namespace player
 			this->StartPlaybackThread();
 			this->StartDecodeThread();
 
-			EventHub::Get()->TriggerEvent("StreamStarted", nullptr);
+			TRIGGER_EVENT(StreamStarted, nullptr);
 		}
 	}
 	void Player::StartDecodeThread()
@@ -321,7 +317,7 @@ namespace player3 { namespace player
 	}
 	uint32_t Player::RefreshOverlay(uint32_t interval, void* opaque)
 	{
-		EventHub::Get()->TriggerEvent("UpdateOverlay", opaque);
+		TRIGGER_EVENT(UpdateOverlay, opaque);
 		return interval;
 	}
 	void Player::SDLAudioCallback(void* userdata, uint8_t* stream, int len)
@@ -401,5 +397,21 @@ namespace player3 { namespace player
 		avformat_close_input(&this->state->format);
 		avcodec_close(this->state->audioState->aCtx);
 		SDL_CloseAudioDevice(this->state->audioDevice);
+	}
+	void Player::SetEmberEventHandlers()
+	{
+		HANDLE_EVENT(EmberStartStream, true, "PlayerApp", HANDLER {
+			if (args != nullptr)
+			{
+				EmberStreamEventArgs *eventArgs = (EmberStreamEventArgs*)args;
+				this->StartStream(eventArgs->GetValue());
+			}
+		});
+		HANDLE_EVENT(EmberStopStream, true, "PlayerApp", HANDLER {
+			this->Stop();
+		});
+		HANDLE_EVENT(EmberMuteStream, true, "PlayerApp", HANDLER {
+			this->Mute();
+		});
 	}
 }}

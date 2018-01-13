@@ -43,6 +43,7 @@ namespace player3 { namespace player
 			bool CheckPlayerState();
 			void StartDecodeThread();
 			void StartPlaybackThread();
+			void SetEmberEventHandlers();
 			int ProcessAudio(AVPacket* pkt);
 			void InitSDLAudio(int sampleRate, int channels);
 			void UpdateInfoOverlay(InternalPlayerState* state);

@@ -11,6 +11,7 @@
 #include <string>
 #include <uWS/src/uWS.h>
 #include <base/common.h>
+#include <ui/native/EventHub.h>
 #include <ui/native/PropertyMacros.h>
 
 using namespace uWS;
@@ -24,27 +25,23 @@ namespace player3 { namespace ember
 		EXIT,
 		START,
 		INIT,
+		UNMUTE,
 		DISCONNECT,
 		CHATUISTATE,
 		QUALITYCHANGE,
 	};
-	struct EmberAuthenticatedEventArgs
-	{
-		public:
-			std::string DeviceName;
-			EmberAuthenticatedEventArgs(std::string devName) { DeviceName.assign(devName); }
-	};
-	struct EmberStreamEventArgs
-	{
-		public:
-			std::string streamURL;
-			EmberStreamEventArgs(std::string URL) { streamURL.assign(URL); }
-	};
+	EVENTARGS(EmberConnecting, int)
+	EVENTARGS(EmberStream, std::string)
+	EVENTARGS(EmberAuthenticated, std::string)
 	class EmberService
 	{
 		public:
 			void Init();
 			void ConnectToEmber();
+			void ActuallyConnectToEmber();
+
+			PROPERTY(EmberIsConnected, bool)
+			PROPERTY(ConnectionAttempts, int)
 			PROPERTY(EmberConnectURL, std::string)
 			PROPERTY(EmberDeviceName, std::string)
 			PROPERTY(EmberClientToken, std::string)
@@ -54,11 +51,15 @@ namespace player3 { namespace ember
 		private:
 			void GetClientToken();
 			void RegisterEvents();
+			void OnEC3Disconnect();
+			static uint32_t ReconnectAttempt(uint32_t interval, void* opaque);
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
 
 			Hub emberHub;
-			WebSocket<CLIENT>* emberClientSocket;
+			bool connecting = false;
+			bool connected = false;
 			std::string deviceID = "";
+			WebSocket<CLIENT>* emberClientSocket;
 			std::string emberClientID = "vyUujyJIhAwLkMPbm4MnVOONYaW7wAo2";
 			std::string emberClientSecret = "DePPn78AC7L3jloHXb6mSykU2jVAqzUpHTeAahpU8yLEyk05";
 			std::map<std::string, MessageType> messageTypeMappings;

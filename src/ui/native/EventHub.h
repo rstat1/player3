@@ -14,6 +14,19 @@
 #include <base/Utils.h>
 #include <base/common.h>
 
+#define EVENTARGS(name, type) \
+	struct name##EventArgs \
+	{\
+		public:\
+			type arg##name;\
+			type GetValue() { return arg##name; }\
+			name##EventArgs(type value##name) { arg##name = value##name; } \
+	};
+
+#define HANDLER [&](void* args)
+#define HANDLE_EVENT(name, asTask, onThread, handler) EventHandler name(asTask, onThread, handler); \
+			EventHub::Get()->RegisterEventHandler(#name, name);
+#define TRIGGER_EVENT(name, args) EventHub::Get()->TriggerEvent(#name, args);
 namespace player3 { namespace ui
 {
 	struct EventHandler

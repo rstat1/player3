@@ -39,7 +39,7 @@ namespace player3 { namespace chat
 			ws->send("CAP REQ :twitch.tv/tags");
 			ws->send(tokenStr.c_str());
 			ws->send(username.c_str());
-			EventHub::Get()->TriggerEvent("Connected", nullptr);
+			TRIGGER_EVENT(Connected, nullptr);
 		});
 		chatHub.onError([&](void* user) {
 			Log("Chat", "connect failed");
@@ -62,7 +62,7 @@ namespace player3 { namespace chat
 		if (this->currentChannel != "")
 		{
 			this->LeaveCurrentChannel();
-			EventHub::Get()->TriggerEvent("ChangedChannel", nullptr);
+			TRIGGER_EVENT(ChangedChannel, nullptr);
 		}
 		this->currentChannel = "JOIN #";
 		this->currentChannel.append(channel);
@@ -102,8 +102,8 @@ namespace player3 { namespace chat
 				msg->sender.assign("twitchirc");
 				msg->senderColor = "";
 				msg->message.assign("login failed.");
-
-				EventHub::Get()->TriggerEvent("MessageReceived", msg);
+				
+				TRIGGER_EVENT(MessageReceived, msg);
 			}
 		}
 
@@ -145,6 +145,6 @@ namespace player3 { namespace chat
 		msg->sender.assign(sender);
 		msg->senderColor = color;
 		msg->message.assign(actualMessage[actualMessage.size() - 1]);
-		EventHub::Get()->TriggerEvent("MessageReceived", msg);
+		TRIGGER_EVENT(MessageReceived, msg);
 	}
 }}
