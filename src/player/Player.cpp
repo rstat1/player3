@@ -81,8 +81,8 @@ namespace player3 { namespace player
 		this->state->overlay->AddIntValue("QueuedVideo", 0);
 		this->state->overlay->AddIntValue("NextRefresh", 0);
 
-		EventHub::Get()->RegisterEvent("UpdateOverlay");
-		EventHub::Get()->RegisterEvent("StreamStarting");
+		EVENT("UpdateOverlay");
+		EVENT("StreamStarting");
 
 		HANDLE_EVENT(UpdateOverlay, true, "PlayerApp", HANDLER {
 			InternalPlayerState* playerState = (InternalPlayerState*)args;
@@ -106,8 +106,6 @@ namespace player3 { namespace player
 			this->state->currentURL = url;
 			this->StartPlaybackThread();
 			this->StartDecodeThread();
-
-			TRIGGER_EVENT(StreamStarted, nullptr);
 		}
 	}
 	void Player::StartDecodeThread()
@@ -182,6 +180,8 @@ namespace player3 { namespace player
 		AVFormatContext* avFormat = this->state->format;
 		AVPacket pkt;
 		av_init_packet(&pkt);
+
+		TRIGGER_EVENT(EmberStateChange, new EmberStateChangeEventArgs("playing", "notmuted"));
 
 		while(this->CheckPlayerState())
 		{
@@ -364,8 +364,16 @@ namespace player3 { namespace player
 	}
 	void Player::Mute()
 	{
-		if (this->state->audioState->silence) { this->state->audioState->silence = false; }
-		else { this->state->audioState->silence = true; }
+		if (this->state->audioState->silence)
+		{
+			this->state->audioState->silence = false;
+			TRIGGER_EVENT(EmberStateChange, new EmberStateChangeEventArgs("playing", "notmuted"));
+		}
+		else
+		{
+			this->state->audioState->silence = true;
+			TRIGGER_EVENT(EmberStateChange, new EmberStateChangeEventArgs("playing", "muted"));
+		}
 	}
 	void Player::ResetPlayer()
 	{
@@ -413,5 +421,8 @@ namespace player3 { namespace player
 		HANDLE_EVENT(EmberMuteStream, true, "PlayerApp", HANDLER {
 			this->Mute();
 		});
+		HANDLE_EVENT(EmberUnmuteStream, true, "PlayerApp", HANDLER {
+			this->Mute();
+		})
 	}
 }}

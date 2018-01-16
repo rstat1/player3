@@ -41,15 +41,9 @@ namespace app
 		ChatService::Get()->InitChatService();
 		Player::Get()->InitPlayer();
 
-		EventHub::Get()->RegisterEvent("ShowHomeScreen");
-
 		HANDLE_EVENT(UIWorkerThreadStarted, true, "UI", HANDLER {
 			this->EmberEventHandlers();
 		});
-
-		HANDLE_EVENT(ShowHomeScreen, true, "UI", HANDLER {
-			NativeUIHost::Get()->RenderScreen("Home", std::map<std::string, boost::any>{}, false);
-		})
 	}
 	void App::ChatUIEvent(void* args)
 	{
@@ -78,9 +72,16 @@ namespace app
 			writeToLog("activation needed");
 			this->ShowActivateScreen((EmberAuthenticatedEventArgs*)args);
 		})
-		HANDLE_EVENT(EmberStartStream, true, "UI", HANDLER {
-			Log("app", "start stream");
-			NativeUIHost::Get()->ClearScreen();
+		HANDLE_EVENT(EmberStateChange, true, "UI", HANDLER {
+			EmberStateChangeEventArgs* newState = (EmberStateChangeEventArgs*)args;
+			Log("app", "EmberStateChange, playing = %s, muted = %s", newState->GetFirstArgument().c_str(), newState->GetSecondArgument().c_str());
+			if (newState->GetFirstArgument() == "playing") {
+				Log("app", "start stream");
+				NativeUIHost::Get()->ClearScreen();
+			} else if (newState->GetFirstArgument() == "notplaying") {
+				NativeUIHost::Get()->RenderScreen("Home", std::map<std::string, boost::any>{}, false);
+			}
+			EmberService::Get()->SendStateChange(newState);
 		})
 		EmberService::Get()->ConnectToEmber();
 	}

@@ -7,11 +7,12 @@
 
 #include <string.h>
 #include <base/logging.h>
-#include <ui/native/EventHub.h>
+#include <ui/ember/EmberServiceCommon.h>
 #include <ui/native/rendering/NanoVGRenderer.h>
 #include <platform/steamlink/SteamLinkPlatform.h>
 
 using namespace player3::ui;
+using namespace player3::ember;
 
 namespace player3 { namespace platform
 {
@@ -107,7 +108,8 @@ namespace player3 { namespace platform
 		SLVideo_SetLogFunction(VideoLogFunc, nullptr);
 		SLVideo_GetDisplayResolution(slVideoContext, &screenW, &screenH);
 		videoStream = SLVideo_CreateStream(slVideoContext, k_ESLVideoFormatH264, false);
-		TRIGGER_EVENT(ShowHomeScreen, nullptr)
+		//TRIGGER_EVENT(ShowHomeScreen, nullptr)
+		TRIGGER_EVENT(EmberStateChange, new EmberStateChangeEventArgs("notplaying", "notmuted"))
 	}
 	void SteamLinkPlatform::SetVideoBitrate(int bitrate)
 	{

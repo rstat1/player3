@@ -11,34 +11,20 @@
 #include <string>
 #include <uWS/src/uWS.h>
 #include <base/common.h>
-#include <ui/native/EventHub.h>
 #include <ui/native/PropertyMacros.h>
+#include <ui/ember/EmberServiceCommon.h>
 
 using namespace uWS;
 
 namespace player3 { namespace ember
 {
-	enum MessageType
-	{
-		MUTE,
-		STOP,
-		EXIT,
-		START,
-		INIT,
-		UNMUTE,
-		DISCONNECT,
-		CHATUISTATE,
-		QUALITYCHANGE,
-	};
-	EVENTARGS(EmberConnecting, int)
-	EVENTARGS(EmberStream, std::string)
-	EVENTARGS(EmberAuthenticated, std::string)
 	class EmberService
 	{
 		public:
 			void Init();
 			void ConnectToEmber();
 			void ActuallyConnectToEmber();
+			void SendStateChange(EmberStateChangeEventArgs* newState);
 
 			PROPERTY(EmberIsConnected, bool)
 			PROPERTY(ConnectionAttempts, int)

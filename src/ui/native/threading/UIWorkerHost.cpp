@@ -23,7 +23,7 @@ namespace player3 { namespace ui
 	}
 	void UIWorkerHost::Init()
 	{
-		EventHub::Get()->RegisterEvent("UIWorkerThreadStarted");
+		EVENT("UIWorkerThreadStarted");
 
 		NEW_TASK0(UIWorker, UIWorkerHost, this, UIWorkerTaskFunc);
 		UIWorkerTask* uiTask = new UIWorkerTask(UIWorker);

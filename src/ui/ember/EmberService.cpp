@@ -52,16 +52,17 @@ namespace player3 { namespace ember
 	}
 	void EmberService::RegisterEvents()
 	{
-		EventHub::Get()->RegisterEvent("EmberConnected");
-		EventHub::Get()->RegisterEvent("EmberDisconnected");
-		EventHub::Get()->RegisterEvent("EmberAuthenticated");
-		EventHub::Get()->RegisterEvent("EmberNeedsActivation");
+		EVENT("EmberConnected");
+		EVENT("EmberDisconnected");
+		EVENT("EmberAuthenticated");
+		EVENT("EmberNeedsActivation");
 
-		EventHub::Get()->RegisterEvent("EmberStopStream");
-		EventHub::Get()->RegisterEvent("EmberMuteStream");
-		EventHub::Get()->RegisterEvent("EmberStartStream");
+		EVENT("EmberStopStream");
+		EVENT("EmberMuteStream");
+		EVENT("EmberStartStream");
 
-		EventHub::Get()->RegisterEvent("EmberChatAction");
+		EVENT("EmberChatAction");
+		EVENT("EmberStateChange");
 	}
 	void EmberService::ConnectToEmber()
 	{
@@ -86,6 +87,10 @@ namespace player3 { namespace ember
 			emberHub.run();
 		});
 		emberHubRunner.detach();
+	}
+	void EmberService::ActuallyConnectToEmber()
+	{
+
 	}
 	void EmberService::GetClientToken()
 	{
@@ -178,6 +183,16 @@ namespace player3 { namespace ember
 			SDL_AddTimer(5000, EmberService::ReconnectAttempt, nullptr);
 			TRIGGER_EVENT(EmberConnecting, new EmberConnectingEventArgs(0));
 		}
+	}
+	void EmberService::SendStateChange(EmberStateChangeEventArgs *newState)
+	{
+		std::string message(this->deviceID);
+		message.append(" STATECHANGE:");
+		message.append(newState->GetFirstArgument());
+		message.append(";");
+		message.append(newState->GetSecondArgument());
+
+		this->emberClientSocket->send(message.c_str());
 	}
 	uint32_t EmberService::ReconnectAttempt(uint32_t interval, void* opaque)
 	{

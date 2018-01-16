@@ -18,15 +18,32 @@
 	struct name##EventArgs \
 	{\
 		public:\
-			type arg##name;\
 			type GetValue() { return arg##name; }\
 			name##EventArgs(type value##name) { arg##name = value##name; } \
+		private:\
+			type arg##name;\
+	};
+#define EVENTARGS2(classname, arg1, arg2) \
+	struct classname##EventArgs \
+	{\
+		public:\
+			arg1 GetFirstArgument() { return a1##classname; }\
+			arg2 GetSecondArgument() { return a2##classname; }\
+			classname##EventArgs(arg1 a1, arg2 a2) {\
+				a1##classname = a1;\
+				a2##classname = a2;\
+			}\
+		private:\
+			arg1 a1##classname;\
+			arg2 a2##classname;\
 	};
 
 #define HANDLER [&](void* args)
 #define HANDLE_EVENT(name, asTask, onThread, handler) EventHandler name(asTask, onThread, handler); \
 			EventHub::Get()->RegisterEventHandler(#name, name);
 #define TRIGGER_EVENT(name, args) EventHub::Get()->TriggerEvent(#name, args);
+#define EVENT(name) EventHub::Get()->RegisterEvent(#name);
+
 namespace player3 { namespace ui
 {
 	struct EventHandler

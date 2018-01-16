@@ -21,9 +21,9 @@ namespace player3 { namespace chat
 
 	void ChatService::InitChatService()
 	{
-		EventHub::Get()->RegisterEvent("Connected");
-		EventHub::Get()->RegisterEvent("ChnagedChannel");
-		EventHub::Get()->RegisterEvent("MessageReceived");
+		EVENT("Connected");
+		EVENT("ChnagedChannel");
+		EVENT("MessageReceived");
 		this->currentChannel = "";
 		this->chatUI = new ChatUI();
 		this->chatUI->InitChatUI();
@@ -102,7 +102,7 @@ namespace player3 { namespace chat
 				msg->sender.assign("twitchirc");
 				msg->senderColor = "";
 				msg->message.assign("login failed.");
-				
+
 				TRIGGER_EVENT(MessageReceived, msg);
 			}
 		}
