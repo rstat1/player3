@@ -26,6 +26,8 @@ namespace player3 { namespace ember
 			void ActuallyConnectToEmber();
 			void SendStateChange(EmberStateChangeEventArgs* newState);
 
+			PROPERTY(EmberIsMuted, bool)
+			PROPERTY(EmberIsPlaying, bool)
 			PROPERTY(EmberIsConnected, bool)
 			PROPERTY(ConnectionAttempts, int)
 			PROPERTY(EmberConnectURL, std::string)
@@ -33,7 +35,6 @@ namespace player3 { namespace ember
 			PROPERTY(EmberClientToken, std::string)
 			PROPERTY(EmberTwitchToken, std::string)
 			PROPERTY(EmberWebSocketURL, std::string)
-
 		private:
 			void GetClientToken();
 			void RegisterEvents();
@@ -51,6 +52,7 @@ namespace player3 { namespace ember
 			std::map<std::string, MessageType> messageTypeMappings;
 
 		SINGLETON(EmberService)
+
 	};
 }}
 

@@ -62,11 +62,26 @@ namespace app
 			NativeUIHost::Get()->RenderScreen("Home", std::map<std::string, boost::any>{}, false);
 		})
 		HANDLE_EVENT(EmberConnecting, true, "UI", HANDLER {
-			this->EmberConnectingEvent((EmberConnectingEventArgs*)args);
+			if (EmberService::Get()->GetEmberIsPlaying())
+			{
+				//TODO: Show a smaller notif style thing saying the connection dropped.
+			}
+			else
+			{
+				NativeUIHost::Get()->RenderScreen("Connecting", std::map<std::string, boost::any>{}, false);
+			}
 		})
-		HANDLE_EVENT(EmberDisconnected, true, "UI", HANDLER {
-			writeToLog("disconnected");
-			this->ShowActivateScreen((EmberAuthenticatedEventArgs*)args);
+		HANDLE_EVENT(EmberConnectFailed, true, "UI", HANDLER {
+			this->EmberConnectFailedEvent((EmberConnectingEventArgs*)args);
+			if (EmberService::Get()->GetEmberIsPlaying() == false)
+			{
+				sleep(5);
+				exit(0);
+			}
+			else
+			{
+				//TODO: Something to prevent interupting a playing stream... Or something.
+			}
 		})
 		HANDLE_EVENT(EmberNeedsActivation, true, "UI", HANDLER {
 			writeToLog("activation needed");
@@ -91,27 +106,20 @@ namespace app
 		bindings["DeviceName"] = eventArgs->GetValue();
 		NativeUIHost::Get()->RenderScreen("Activation", bindings, false);
 	}
-	void App::EmberConnectingEvent(EmberConnectingEventArgs* event)
+	void App::EmberConnectFailedEvent(EmberConnectingEventArgs* event)
 	{
-		int attempts = event->GetValue();
+		int attempts = 0;
 		std::map<std::string, boost::any> bindings;
-		Log("app", "connection attempt %i", attempts);
-		if (attempts != 0)
+
+		if (event != nullptr)
 		{
-			if (attempts < 4)
-			{
-				std::string attemptLabel("");
-				attemptLabel.append("Attempt ");
-				attemptLabel.append(std::to_string(event->GetValue()));
-				attemptLabel.append(" of 3");
-				bindings["Attempt"] = attemptLabel;
-			}
-			else if (attempts == 4)
-			{
-				bindings["Attempt"] = std::string("Failed to connect to ember. Exiting...");
-			}
-			else { exit(0); }
-		}
-		NativeUIHost::Get()->RenderScreen("Connecting", bindings, false);
+			attempts = event->GetValue();
+			std::string attemptLabel("");
+			attemptLabel.append("Failed to connect after ");
+			attemptLabel.append(std::to_string(event->GetValue()));
+			attemptLabel.append(" attempts. Exiting in 5 seconds.");
+			bindings["Attempt"] = attemptLabel;
+			NativeUIHost::Get()->RenderScreen("Connecting", bindings, false);
+		};
 	}
 }

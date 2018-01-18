@@ -19,4 +19,9 @@
 							 void Set##name(type propertyType) { value##name = propertyType; } \
 							 type Get##name() { return value##name; }
 
+#define PRIVATE_PROP(name, type) private: \
+						 	 	 	type value##name;\
+							 		void Set##name(type propertyType) { value##name = propertyType; } \
+							 		type Get##name() { return value##name; }
+
 #endif

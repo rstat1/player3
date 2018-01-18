@@ -53,7 +53,9 @@ namespace player3 { namespace ember
 	void EmberService::RegisterEvents()
 	{
 		EVENT("EmberConnected");
+		EVENT("EmberConnecting");
 		EVENT("EmberDisconnected");
+		EVENT("EmberConnectFailed");
 		EVENT("EmberAuthenticated");
 		EVENT("EmberNeedsActivation");
 
@@ -63,22 +65,43 @@ namespace player3 { namespace ember
 
 		EVENT("EmberChatAction");
 		EVENT("EmberStateChange");
+
+		HANDLE_EVENT(EmberStateChange, true, "PlayerApp", HANDLER {
+			EmberStateChangeEventArgs* eventArgs = (EmberStateChangeEventArgs*)args;
+			EmberService::Get()->SetEmberIsMuted(eventArgs->GetSecondArgument() == "muted");
+			EmberService::Get()->SetEmberIsPlaying(eventArgs->GetFirstArgument() == "playing");
+		})
 	}
 	void EmberService::ConnectToEmber()
 	{
-		this->GetClientToken();
 		emberHub.onConnection([&](WebSocket<CLIENT> *ws, HttpRequest req) {
 			this->emberClientSocket = ws;
+			this->connecting = false;
+			this->SetConnectionAttempts(0);
+			this->SetEmberIsConnected(true);
 		});
 		emberHub.onError([&](void* user) {
 			Log("ember", "connect failed (default)");
+			if (this->connecting == false) {
+				this->ActuallyConnectToEmber();
+				this->OnEC3Disconnect();
+			}
 		});
 		emberHub.onDisconnection([&](WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
 			Log("ember", "Disconnected %s", message);
+			this->SetEmberIsConnected(false);
+			this->ActuallyConnectToEmber();
+			this->OnEC3Disconnect();
 		});
 		emberHub.onMessage([&](WebSocket<CLIENT>* ws, char* msg, size_t len, OpCode code) {
 			this->MessageReceived(ws, msg, len);
 		});
+		this->ActuallyConnectToEmber();
+	}
+	void EmberService::ActuallyConnectToEmber()
+	{
+		this->GetClientToken();
+
 		std::thread emberHubRunner([&]{
 			emberHub.connect(this->GetEmberWebSocketURL(), nullptr, {
 				{"Authorization", "Bearer " + this->GetEmberClientToken()},
@@ -87,10 +110,6 @@ namespace player3 { namespace ember
 			emberHub.run();
 		});
 		emberHubRunner.detach();
-	}
-	void EmberService::ActuallyConnectToEmber()
-	{
-
 	}
 	void EmberService::GetClientToken()
 	{
@@ -135,17 +154,17 @@ namespace player3 { namespace ember
 		std::vector<std::string> infoBits;
 		EmberAuthenticatedEventArgs* authEvent;
 
-		Log("ember::msgrecv", "%s", receivedMessage.c_str());
-
 		switch (messageTypeMappings[command])
 		{
 			case MUTE:
 				TRIGGER_EVENT(EmberMuteStream, nullptr)
 				break;
 			case START:
+				Log("ember::START", "%s", receivedMessage.c_str());
 				TRIGGER_EVENT(EmberStartStream, new EmberStreamEventArgs(args))
 				break;
 			case STOP:
+				Log("ember::STOP", "%s", receivedMessage.c_str());
 				TRIGGER_EVENT(EmberStopStream, nullptr)
 				break;
 			case EXIT:
@@ -164,8 +183,8 @@ namespace player3 { namespace ember
 			case UNMUTE:
 				TRIGGER_EVENT(EmberUnmuteStream, nullptr)
 				break;
-			case DISCONNECT:
-				Log("ember::disconnect", "disconnect, %s", args.c_str());
+			case DISCONNECT://TODO: Change to DEACTIVATE
+				Log("ember::deactivate", "deactivate, %s", args.c_str());
 				authEvent = new EmberAuthenticatedEventArgs(args);
 				TRIGGER_EVENT(EmberNeedsActivation, authEvent)
 				break;
@@ -178,10 +197,11 @@ namespace player3 { namespace ember
 	void EmberService::OnEC3Disconnect()
 	{
 		Log("embersvc::OnEC3Disconnect", "%i", EmberService::Get()->GetConnectionAttempts());
+		this->connecting = true;
 		if (!this->GetEmberIsConnected())
 		{
+			TRIGGER_EVENT(EmberConnecting, nullptr);
 			SDL_AddTimer(5000, EmberService::ReconnectAttempt, nullptr);
-			TRIGGER_EVENT(EmberConnecting, new EmberConnectingEventArgs(0));
 		}
 	}
 	void EmberService::SendStateChange(EmberStateChangeEventArgs *newState)
@@ -197,28 +217,18 @@ namespace player3 { namespace ember
 	uint32_t EmberService::ReconnectAttempt(uint32_t interval, void* opaque)
 	{
 		int attempts = EmberService::Get()->GetConnectionAttempts();
-		if (attempts < 6)
-		{
-			if (!EmberService::Get()->GetEmberIsConnected())
-			{
-				TRIGGER_EVENT(EmberConnecting, new EmberConnectingEventArgs(attempts));
-				EmberService::Get()->SetConnectionAttempts(attempts += 1);
-				Log("embersvc::reconnect", "%i", EmberService::Get()->GetConnectionAttempts());
-				if (attempts < 4)
-				{
-					EmberService::Get()->ActuallyConnectToEmber();
-				}
-				return interval;
-			}
-			else
-			{
-				TRIGGER_EVENT(EmberConnected, nullptr);
-				return 0;
-			}
-		}
+		if (EmberService::Get()->GetEmberIsConnected()) { return 0; }
 		else
 		{
-			return 0;
+			EmberService::Get()->ActuallyConnectToEmber();
+			EmberService::Get()->SetConnectionAttempts(attempts += 1);
+			if (attempts > 9)
+			{
+				Log("embersvc::reconnect", "connected failed...");
+				TRIGGER_EVENT(EmberConnectFailed, new EmberConnectingEventArgs(attempts));
+				return 0;
+			}
+			else { return interval; }
 		}
 	}
 }}
