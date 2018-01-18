@@ -22,6 +22,7 @@ namespace app
 			void ChatUIEvent(void* args);
 		private:
 			TaskRunner* taskRunner;
+			void ShowHomeScreen();
 			void EmberEventHandlers();
 			void EmberConnectFailedEvent(EmberConnectingEventArgs* event);
 			void ShowActivateScreen(EmberAuthenticatedEventArgs* eventArgs);

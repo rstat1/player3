@@ -10,6 +10,7 @@
 
 namespace player3
 {
+	const char* Build = "##BUILD##";
 	const char* BranchName = "##BRANCHNAME##";
 }
 

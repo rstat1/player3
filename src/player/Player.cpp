@@ -12,7 +12,6 @@
 #include <iostream>
 #include <signal.h>
 #include <pthread.h>
-#include <BuildInfo.h>
 #include <player/Player.h>
 #include <ProfilerDefines.h>
 #include <player/chat/ChatService.h>
@@ -70,7 +69,7 @@ namespace player3 { namespace player
 	void Player::InitOverlay()
 	{
 		this->state->overlay = new InfoOverlayNUI();
-		this->state->overlay->AddStringValue("GitBranch", BranchName);
+		//this->state->overlay->AddStringValue("GitBranch", BranchName);
 		this->state->overlay->AddDoubleValue("AVDelayDiff", 0);
 		this->state->overlay->AddDoubleValue("MemCurrent(in MB)", MemTrack::GetCurrentMemoryUse());
 		this->state->overlay->AddDoubleValue("FrameTimer", 0);
@@ -93,7 +92,7 @@ namespace player3 { namespace player
 				playerState->overlay->UpdateDoubleValue("MemCurrent (in MB)", MemTrack::GetCurrentMemoryUse());
 				lastMemoryUse = currentUse;
 			}
-			playerState->overlay->UpdateStringValue("GitBranch", BranchName);
+//			playerState->overlay->UpdateStringValue("GitBranch", BranchName);
 			playerState->overlay->UpdateOverlay();
 		});
 	}

@@ -6,6 +6,7 @@ import shlex
 import platform
 import subprocess
 import urllib, zipfile
+from datetime import datetime, date
 
 from shutil import make_archive, rmtree
 from distutils.dir_util import copy_tree
@@ -180,9 +181,16 @@ def GetSymbols():
         subprocess.call(clientSymbolizerCmd, shell=True)
 
 def GenerateBuildInfo():
+        now = datetime.now()
+        d1 = date(2017, 4, 10)
+        d0 = date.today()
+        delta = d0 - d1
+
+        seconds_since_midnight = (now - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
         branchName = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
         with open('build/BuildInfo.h.in', 'r') as template:
-                data = template.read().replace("##BRANCHNAME##", branchName.strip())
+                data = template.read().replace("##BUILD##", str(delta.days) + "-" + str(int(seconds_since_midnight)))
+                data = data.replace("##BRANCHNAME##", branchName.strip())
         with open("src/BuildInfo.h", 'w+') as buildInfo:
                 buildInfo.write(data)
 

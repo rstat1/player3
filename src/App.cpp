@@ -2,6 +2,7 @@
 #include <SDL_egl.h>
 
 #include <App.h>
+#include <BuildInfo.h>
 #include <player/Player.h>
 #include <ui/native/EventHub.h>
 #include <player/chat/ChatService.h>
@@ -59,7 +60,7 @@ namespace app
 	{
 		HANDLE_EVENT(EmberAuthenticated, true, "UI", HANDLER {
 			writeToLog("show home");
-			NativeUIHost::Get()->RenderScreen("Home", std::map<std::string, boost::any>{}, false);
+			this->ShowHomeScreen();
 		})
 		HANDLE_EVENT(EmberConnecting, true, "UI", HANDLER {
 			if (EmberService::Get()->GetEmberIsPlaying())
@@ -121,5 +122,14 @@ namespace app
 			bindings["Attempt"] = attemptLabel;
 			NativeUIHost::Get()->RenderScreen("Connecting", bindings, false);
 		};
+	}
+	void App::ShowHomeScreen()
+	{
+		std::map<std::string, boost::any> bindings;
+		std::string versionLabel("");
+		versionLabel.append("Build: ");
+		versionLabel.append(player3::Build);
+		bindings["Version"] = versionLabel;
+		NativeUIHost::Get()->RenderScreen("Home", bindings, false);
 	}
 }

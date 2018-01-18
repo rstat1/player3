@@ -52,3 +52,4 @@ CMakeLists\.txt
 cmake-build-debug/
 \.idea/
 .vscode/cquery_cached_index/*
+src/BuildInfo.h

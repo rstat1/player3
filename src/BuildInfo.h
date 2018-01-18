@@ -10,6 +10,7 @@
 
 namespace player3
 {
+	const char* Build = "283-57630";
 	const char* BranchName = "master";
 }
 

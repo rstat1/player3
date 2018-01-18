@@ -67,9 +67,11 @@ namespace player3 { namespace ember
 		EVENT("EmberStateChange");
 
 		HANDLE_EVENT(EmberStateChange, true, "PlayerApp", HANDLER {
-			EmberStateChangeEventArgs* eventArgs = (EmberStateChangeEventArgs*)args;
-			EmberService::Get()->SetEmberIsMuted(eventArgs->GetSecondArgument() == "muted");
-			EmberService::Get()->SetEmberIsPlaying(eventArgs->GetFirstArgument() == "playing");
+			EmberStateChangeEventArgs* newState = (EmberStateChangeEventArgs*)args;
+			Log("ember", "EmberStateChange, playing = %s, muted = %s", newState->GetFirstArgument().c_str(), newState->GetSecondArgument().c_str());
+
+			EmberService::Get()->SetEmberIsMuted(newState->GetSecondArgument() == "muted");
+			EmberService::Get()->SetEmberIsPlaying(newState->GetFirstArgument() == "playing");
 		})
 	}
 	void EmberService::ConnectToEmber()
