@@ -174,18 +174,12 @@ def BuildZipMaker():
         make_archive("streamlink-dev", "zip", root_dir=zipDir)
         rmtree(zipDir)
 
-def GetSymbols():
-        clientSymbolizerCmd = "mono build/tools/Symbolizer.exe " + outputDir + "/player3 " + buildDir + "/syms/"
-        subprocess.call(clientSymbolizerCmd, shell=True)
-        clientSymbolizerCmd = "mono build/tools/Symbolizer.exe " + outputDir + "/lib/libexternal.so " + buildDir + "/syms/"
-        subprocess.call(clientSymbolizerCmd, shell=True)
 
 def GenerateBuildInfo():
         now = datetime.now()
         d1 = date(2017, 4, 10)
         d0 = date.today()
         delta = d0 - d1
-
         seconds_since_midnight = (now - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
         branchName = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
         with open('build/BuildInfo.h.in', 'r') as template:
@@ -193,6 +187,12 @@ def GenerateBuildInfo():
                 data = data.replace("##BRANCHNAME##", branchName.strip())
         with open("src/BuildInfo.h", 'w+') as buildInfo:
                 buildInfo.write(data)
+
+def GetSymbols():
+        clientSymbolizerCmd = "mono build/tools/Symbolizer.exe " + outputDir + "/player3 " + buildDir + "/syms/"
+        subprocess.call(clientSymbolizerCmd, shell=True)
+        clientSymbolizerCmd = "mono build/tools/Symbolizer.exe " + outputDir + "/lib/libexternal.so " + buildDir + "/syms/"
+        subprocess.call(clientSymbolizerCmd, shell=True)
 
 InitBuildEnv()
 GenerateBuildInfo()

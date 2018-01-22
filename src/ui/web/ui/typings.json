@@ -1,5 +1,0 @@
-{
-  "globalDependencies": {
-    "auth0.lock": "github:carusology/DefinitelyTyped/auth0.lock/auth0.lock.d.ts#14261aa459c36a258658d3c316eeedc9df8978c2"
-  }
-}

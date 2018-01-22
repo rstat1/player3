@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2018 The Incredibly Big Red Robot
+* Copyright (c) 2018 An Incredibly Big Red Robot
 *
 * Use of this source code is governed by a "BSD-style" license that can be
 * found in the included LICENSE file.
@@ -46,6 +46,7 @@ namespace player3 { namespace ember
 		messageTypeMappings["START"] = MessageType::START;
 		messageTypeMappings["UNMUTE"] = MessageType::MUTE;
 		messageTypeMappings["DISCONNECT"] = MessageType::DISCONNECT;
+		messageTypeMappings["DEACTIVATE"] = MessageType::DEACTIVATE;
 		messageTypeMappings["CHATUICHANGE"] = MessageType::CHATUISTATE;
 		messageTypeMappings["QUALITYCHANGE"] = MessageType::QUALITYCHANGE;
 		Log("Ember::Init", deviceID.c_str());
@@ -171,6 +172,7 @@ namespace player3 { namespace ember
 				break;
 			case EXIT:
 				TRIGGER_EVENT(EmberStopStream, nullptr)
+				this->SendDisconnectMessage();
 				sleep(2);
 				exit(0);
 				break;
@@ -185,7 +187,7 @@ namespace player3 { namespace ember
 			case UNMUTE:
 				TRIGGER_EVENT(EmberUnmuteStream, nullptr)
 				break;
-			case DISCONNECT://TODO: Change to DEACTIVATE
+			case DEACTIVATE:
 				Log("ember::deactivate", "deactivate, %s", args.c_str());
 				authEvent = new EmberAuthenticatedEventArgs(args);
 				TRIGGER_EVENT(EmberNeedsActivation, authEvent)
@@ -215,6 +217,12 @@ namespace player3 { namespace ember
 		message.append(newState->GetSecondArgument());
 
 		this->emberClientSocket->send(message.c_str());
+	}
+	void EmberService::SendDisconnectMessage()
+	{
+		std::string message(this->deviceID);
+		message.append(" DISCONNECT:");
+		this->emberClientSocket->close(1000, message.c_str(), message.length());
 	}
 	uint32_t EmberService::ReconnectAttempt(uint32_t interval, void* opaque)
 	{

@@ -7,7 +7,6 @@
 #include <ui/native/EventHub.h>
 #include <player/chat/ChatService.h>
 #include <platform/PlatformManager.h>
-#include <ui/web/UIServer.h>
 #include <ui/native/threading/UIWorkerHost.h>
 
 #include <ui/native/NativeUIHost.h>
@@ -128,7 +127,7 @@ namespace app
 		std::map<std::string, boost::any> bindings;
 		std::string versionLabel("");
 		versionLabel.append("Build: ");
-		versionLabel.append(player3::Build);
+		versionLabel.append(BUILDNUMBER);
 		bindings["Version"] = versionLabel;
 		NativeUIHost::Get()->RenderScreen("Home", bindings, false);
 	}

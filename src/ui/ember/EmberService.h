@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2018 The Incredibly Big Red Robot
+* Copyright (c) 2018 An Incredibly Big Red Robot
 *
 * Use of this source code is governed by a "BSD-style" license that can be
 * found in the included LICENSE file.
@@ -39,6 +39,7 @@ namespace player3 { namespace ember
 			void GetClientToken();
 			void RegisterEvents();
 			void OnEC3Disconnect();
+			void SendDisconnectMessage();
 			static uint32_t ReconnectAttempt(uint32_t interval, void* opaque);
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
 

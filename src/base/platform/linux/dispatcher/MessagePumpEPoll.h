@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2016 The Incredibly Big Red Robot
+* Copyright (c) 2016 An Incredibly Big Red Robot
 *
 * Use of this source code is governed by a "BSD-style" license that can be
 * found in the included LICENSE file.
@@ -10,7 +10,7 @@
 
 #include <base/platform/linux/dispatcher/SharedThreadState.h>
 
-namespace base { namespace threading 
+namespace base { namespace threading
 {
    	class DispatcherTask;
 
@@ -26,7 +26,7 @@ namespace base { namespace threading
 		private:
 			static std::map<int, MessageReceiver*> handlers;
 			SharedThreadState* GetSharedState(bool isTaskRunner);
-			
+
 	};
 }}
 

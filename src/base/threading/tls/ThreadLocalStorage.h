@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2014 The Incredibly Big Red Robot
+* Copyright (c) 2014 An Incredibly Big Red Robot
 *
 * Use of this source code is governed by a "BSD-style" license that can be
 * found in the included LICENSE file.
@@ -10,7 +10,7 @@
 
 #include <base/threading/common/thread_types.h>
 
-namespace base { namespace threading 
+namespace base { namespace threading
 {
 	class ThreadLocalStorage
 	{

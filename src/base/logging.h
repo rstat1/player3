@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2012 The Incredibly Big Red Robot
+* Copyright (c) 2012 An Incredibly Big Red Robot
 *
 * Use of this source code is governed by a "BSD-style" license that can be
 * found in the included LICENSE file.
@@ -19,7 +19,7 @@
 #endif
 
 #if defined(DEBUG)
-	#define CLOG(priority, ...) Log("Compositor", __VA_ARGS__)	
+	#define CLOG(priority, ...) Log("Compositor", __VA_ARGS__)
 	#define DEBUG 1
 	#define VERBOSE 2
 #endif
