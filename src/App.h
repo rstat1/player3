@@ -18,8 +18,9 @@ namespace app
 		public:
 			void StartApp();
 			void OnInitComplete();
-			void SwitchChats(void* args);
 			void ChatUIEvent(void* args);
+			void ChatAction(EmberChatActionEventArgs* eventArgs);
+
 		private:
 			TaskRunner* taskRunner;
 			void ShowHomeScreen();

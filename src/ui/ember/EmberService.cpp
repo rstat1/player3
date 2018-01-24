@@ -9,6 +9,7 @@
 #include <thread>
 #include <iterator>
 #include <cpr/cpr.h>
+#include <BuildInfo.h>
 #include <json/json.h>
 #include <base/Utils.h>
 #include <boost/filesystem.hpp>
@@ -45,7 +46,6 @@ namespace player3 { namespace ember
 		messageTypeMappings["EXIT"] = MessageType::EXIT;
 		messageTypeMappings["START"] = MessageType::START;
 		messageTypeMappings["UNMUTE"] = MessageType::MUTE;
-		messageTypeMappings["DISCONNECT"] = MessageType::DISCONNECT;
 		messageTypeMappings["DEACTIVATE"] = MessageType::DEACTIVATE;
 		messageTypeMappings["CHATUICHANGE"] = MessageType::CHATUISTATE;
 		messageTypeMappings["QUALITYCHANGE"] = MessageType::QUALITYCHANGE;
@@ -66,11 +66,8 @@ namespace player3 { namespace ember
 
 		EVENT("EmberChatAction");
 		EVENT("EmberStateChange");
-
 		HANDLE_EVENT(EmberStateChange, true, "PlayerApp", HANDLER {
 			EmberStateChangeEventArgs* newState = (EmberStateChangeEventArgs*)args;
-			Log("ember", "EmberStateChange, playing = %s, muted = %s", newState->GetFirstArgument().c_str(), newState->GetSecondArgument().c_str());
-
 			EmberService::Get()->SetEmberIsMuted(newState->GetSecondArgument() == "muted");
 			EmberService::Get()->SetEmberIsPlaying(newState->GetFirstArgument() == "playing");
 		})
@@ -82,6 +79,7 @@ namespace player3 { namespace ember
 			this->connecting = false;
 			this->SetConnectionAttempts(0);
 			this->SetEmberIsConnected(true);
+			this->SendVersionInfo();
 		});
 		emberHub.onError([&](void* user) {
 			Log("ember", "connect failed (default)");
@@ -164,7 +162,9 @@ namespace player3 { namespace ember
 				break;
 			case START:
 				Log("ember::START", "%s", receivedMessage.c_str());
-				TRIGGER_EVENT(EmberStartStream, new EmberStreamEventArgs(args))
+				infoBits = split(args, ';');
+				TRIGGER_EVENT(EmberStartStream, new EmberStreamEventArgs(infoBits[1]))
+				TRIGGER_EVENT(EmberChatAction, new EmberChatActionEventArgs("join", infoBits[0]))
 				break;
 			case STOP:
 				Log("ember::STOP", "%s", receivedMessage.c_str());
@@ -179,10 +179,10 @@ namespace player3 { namespace ember
 			case INIT:
 				Log("ember::init", "%s", receivedMessage.c_str());
 				infoBits = split(args, ';');
-				if (infoBits[0] == "muted") { TRIGGER_EVENT(EmberMuteStream, nullptr) }
-				if (infoBits[1] == "playing") { TRIGGER_EVENT(EmberStartStream, nullptr) }
-				this->SetEmberTwitchToken(args);
-				TRIGGER_EVENT(EmberAuthenticated, nullptr)
+				this->SetEmberTwitchToken(infoBits[0]);
+				this->SetEmberTwitchUsername(infoBits[1]);
+				if (infoBits[2] == "muted") { TRIGGER_EVENT(EmberMuteStream, nullptr) }
+				if (infoBits[3] == "playing") { TRIGGER_EVENT(EmberStartStream, nullptr) }
 				break;
 			case UNMUTE:
 				TRIGGER_EVENT(EmberUnmuteStream, nullptr)
@@ -223,6 +223,15 @@ namespace player3 { namespace ember
 		std::string message(this->deviceID);
 		message.append(" DISCONNECT:");
 		this->emberClientSocket->close(1000, message.c_str(), message.length());
+	}
+	void EmberService::SendVersionInfo()
+	{
+		std::string message(this->deviceID);
+		message.append(" VERSION:");
+		message.append(BUILDNUMBER);
+		message.append(";");
+		message.append(BRANCH);
+		message.append("newState->GetSecondArgument()");
 	}
 	uint32_t EmberService::ReconnectAttempt(uint32_t interval, void* opaque)
 	{

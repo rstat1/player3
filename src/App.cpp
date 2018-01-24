@@ -29,7 +29,7 @@ namespace app
 	}
 	void App::OnInitComplete()
 	{
-		//SDL_SetHint("SDL_PE_GFX_RESOLUTION", "1920x1080");
+		EVENT(ConnectToChat)
 		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO);
 
 		EmberService::Get()->SetEmberWebSocketURL("ws://192.168.1.12:1999/ws");
@@ -50,22 +50,20 @@ namespace app
 		ThreadedEventHandlerArgs* eventArgs = (ThreadedEventHandlerArgs*)args;
 		eventArgs->eventHandler.handler(eventArgs->args);
 	}
-	void App::SwitchChats(void* args)
-	{
-		const char* newChat = (const char*)args;
-		ChatService::Get()->JoinChannel(newChat);
-	}
 	void App::EmberEventHandlers()
 	{
 		HANDLE_EVENT(EmberAuthenticated, true, "UI", HANDLER {
 			writeToLog("show home");
 			this->ShowHomeScreen();
+			if (ChatService::Get()->GetIsConnected() == false)
+			{
+				writeToLog("Connecting to chat...");
+				ChatService::Get()->ConnectToTwitchIRC(EmberService::Get()->GetEmberTwitchToken().c_str(),
+					EmberService::Get()->GetEmberTwitchUsername().c_str());
+			}
 		})
 		HANDLE_EVENT(EmberConnecting, true, "UI", HANDLER {
-			if (EmberService::Get()->GetEmberIsPlaying())
-			{
-				//TODO: Show a smaller notif style thing saying the connection dropped.
-			}
+			if (EmberService::Get()->GetEmberIsPlaying()) { /* TODO: Show a smaller notif style thing saying the connection dropped. */ }
 			else
 			{
 				NativeUIHost::Get()->RenderScreen("Connecting", std::map<std::string, boost::any>{}, false);
@@ -78,14 +76,12 @@ namespace app
 				sleep(5);
 				exit(0);
 			}
-			else
-			{
-				//TODO: Something to prevent interupting a playing stream... Or something.
-			}
+			else { /* TODO: Something to prevent interupting a playing stream... Or something. */ }
 		})
 		HANDLE_EVENT(EmberNeedsActivation, true, "UI", HANDLER {
 			writeToLog("activation needed");
 			this->ShowActivateScreen((EmberAuthenticatedEventArgs*)args);
+			if (ChatService::Get()->GetIsConnected()) { ChatService::Get()->DisconnectFromTwitchIRC(); }
 		})
 		HANDLE_EVENT(EmberStateChange, true, "UI", HANDLER {
 			EmberStateChangeEventArgs* newState = (EmberStateChangeEventArgs*)args;
@@ -97,6 +93,10 @@ namespace app
 				NativeUIHost::Get()->RenderScreen("Home", std::map<std::string, boost::any>{}, false);
 			}
 			EmberService::Get()->SendStateChange(newState);
+		})
+		HANDLE_EVENT(EmberChatAction, true, "UI", HANDLER {
+			EmberChatActionEventArgs* eventArgs = (EmberChatActionEventArgs*)args;
+			this->ChatAction(eventArgs);
 		})
 		EmberService::Get()->ConnectToEmber();
 	}
@@ -128,7 +128,16 @@ namespace app
 		std::string versionLabel("");
 		versionLabel.append("Build: ");
 		versionLabel.append(BUILDNUMBER);
+		versionLabel.append(".");
+		versionLabel.append(BRANCH);
 		bindings["Version"] = versionLabel;
 		NativeUIHost::Get()->RenderScreen("Home", bindings, false);
+	}
+	void App::ChatAction(EmberChatActionEventArgs* eventArgs)
+	{
+		if (eventArgs->GetFirstArgument() == "join")
+		{
+			ChatService::Get()->JoinChannel(eventArgs->GetSecondArgument().c_str());
+		}
 	}
 }

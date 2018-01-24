@@ -9,11 +9,13 @@
 #include <thread>
 #include <base/Utils.h>
 #include <ui/native/EventHub.h>
+#include <ui/ember/EmberService.h>
 #include <player/chat/ChatService.h>
 #include <boost/algorithm/string/trim.hpp>
 
 using namespace player3::ui;
 using namespace base::utils;
+using namespace player3::ember;
 
 namespace player3 { namespace chat
 {
@@ -39,6 +41,7 @@ namespace player3 { namespace chat
 			ws->send("CAP REQ :twitch.tv/tags");
 			ws->send(tokenStr.c_str());
 			ws->send(username.c_str());
+			this->SetIsConnected(true);
 			TRIGGER_EVENT(Connected, nullptr);
 		});
 		chatHub.onError([&](void* user) {
@@ -55,6 +58,11 @@ namespace player3 { namespace chat
 			chatHub.run();
 		});
 		chatHubRunner.detach();
+	}
+	void ChatService::DisconnectFromTwitchIRC()
+	{
+		this->twitchChat->close();
+		delete this->twitchChat;
 	}
 	void ChatService::JoinChannel(const char* channel)
 	{

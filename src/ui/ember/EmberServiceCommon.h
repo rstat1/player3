@@ -20,7 +20,6 @@ namespace player3 { namespace ember
 		START,
 		INIT,
 		UNMUTE,
-		DISCONNECT,
 		DEACTIVATE,
 		CHATUISTATE,
 		QUALITYCHANGE,
@@ -28,6 +27,7 @@ namespace player3 { namespace ember
 	EVENTARGS(EmberConnecting, int)
 	EVENTARGS(EmberStream, std::string)
 	EVENTARGS(EmberAuthenticated, std::string)
+	EVENTARGS2(EmberChatAction, std::string, std::string)
 	EVENTARGS2(EmberStateChange, std::string, std::string)
 }}
 

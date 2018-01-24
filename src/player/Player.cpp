@@ -58,9 +58,7 @@ namespace player3 { namespace player
 		this->InitOverlay();
 		this->SetEmberEventHandlers();
 
-		HANDLE_EVENT(Connected, true, "UI", HANDLER {
-			ChatService::Get()->JoinChannel("rstat1");
-		});
+		
 
 #if defined(OS_LINUX) && !defined(OS_STEAMLINK)
 		signal(SIGTERM, Player::SigTermHandler);
@@ -82,7 +80,6 @@ namespace player3 { namespace player
 
 		EVENT("UpdateOverlay");
 		EVENT("StreamStarting");
-
 		HANDLE_EVENT(UpdateOverlay, true, "PlayerApp", HANDLER {
 			InternalPlayerState* playerState = (InternalPlayerState*)args;
 			double currentUse = MemTrack::GetCurrentMemoryUse();

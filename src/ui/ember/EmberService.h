@@ -35,10 +35,12 @@ namespace player3 { namespace ember
 			PROPERTY(EmberClientToken, std::string)
 			PROPERTY(EmberTwitchToken, std::string)
 			PROPERTY(EmberWebSocketURL, std::string)
+			PROPERTY(EmberTwitchUsername, std::string)
 		private:
 			void GetClientToken();
 			void RegisterEvents();
 			void OnEC3Disconnect();
+			void SendVersionInfo();
 			void SendDisconnectMessage();
 			static uint32_t ReconnectAttempt(uint32_t interval, void* opaque);
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);

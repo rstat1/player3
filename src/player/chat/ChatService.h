@@ -12,6 +12,7 @@
 #include <uWS/src/uWS.h>
 #include <player/chat/ChatUI.h>
 #include <base/threading/dispatcher/DispatcherTypes.h>
+#include <ui/native/PropertyMacros.h>
 
 using namespace uWS;
 using namespace base::threading;
@@ -41,8 +42,10 @@ namespace player3 { namespace chat
 		public:
 			void InitChatService();
 			void LeaveCurrentChannel();
+			void DisconnectFromTwitchIRC();
 			void JoinChannel(const char* channel);
 			void ConnectToTwitchIRC(const char* token, const char* user);
+			PROPERTY(IsConnected, bool);
 		private:
 			void ParseChatMessage(std::string rawMessage);
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
