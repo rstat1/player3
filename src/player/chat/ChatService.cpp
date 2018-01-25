@@ -29,9 +29,11 @@ namespace player3 { namespace chat
 		this->currentChannel = "";
 		this->chatUI = new ChatUI();
 		this->chatUI->InitChatUI();
+		this->SetIsConnected(false);
 	}
 	void ChatService::ConnectToTwitchIRC(const char* token, const char* user)
 	{
+		writeToLog("connect to chat");
 		chatHub.onConnection([token, user, this](WebSocket<CLIENT> *ws, HttpRequest req) {
 			this->twitchChat = ws;
 			std::string tokenStr("PASS oauth:");
@@ -56,13 +58,13 @@ namespace player3 { namespace chat
 		std::thread chatHubRunner([&]{
 			chatHub.connect("wss://irc-ws.chat.twitch.tv", nullptr, {{"Sec-WebSocket-Protocol", "irc"}}, 1000);
 			chatHub.run();
+
 		});
 		chatHubRunner.detach();
 	}
 	void ChatService::DisconnectFromTwitchIRC()
 	{
-		this->twitchChat->close();
-		delete this->twitchChat;
+		this->twitchChat->close(1000);
 	}
 	void ChatService::JoinChannel(const char* channel)
 	{
@@ -110,7 +112,7 @@ namespace player3 { namespace chat
 				msg->sender.assign("twitchirc");
 				msg->senderColor = "";
 				msg->message.assign("login failed.");
-
+				Log("chat", "%s", msg->message.c_str());
 				TRIGGER_EVENT(MessageReceived, msg);
 			}
 		}

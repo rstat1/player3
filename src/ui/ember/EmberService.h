@@ -42,6 +42,7 @@ namespace player3 { namespace ember
 			void OnEC3Disconnect();
 			void SendVersionInfo();
 			void SendDisconnectMessage();
+			void ParseInitMessage(std::string args, bool activate);
 			static uint32_t ReconnectAttempt(uint32_t interval, void* opaque);
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
 

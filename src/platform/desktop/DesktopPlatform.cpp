@@ -6,10 +6,13 @@
 */
 
 #include <base/common.h>
+#include <ui/ember/EmberServiceCommon.h>
 #include <platform/desktop/DesktopPlatform.h>
+
 
 namespace player3 { namespace platform
 {
+	using namespace player3::ember;
 	DesktopPlatform::DesktopPlatform() {}
 	std::vector<int> DesktopPlatform::GetScreenSize()
 	{
@@ -52,7 +55,10 @@ namespace player3 { namespace platform
 		// SDL_RenderCopy(render, overlayTexture, NULL, &dest);
 		// SDL_RenderPresent(render);
 	}
-	void DesktopPlatform::DecoderReset() {}
+	void DesktopPlatform::DecoderReset()
+	{
+		TRIGGER_EVENT(EmberStateChange, new EmberStateChangeEventArgs("notplaying", "notmuted"))
+	}
 	void DesktopPlatform::DecoderShutdown() {}
 	bool DesktopPlatform::DecodeVideoFrame(uint8_t* data, int size) { return true; }
 	int DesktopPlatform::GetAudioSampleCount() { return 2048; }

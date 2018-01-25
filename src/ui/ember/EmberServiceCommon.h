@@ -12,6 +12,7 @@
 
 namespace player3 { namespace ember
 {
+	using namespace player3::ui;
 	enum MessageType
 	{
 		MUTE,
@@ -20,6 +21,7 @@ namespace player3 { namespace ember
 		START,
 		INIT,
 		UNMUTE,
+		ACTIVATE,
 		DEACTIVATE,
 		CHATUISTATE,
 		QUALITYCHANGE,

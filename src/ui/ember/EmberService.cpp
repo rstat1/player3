@@ -46,6 +46,7 @@ namespace player3 { namespace ember
 		messageTypeMappings["EXIT"] = MessageType::EXIT;
 		messageTypeMappings["START"] = MessageType::START;
 		messageTypeMappings["UNMUTE"] = MessageType::MUTE;
+		messageTypeMappings["ACTIVATE"] = MessageType::ACTIVATE;
 		messageTypeMappings["DEACTIVATE"] = MessageType::DEACTIVATE;
 		messageTypeMappings["CHATUICHANGE"] = MessageType::CHATUISTATE;
 		messageTypeMappings["QUALITYCHANGE"] = MessageType::QUALITYCHANGE;
@@ -178,14 +179,14 @@ namespace player3 { namespace ember
 				break;
 			case INIT:
 				Log("ember::init", "%s", receivedMessage.c_str());
-				infoBits = split(args, ';');
-				this->SetEmberTwitchToken(infoBits[0]);
-				this->SetEmberTwitchUsername(infoBits[1]);
-				if (infoBits[2] == "muted") { TRIGGER_EVENT(EmberMuteStream, nullptr) }
-				if (infoBits[3] == "playing") { TRIGGER_EVENT(EmberStartStream, nullptr) }
+				this->ParseInitMessage(args, false);
 				break;
 			case UNMUTE:
 				TRIGGER_EVENT(EmberUnmuteStream, nullptr)
+				break;
+			case ACTIVATE:
+				Log("ember::init", "%s", receivedMessage.c_str());
+				this->ParseInitMessage(args, true);
 				break;
 			case DEACTIVATE:
 				Log("ember::deactivate", "deactivate, %s", args.c_str());
@@ -232,6 +233,17 @@ namespace player3 { namespace ember
 		message.append(";");
 		message.append(BRANCH);
 		message.append("newState->GetSecondArgument()");
+	}
+	void EmberService::ParseInitMessage(std::string args, bool activate)
+	{
+		std::vector<std::string> infoBits;
+
+		infoBits = split(args, ';');
+		this->SetEmberTwitchToken(infoBits[0]);
+		this->SetEmberTwitchUsername(infoBits[1]);
+		if (infoBits[2] == "muted") { TRIGGER_EVENT(EmberMuteStream, nullptr) }
+		if (infoBits[3] == "playing") { TRIGGER_EVENT(EmberStartStream, nullptr) }
+		if (activate) { TRIGGER_EVENT(EmberAuthenticated, nullptr) }
 	}
 	uint32_t EmberService::ReconnectAttempt(uint32_t interval, void* opaque)
 	{

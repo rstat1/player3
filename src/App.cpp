@@ -91,6 +91,7 @@ namespace app
 				NativeUIHost::Get()->ClearScreen();
 			} else if (newState->GetFirstArgument() == "notplaying") {
 				NativeUIHost::Get()->RenderScreen("Home", std::map<std::string, boost::any>{}, false);
+				ChatService::Get()->LeaveCurrentChannel();
 			}
 			EmberService::Get()->SendStateChange(newState);
 		})
