@@ -30,11 +30,15 @@ namespace app
 	void App::OnInitComplete()
 	{
 		EVENT(ConnectToChat)
+		EVENT(ChatUIPositionChange)
+
 		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO);
 
-		EmberService::Get()->SetEmberWebSocketURL("ws://192.168.1.12:1999/ws");
-		EmberService::Get()->SetEmberConnectURL("http://192.168.1.12:1999/api/ember/client/connect");
+		EmberService::Get()->SetEmberWebSocketURL("ws://api.dev-m.rdro.us/ember/ws");
+		EmberService::Get()->SetEmberConnectURL("http://api.dev-m.rdro.us/ember/client/connect");
 		EmberService::Get()->Init();
+
+		this->SetCurrentChannelName("");
 
 		PlatformManager::Get()->InitPlatformInterface();
 		UIWorkerHost::Get()->Init();
@@ -55,12 +59,10 @@ namespace app
 		HANDLE_EVENT(EmberAuthenticated, true, "UI", HANDLER {
 			writeToLog("show home");
 			this->ShowHomeScreen();
-			if (ChatService::Get()->GetIsConnected() == false)
-			{
-				writeToLog("Connecting to chat...");
-				ChatService::Get()->ConnectToTwitchIRC(EmberService::Get()->GetEmberTwitchToken().c_str(),
-					EmberService::Get()->GetEmberTwitchUsername().c_str());
-			}
+			writeToLog("Connecting to chat...");
+			ChatService::Get()->ConnectToTwitchIRC(EmberService::Get()->GetEmberTwitchToken().c_str(),
+				EmberService::Get()->GetEmberTwitchUsername().c_str());
+
 		})
 		HANDLE_EVENT(EmberConnecting, true, "UI", HANDLER {
 			if (EmberService::Get()->GetEmberIsPlaying()) { /* TODO: Show a smaller notif style thing saying the connection dropped. */ }
@@ -99,6 +101,12 @@ namespace app
 			EmberChatActionEventArgs* eventArgs = (EmberChatActionEventArgs*)args;
 			this->ChatAction(eventArgs);
 		})
+		HANDLE_EVENT(Connected, true, "UI", HANDLER {
+			if (strcmp(this->GetCurrentChannelName().c_str(), "") != 0)
+			{
+				ChatService::Get()->JoinChannel(this->GetCurrentChannelName().c_str());
+			}
+		})
 		EmberService::Get()->ConnectToEmber();
 	}
 	void App::ShowActivateScreen(EmberAuthenticatedEventArgs* eventArgs)
@@ -125,20 +133,55 @@ namespace app
 	}
 	void App::ShowHomeScreen()
 	{
-		std::map<std::string, boost::any> bindings;
-		std::string versionLabel("");
-		versionLabel.append("Build: ");
-		versionLabel.append(BUILDNUMBER);
-		versionLabel.append(".");
-		versionLabel.append(BRANCH);
-		bindings["Version"] = versionLabel;
-		NativeUIHost::Get()->RenderScreen("Home", bindings, false);
+		if (EmberService::Get()->GetEmberIsPlaying() == false)
+		 {
+			std::map<std::string, boost::any> bindings;
+			std::string versionLabel("");
+			versionLabel.append("Build: ");
+			versionLabel.append(BUILDNUMBER);
+			versionLabel.append(".");
+			versionLabel.append(BRANCH);
+			bindings["Version"] = versionLabel;
+			NativeUIHost::Get()->RenderScreen("Home", bindings, false);
+		}
 	}
 	void App::ChatAction(EmberChatActionEventArgs* eventArgs)
 	{
 		if (eventArgs->GetFirstArgument() == "join")
 		{
-			ChatService::Get()->JoinChannel(eventArgs->GetSecondArgument().c_str());
+			this->SetCurrentChannelName(eventArgs->GetSecondArgument());
+			if (ChatService::Get()->GetIsEnabled())
+			{
+				Log("app", "chat join channel");
+				ChatService::Get()->JoinChannel(eventArgs->GetSecondArgument().c_str());
+			}
+			else { Log("app", "chat not enabled..."); }
+		}
+		else if (eventArgs->GetFirstArgument() == "chatuistate")
+		{
+			std::vector<std::string> infoBits;
+			infoBits = base::utils::split(eventArgs->GetSecondArgument(), ';');
+
+			if (infoBits[1] == "enabled" && ChatService::Get()->GetIsConnected() == false)
+			{
+				ChatService::Get()->SetIsEnabled(true);
+				ChatService::Get()->ConnectToTwitchIRC(EmberService::Get()->GetEmberTwitchToken().c_str(),
+					EmberService::Get()->GetEmberTwitchUsername().c_str());
+			}
+			else
+			{
+				if (ChatService::Get()->GetIsConnected())
+				{
+					ChatService::Get()->LeaveCurrentChannel();
+					ChatService::Get()->DisconnectFromTwitchIRC();
+				}
+				ChatService::Get()->SetIsEnabled(false);
+			}
+			TRIGGER_EVENT(ChatUIPositionChange, new ChatUIPositionEventArgs(infoBits[0]));
+		}
+		else if (eventArgs->GetFirstArgument() == "chatuiposition")
+		{
+			TRIGGER_EVENT(ChatUIPositionChange, new ChatUIPositionEventArgs(eventArgs->GetSecondArgument()))
 		}
 	}
 }

@@ -45,7 +45,11 @@ namespace player3 { namespace chat
 			void DisconnectFromTwitchIRC();
 			void JoinChannel(const char* channel);
 			void ConnectToTwitchIRC(const char* token, const char* user);
+
+			PROPERTY(IsEnabled, bool);
 			PROPERTY(IsConnected, bool);
+			PROPERTY(IsConnecting, bool);
+			PROPERTY(CurrentChannel, std::string);
 		private:
 			void ParseChatMessage(std::string rawMessage);
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);

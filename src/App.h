@@ -20,7 +20,7 @@ namespace app
 			void OnInitComplete();
 			void ChatUIEvent(void* args);
 			void ChatAction(EmberChatActionEventArgs* eventArgs);
-
+			PROPERTY(CurrentChannelName, std::string);
 		private:
 			TaskRunner* taskRunner;
 			void ShowHomeScreen();

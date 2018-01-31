@@ -40,6 +40,7 @@ namespace player3 { namespace ember
 			devIDFile.close();
 		}
 		this->RegisterEvents();
+
 		messageTypeMappings["INIT"] = MessageType::INIT;
 		messageTypeMappings["MUTE"] = MessageType::MUTE;
 		messageTypeMappings["STOP"] = MessageType::STOP;
@@ -48,9 +49,14 @@ namespace player3 { namespace ember
 		messageTypeMappings["UNMUTE"] = MessageType::MUTE;
 		messageTypeMappings["ACTIVATE"] = MessageType::ACTIVATE;
 		messageTypeMappings["DEACTIVATE"] = MessageType::DEACTIVATE;
-		messageTypeMappings["CHATUICHANGE"] = MessageType::CHATUISTATE;
+		messageTypeMappings["CHATUISTATE"] = MessageType::CHATUISTATE;
 		messageTypeMappings["QUALITYCHANGE"] = MessageType::QUALITYCHANGE;
+		messageTypeMappings["CHATUIPOSITION"] = MessageType::CHATUIPOSITION;
+
 		Log("Ember::Init", deviceID.c_str());
+
+		this->SetEmberIsPlaying(false);
+		this->SetEmberIsMuted(false);
 	}
 	void EmberService::RegisterEvents()
 	{
@@ -194,8 +200,14 @@ namespace player3 { namespace ember
 				TRIGGER_EVENT(EmberNeedsActivation, authEvent)
 				break;
 			case CHATUISTATE:
+				Log("ember::CHATUISTATE", "chatuistate: %s", args.c_str());
+				TRIGGER_EVENT(EmberChatAction, new EmberChatActionEventArgs("chatuistate", args))
 				break;
 			case QUALITYCHANGE:
+				break;
+			case CHATUIPOSITION:
+				Log("ember::CHATUIPOSITION", "pos-change: %s", args.c_str());
+				TRIGGER_EVENT(EmberChatAction, new EmberChatActionEventArgs("chatuiposition", args))
 				break;
 		}
 	}

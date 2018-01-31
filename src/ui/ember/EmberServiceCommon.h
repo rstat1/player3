@@ -25,6 +25,7 @@ namespace player3 { namespace ember
 		DEACTIVATE,
 		CHATUISTATE,
 		QUALITYCHANGE,
+		CHATUIPOSITION,
 	};
 	EVENTARGS(EmberConnecting, int)
 	EVENTARGS(EmberStream, std::string)

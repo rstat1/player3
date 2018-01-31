@@ -30,37 +30,47 @@ namespace player3 { namespace chat
 		this->chatUI = new ChatUI();
 		this->chatUI->InitChatUI();
 		this->SetIsConnected(false);
+		this->SetIsConnecting(false);
+		this->SetIsEnabled(true);
+		this->SetCurrentChannel("");
+
 	}
 	void ChatService::ConnectToTwitchIRC(const char* token, const char* user)
 	{
-		writeToLog("connect to chat");
-		chatHub.onConnection([token, user, this](WebSocket<CLIENT> *ws, HttpRequest req) {
-			this->twitchChat = ws;
-			std::string tokenStr("PASS oauth:");
-			std::string username("NICK ");
-			tokenStr.append(token);
-			username.append(user);
-			ws->send("CAP REQ :twitch.tv/tags");
-			ws->send(tokenStr.c_str());
-			ws->send(username.c_str());
-			this->SetIsConnected(true);
-			TRIGGER_EVENT(Connected, nullptr);
-		});
-		chatHub.onError([&](void* user) {
-			Log("Chat", "connect failed");
-		});
-		chatHub.onDisconnection([&](WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
-			Log("Chat", "Disconnected %s", message);
-		});
-		chatHub.onMessage([&](WebSocket<CLIENT>* ws, char* msg, size_t len, OpCode code) {
-			this->MessageReceived(ws, msg, len);
-		});
-		std::thread chatHubRunner([&]{
-			chatHub.connect("wss://irc-ws.chat.twitch.tv", nullptr, {{"Sec-WebSocket-Protocol", "irc"}}, 1000);
-			chatHub.run();
+		if (this->GetIsEnabled() && !this->GetIsConnected() && !this->GetIsConnecting())
+		{
+			this->SetIsConnecting(true);
+			writeToLog("connect to chat");
+			chatHub.onConnection([token, user, this](WebSocket<CLIENT> *ws, HttpRequest req) {
+				Log("chat", "connected...");
+				this->twitchChat = ws;
+				std::string tokenStr("PASS oauth:");
+				std::string username("NICK ");
+				tokenStr.append(token);
+				username.append(user);
+				ws->send("CAP REQ :twitch.tv/tags");
+				ws->send(tokenStr.c_str());
+				ws->send(username.c_str());
+				this->SetIsConnected(true);
+				this->SetIsConnecting(false);
+				TRIGGER_EVENT(Connected, nullptr);
+			});
+			chatHub.onError([&](void* user) {
+				Log("Chat", "connect failed");
+			});
+			chatHub.onDisconnection([&](WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
+				Log("Chat", "Disconnected %s", message);
+			});
+			chatHub.onMessage([&](WebSocket<CLIENT>* ws, char* msg, size_t len, OpCode code) {
+				this->MessageReceived(ws, msg, len);
+			});
+			std::thread chatHubRunner([&]{
+				chatHub.connect("wss://irc-ws.chat.twitch.tv", nullptr, {{"Sec-WebSocket-Protocol", "irc"}}, 1000);
+				chatHub.run();
 
-		});
-		chatHubRunner.detach();
+			});
+			chatHubRunner.detach();
+		}
 	}
 	void ChatService::DisconnectFromTwitchIRC()
 	{
@@ -82,13 +92,17 @@ namespace player3 { namespace chat
 
 		this->currentChannel.assign(channel);
 		this->currentChannel.assign(str_tolower(this->currentChannel).c_str());
+		this->SetCurrentChannel(channel);
 	}
 	void ChatService::LeaveCurrentChannel()
 	{
-		std::string partCmd("PART #");
-		partCmd.append(this->currentChannel);
-		chatHub.getDefaultGroup<CLIENT>().broadcast(partCmd.c_str(), partCmd.length(), OpCode::TEXT);
-		this->currentChannel = "";
+		if (this->currentChannel != "") {
+			std::string partCmd("PART #");
+			partCmd.append(this->currentChannel);
+			chatHub.getDefaultGroup<CLIENT>().broadcast(partCmd.c_str(), partCmd.length(), OpCode::TEXT);
+			this->currentChannel = "";
+			this->SetCurrentChannel("");
+		}
 	}
 	void ChatService::MessageReceived(uWS::WebSocket<CLIENT>* connection, char* data, int length)
 	{
