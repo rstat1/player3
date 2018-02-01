@@ -24,6 +24,7 @@ namespace player3 { namespace ember
 		ACTIVATE,
 		DEACTIVATE,
 		CHATUISTATE,
+		CLIENTUPDATE,
 		QUALITYCHANGE,
 		CHATUIPOSITION,
 	};

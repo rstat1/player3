@@ -36,6 +36,8 @@ namespace app
 
 		EmberService::Get()->SetEmberWebSocketURL("ws://api.dev-m.rdro.us/ember/ws");
 		EmberService::Get()->SetEmberConnectURL("http://api.dev-m.rdro.us/ember/client/connect");
+		EmberService::Get()->SetEmberUpdateCheckURL("http://api.dev-m.rdro.us/ember/updates/check");
+		EmberService::Get()->SetEmberUpdateDownloadURL("http://api.dev-m.rdro.us/ember/updates/get");
 		EmberService::Get()->Init();
 
 		this->SetCurrentChannelName("");
@@ -62,6 +64,8 @@ namespace app
 			writeToLog("Connecting to chat...");
 			ChatService::Get()->ConnectToTwitchIRC(EmberService::Get()->GetEmberTwitchToken().c_str(),
 				EmberService::Get()->GetEmberTwitchUsername().c_str());
+
+			EmberService::Get()->RunUpdateCheck();
 
 		})
 		HANDLE_EVENT(EmberConnecting, true, "UI", HANDLER {
@@ -162,11 +166,14 @@ namespace app
 			std::vector<std::string> infoBits;
 			infoBits = base::utils::split(eventArgs->GetSecondArgument(), ';');
 
-			if (infoBits[1] == "enabled" && ChatService::Get()->GetIsConnected() == false)
+			if (infoBits[1] == "enabled" )
 			{
-				ChatService::Get()->SetIsEnabled(true);
-				ChatService::Get()->ConnectToTwitchIRC(EmberService::Get()->GetEmberTwitchToken().c_str(),
-					EmberService::Get()->GetEmberTwitchUsername().c_str());
+				if (ChatService::Get()->GetIsConnected() == false)
+				{
+					ChatService::Get()->SetIsEnabled(true);
+					ChatService::Get()->ConnectToTwitchIRC(EmberService::Get()->GetEmberTwitchToken().c_str(),
+						EmberService::Get()->GetEmberTwitchUsername().c_str());
+				}
 			}
 			else
 			{

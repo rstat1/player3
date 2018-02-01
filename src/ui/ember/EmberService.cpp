@@ -50,6 +50,7 @@ namespace player3 { namespace ember
 		messageTypeMappings["ACTIVATE"] = MessageType::ACTIVATE;
 		messageTypeMappings["DEACTIVATE"] = MessageType::DEACTIVATE;
 		messageTypeMappings["CHATUISTATE"] = MessageType::CHATUISTATE;
+		messageTypeMappings["CLIENTUPDATE"] = MessageType::CLIENTUPDATE;
 		messageTypeMappings["QUALITYCHANGE"] = MessageType::QUALITYCHANGE;
 		messageTypeMappings["CHATUIPOSITION"] = MessageType::CHATUIPOSITION;
 
@@ -199,6 +200,8 @@ namespace player3 { namespace ember
 				authEvent = new EmberAuthenticatedEventArgs(args);
 				TRIGGER_EVENT(EmberNeedsActivation, authEvent)
 				break;
+			case CLIENTUPDATE:
+				break;
 			case CHATUISTATE:
 				Log("ember::CHATUISTATE", "chatuistate: %s", args.c_str());
 				TRIGGER_EVENT(EmberChatAction, new EmberChatActionEventArgs("chatuistate", args))
@@ -242,9 +245,10 @@ namespace player3 { namespace ember
 		std::string message(this->deviceID);
 		message.append(" VERSION:");
 		message.append(BUILDNUMBER);
-		message.append(";");
+		message.append(".");
 		message.append(BRANCH);
-		message.append("newState->GetSecondArgument()");
+
+		this->emberClientSocket->send(message.c_str());
 	}
 	void EmberService::ParseInitMessage(std::string args, bool activate)
 	{
@@ -256,6 +260,54 @@ namespace player3 { namespace ember
 		if (infoBits[2] == "muted") { TRIGGER_EVENT(EmberMuteStream, nullptr) }
 		if (infoBits[3] == "playing") { TRIGGER_EVENT(EmberStartStream, nullptr) }
 		if (activate) { TRIGGER_EVENT(EmberAuthenticated, nullptr) }
+	}
+	void EmberService::RunUpdateCheck()
+	{
+		std::string message(BUILDNUMBER);
+		message.append(".");
+		message.append(BRANCH);
+
+		Json::Reader reader;
+		Json::Value accessResp, updateInfo;
+		writeToLog("checking for updates...");
+		cpr::Response resp = cpr::Get(cpr::Url(this->GetEmberUpdateCheckURL()), cpr::Header{
+			{"Authorization", "Bearer " + this->GetEmberClientToken()},
+		}, cpr::Parameters{{"v", message}});
+
+		if (resp.status_code == 200) {
+			if (reader.parse(resp.text.c_str(), accessResp))
+			{
+				if (reader.parse(accessResp["response"].asCString(), updateInfo))
+				{
+					for (const auto& el : updateInfo["filesUpdated"])
+    				{
+						this->DownloadUpdates(el.asString(), updateInfo["version"].asString());
+    				}
+				}
+			}
+		}
+	}
+	void EmberService::DownloadUpdates(std::string filename, std::string version)
+	{
+		std::string updateFileName;
+		std::ios_base::openmode fileMode;
+
+		if (filename == "player3") {
+			updateFileName = "player3-update";
+			fileMode = std::ios_base::binary | std::ios_base::out;
+		} else {
+			updateFileName = filename;
+			fileMode = std::ios_base::out;
+		}
+		std::ofstream file(updateFileName.c_str(), fileMode);
+		cpr::Response resp = cpr::Download(file, cpr::Url(this->GetEmberUpdateDownloadURL()), cpr::Header{
+			{"Authorization", "Bearer " + this->GetEmberClientToken()},
+		}, cpr::Parameters{{"v", version}, {"f", filename}});
+
+		if (resp.status_code != 200) {
+			Log("ember", resp.error.message.c_str());
+		}
+		file.close();
 	}
 	uint32_t EmberService::ReconnectAttempt(uint32_t interval, void* opaque)
 	{
