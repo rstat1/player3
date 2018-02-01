@@ -34,10 +34,10 @@ namespace app
 
 		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO);
 
-		EmberService::Get()->SetEmberWebSocketURL("ws://api.dev-m.rdro.us/ember/ws");
-		EmberService::Get()->SetEmberConnectURL("http://api.dev-m.rdro.us/ember/client/connect");
-		EmberService::Get()->SetEmberUpdateCheckURL("http://api.dev-m.rdro.us/ember/updates/check");
-		EmberService::Get()->SetEmberUpdateDownloadURL("http://api.dev-m.rdro.us/ember/updates/get");
+		EmberService::Get()->SetEmberWebSocketURL("wss://api.m.rdro.us/ember/ws");
+		EmberService::Get()->SetEmberConnectURL("https://api.m.rdro.us/ember/client/connect");
+		EmberService::Get()->SetEmberUpdateCheckURL("https://api.m.rdro.us/ember/updates/check");
+		EmberService::Get()->SetEmberUpdateDownloadURL("https://api.m.rdro.us/ember/updates/get");
 		EmberService::Get()->Init();
 
 		this->SetCurrentChannelName("");

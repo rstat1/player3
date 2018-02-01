@@ -50,7 +50,6 @@ namespace player3 { namespace ember
 		messageTypeMappings["ACTIVATE"] = MessageType::ACTIVATE;
 		messageTypeMappings["DEACTIVATE"] = MessageType::DEACTIVATE;
 		messageTypeMappings["CHATUISTATE"] = MessageType::CHATUISTATE;
-		messageTypeMappings["CLIENTUPDATE"] = MessageType::CLIENTUPDATE;
 		messageTypeMappings["QUALITYCHANGE"] = MessageType::QUALITYCHANGE;
 		messageTypeMappings["CHATUIPOSITION"] = MessageType::CHATUIPOSITION;
 
@@ -199,8 +198,6 @@ namespace player3 { namespace ember
 				Log("ember::deactivate", "deactivate, %s", args.c_str());
 				authEvent = new EmberAuthenticatedEventArgs(args);
 				TRIGGER_EVENT(EmberNeedsActivation, authEvent)
-				break;
-			case CLIENTUPDATE:
 				break;
 			case CHATUISTATE:
 				Log("ember::CHATUISTATE", "chatuistate: %s", args.c_str());

@@ -15,5 +15,4 @@ sshpass -e scp src/ui/ChatUI.uism root@192.168.1.6:/home/apps/$BUILDTYPE/
 sshpass -e scp src/ui/StreamIsLive.uism root@192.168.1.6:/home/apps/$BUILDTYPE/
 sshpass -e scp src/ui/Connecting.uism root@192.168.1.6:/home/apps/$BUILDTYPE/
 sshpass -e scp Debug-armv7l/google-controller.png root@192.168.1.6:/home/apps/$BUILDTYPE/
-#sshpass -e scp Debug-armv7l/lib/libexternal.so root@192.168.1.14:/home/apps/streamlink/lib
-#Debug-armv7l/app/streamlinkclient.dll
+sshpass -e scp build/resources/player3.sh root@192.168.1.6:/home/apps/$BUILDTYPE/
