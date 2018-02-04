@@ -40,7 +40,7 @@ namespace player3 { namespace chat
 		if (this->GetIsEnabled() && !this->GetIsConnected() && !this->GetIsConnecting())
 		{
 			this->SetIsConnecting(true);
-			writeToLog("connect to chat");
+			Log("chat", "connect to chat as %s", user);
 			chatHub.onConnection([token, user, this](WebSocket<CLIENT> *ws, HttpRequest req) {
 				Log("chat", "connected...");
 				this->twitchChat = ws;
@@ -59,7 +59,7 @@ namespace player3 { namespace chat
 				Log("Chat", "connect failed");
 			});
 			chatHub.onDisconnection([&](WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
-				Log("Chat", "Disconnected %s", message);
+				Log("Chat", "Disconnected %i %s", code, message);
 			});
 			chatHub.onMessage([&](WebSocket<CLIENT>* ws, char* msg, size_t len, OpCode code) {
 				this->MessageReceived(ws, msg, len);
@@ -119,6 +119,9 @@ namespace player3 { namespace chat
 			if (msgParts[0].find("PING :tmi") != std::string::npos)
 			{
 				chatHub.getDefaultGroup<CLIENT>().broadcast("PONG :tmi.twitch.tv", 20, OpCode::TEXT);
+			}
+			if (msgParts[0].find("NOTICE *") != std::string::npos) {
+				Log("chat", "%s", receivedMessage.c_str());
 			}
 			if (msgParts[0].find("NOTICE * :Login") != std::string::npos) {
 				ChatMessage* msg = new ChatMessage();

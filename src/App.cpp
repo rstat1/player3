@@ -61,11 +61,14 @@ namespace app
 		HANDLE_EVENT(EmberAuthenticated, true, "UI", HANDLER {
 			writeToLog("show home");
 			this->ShowHomeScreen();
-			writeToLog("Connecting to chat...");
-			ChatService::Get()->ConnectToTwitchIRC(EmberService::Get()->GetEmberTwitchToken().c_str(),
-				EmberService::Get()->GetEmberTwitchUsername().c_str());
+			if (args == nullptr)
+			{
+				writeToLog("Connecting to chat...");
+				ChatService::Get()->ConnectToTwitchIRC(EmberService::Get()->GetEmberTwitchToken().c_str(),
+					EmberService::Get()->GetEmberTwitchUsername().c_str());
 
-			EmberService::Get()->RunUpdateCheck();
+				EmberService::Get()->RunUpdateCheck();
+			}
 
 		})
 		HANDLE_EVENT(EmberConnecting, true, "UI", HANDLER {
@@ -110,6 +113,9 @@ namespace app
 			{
 				ChatService::Get()->JoinChannel(this->GetCurrentChannelName().c_str());
 			}
+		})
+		HANDLE_EVENT(EmberInit, true, "UI", HANDLER {
+			EmberService::Get()->RunUpdateCheck();
 		})
 		EmberService::Get()->ConnectToEmber();
 	}

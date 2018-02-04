@@ -60,6 +60,7 @@ namespace player3 { namespace ember
 	}
 	void EmberService::RegisterEvents()
 	{
+		EVENT("EmberInit")
 		EVENT("EmberConnected");
 		EVENT("EmberConnecting");
 		EVENT("EmberDisconnected");
@@ -96,13 +97,22 @@ namespace player3 { namespace ember
 			}
 		});
 		emberHub.onDisconnection([&](WebSocket<uWS::CLIENT> *ws, int code, char *message, size_t length) {
-			Log("ember", "Disconnected %s", message);
-			this->SetEmberIsConnected(false);
-			this->ActuallyConnectToEmber();
-			this->OnEC3Disconnect();
+			Log("ember", "Disconnected %i %s", code, message);
+
+			if (message == nullptr)
+			{
+				this->SetEmberIsConnected(false);
+				this->ActuallyConnectToEmber();
+				this->OnEC3Disconnect();
+				Log("ember", "didntDisconnectedOnPurpose");
+			}
+
 		});
 		emberHub.onMessage([&](WebSocket<CLIENT>* ws, char* msg, size_t len, OpCode code) {
 			this->MessageReceived(ws, msg, len);
+		});
+		emberHub.onPing([&](WebSocket<CLIENT>* ws, char* msg, size_t len) {
+			ws->send(this->deviceID.c_str(), uWS::OpCode::PONG);
 		});
 		this->ActuallyConnectToEmber();
 	}
@@ -115,6 +125,7 @@ namespace player3 { namespace ember
 				{"Authorization", "Bearer " + this->GetEmberClientToken()},
 				{"ember-device-id", this->deviceID},
 			}, 1000);
+
 			emberHub.run();
 		});
 		emberHubRunner.detach();
@@ -257,6 +268,7 @@ namespace player3 { namespace ember
 		if (infoBits[2] == "muted") { TRIGGER_EVENT(EmberMuteStream, nullptr) }
 		if (infoBits[3] == "playing") { TRIGGER_EVENT(EmberStartStream, nullptr) }
 		if (activate) { TRIGGER_EVENT(EmberAuthenticated, nullptr) }
+		else { TRIGGER_EVENT(EmberInit, nullptr) }
 	}
 	void EmberService::RunUpdateCheck()
 	{
@@ -282,6 +294,10 @@ namespace player3 { namespace ember
     				}
 				}
 			}
+		}
+		else
+		{
+			Log("ember::updatechck", "%i %s", resp.status_code, resp.text.c_str());
 		}
 	}
 	void EmberService::DownloadUpdates(std::string filename, std::string version)
