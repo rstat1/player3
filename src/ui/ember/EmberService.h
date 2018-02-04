@@ -52,9 +52,10 @@ namespace player3 { namespace ember
 			void MessageReceived(WebSocket<CLIENT>* connection, char* data, int length);
 
 			Hub emberHub;
-			bool connecting = false;
 			bool connected = false;
+			bool connecting = false;
 			std::string deviceID = "";
+			bool disconnectedOnPurpose = false;
 			WebSocket<CLIENT>* emberClientSocket;
 			std::string emberClientID = "zU7SRMAnuWosMn7CjH7MpfG0qAuGMCxW";
 			std::string emberClientSecret = "iiNd6JjuMf2u2BmulXdhaRCGnWhvcX6PjuvjW8uMrD1A83Oa";
