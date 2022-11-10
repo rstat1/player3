@@ -39,7 +39,7 @@ namespace player3 { namespace player
 	void Player::InitPlayer()
 	{
 		Log("Player", "player3 player init");
-		av_log_set_level(AV_LOG_VERBOSE);
+		av_log_set_level(AV_LOG_ERROR);
 		av_register_all();
 		avcodec_register_all();
 		avformat_network_init();
@@ -57,7 +57,16 @@ namespace player3 { namespace player
 		//platformInterface->DecoderReset();
 		this->InitOverlay();
 		this->SetEmberEventHandlers();
-
+		std::thread overlayUpdate([&] {
+			Overlay* o = this->state->overlay->UpdateOverlay();
+			if (o != nullptr && this->state->status == PlayerStatus::Playing)
+			{
+				platformInterface->CreateOverlay(o->surfaceW, o->surfaceH);
+				platformInterface->ShowOverlay(o->overlay->pixels, o->pitch);
+				SDL_AddTimer(750, Player::RefreshOverlay, this->state);
+			}
+		});
+        overlayUpdate.detach(); 
 		
 
 #if defined(OS_LINUX) && !defined(OS_STEAMLINK)
@@ -66,7 +75,7 @@ namespace player3 { namespace player
 	}
 	void Player::InitOverlay()
 	{
-		this->state->overlay = new InfoOverlayNUI();
+		this->state->overlay = new InfoOverlay();
 		//this->state->overlay->AddStringValue("GitBranch", BranchName);
 		this->state->overlay->AddDoubleValue("AVDelayDiff", 0);
 		this->state->overlay->AddDoubleValue("MemCurrent(in MB)", MemTrack::GetCurrentMemoryUse());

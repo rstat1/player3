@@ -75,6 +75,6 @@ namespace player3 { namespace overlay
 		}
 		bindings["Items"] = items;
 		bindings["AnchorPoint"] = AnchorPoint::BottomLeft;
-		//NativeUIHost::Get()->RenderScreen("DebugOverlay", bindings, true);
+		NativeUIHost::Get()->RenderScreen("DebugOverlay", bindings, true);
 	}
 }}

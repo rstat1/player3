@@ -1,6 +1,6 @@
 [submodule "external/cpr"]
 	path = external/cpr
-	url = http://git.m/external/cpr.git
+	url = https://git.alargerobot.dev/r/cpr
 [submodule "external/uWS"]
 	path = external/uWS
 	url = https://github.com/uNetworking/uWebSockets

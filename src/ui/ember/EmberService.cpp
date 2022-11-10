@@ -276,6 +276,8 @@ namespace player3 { namespace ember
 		message.append(".");
 		message.append(BRANCH);
 
+		if (BRANCH == "master") { return; }
+
 		Json::Reader reader;
 		Json::Value accessResp, updateInfo;
 		writeToLog("checking for updates...");

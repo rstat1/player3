@@ -11,7 +11,7 @@
 #include <mutex>
 #include <SDL.h>
 #include <queue>
-#include <player/infooverlay/InfoOverlayNUI.h>
+#include <player/infooverlay/InfoOverlay.h>
 #include <base/threading/common/ConditionVariable.h>
 
 extern "C"
@@ -77,7 +77,7 @@ namespace player3 { namespace player
 		public:
 			int audioCBTime;
 			PlayerStatus status;
-			InfoOverlayNUI* overlay;
+			InfoOverlay* overlay;
 			std::mutex stateGuard;
 			int videoIdx, audioIdx;
 			std::string currentURL;

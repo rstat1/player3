@@ -57,8 +57,8 @@ namespace player3 { namespace ember
 			std::string deviceID = "";
 			bool disconnectedOnPurpose = false;
 			WebSocket<CLIENT>* emberClientSocket;
-			std::string emberClientID = "zU7SRMAnuWosMn7CjH7MpfG0qAuGMCxW";
-			std::string emberClientSecret = "iiNd6JjuMf2u2BmulXdhaRCGnWhvcX6PjuvjW8uMrD1A83Oa";
+			std::string emberClientID = "dMNjYY4linbsFeeMua2Nq4cBDa8xCZuF";
+			std::string emberClientSecret = "O2ptcmgPIQgZTyvBOFyVf16ILDFierKRU9g3swhGdZ99qhN8";
 			std::map<std::string, MessageType> messageTypeMappings;
 
 		SINGLETON(EmberService)
