@@ -12,3 +12,5 @@ As such it needs:
 Before building please define an environment variable "STEAMLINK_SDK_PATH" that points to the location of an instance of the Steam Link SDK (which can be found at http://github.com/ValveSoftware/steamlink-sdk. 
 
 Beyond that, you just run .\build.py from the root of your checkout (after building FFMPEG)
+
+Disclaimer: This won't really work as is because it depends on a private webservice that isn't open source yet. But it maybe useful in someway as an example of how to do streaming video playback with FFMPEG.
